@@ -152,40 +152,113 @@ module id(
                             end    
                             // MFHI               
                             `FUNC_MFHI: begin
-                                we_o <= `WriteEnable;		
+                                we_o <= `WriteEnable;
                                 aluop_o <= `ALU_OP_MFHI;
-		  						alusel_o <= `ALU_SEL_MOVE;
+                                alusel_o <= `ALU_SEL_MOVE;
                                 re1_o <= `ReadDisable;
                                 re2_o <= `ReadDisable;
-		  						inst_valid <= `InstValid;	
+                                inst_valid <= `InstValid;
                             end
                             // MTHI
                             `FUNC_MTHI: begin
                                 we_o <= `WriteDisable;
                                 aluop_o <= `ALU_OP_MTHI;
-		  						re1_o <= `ReadEnable;
-                                re2_o <= `ReadDisable; 
-                                inst_valid <= `InstValid;	
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadDisable;
+                                inst_valid <= `InstValid;
                             end
                             // MFLO
                             `FUNC_MFLO: begin
                                 we_o <= `WriteEnable;
                                 aluop_o <= `ALU_OP_MFLO;
-		  						alusel_o <= `ALU_SEL_MOVE;
+                                alusel_o <= `ALU_SEL_MOVE;
                                 re1_o <= `ReadDisable;
                                 re2_o <= `ReadDisable;
-		  						inst_valid <= `InstValid;	
+                                inst_valid <= `InstValid;
                             end
                             // MTLO
                             `FUNC_MTLO: begin
                                 we_o <= `WriteDisable;
                                 aluop_o <= `ALU_OP_MTLO;
-		  						re1_o <= `ReadEnable;
+                                re1_o <= `ReadEnable;
                                 re2_o <= `ReadDisable;
-                                inst_valid <= `InstValid;	
+                                inst_valid <= `InstValid;
+                            end
+                            // ADD
+                            `FUNC_ADD: begin
+                                we_o <= `WriteEnable;
+                                aluop_o <= `ALU_OP_ADD;
+                                alusel_o <= `ALU_SEL_ARITHMETIC;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // ADDU
+                            `FUNC_ADDU: begin
+                                we_o <= `WriteEnable;
+                                aluop_o <= `ALU_OP_ADDU;
+                                alusel_o <= `ALU_SEL_ARITHMETIC;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // SUB
+                            `FUNC_SUB: begin
+                                we_o <= `WriteEnable;
+                                aluop_o <= `ALU_OP_SUB;
+                                alusel_o <= `ALU_SEL_ARITHMETIC;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // SUBU
+                            `FUNC_SUBU: begin
+                                we_o <= `WriteEnable;
+                                aluop_o <= `ALU_OP_SUBU;
+                                alusel_o <= `ALU_SEL_ARITHMETIC;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // SLT
+                            `FUNC_SLT: begin
+                                we_o <= `WriteEnable;
+                                aluop_o <= `ALU_OP_SLT;
+                                alusel_o <= `ALU_SEL_ARITHMETIC;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // SLTU
+                            `FUNC_SLTU: begin
+                                we_o <= `WriteEnable;
+                                aluop_o <= `ALU_OP_SLTU;
+                                alusel_o <= `ALU_SEL_ARITHMETIC;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // MULT
+                            // 乘除法不写入RegFile，因此后面EX不应当输出wdata
+                            // 故这里保持ALU_SEL 为 NOP以禁用输出
+                            `FUNC_MULT: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_MULT;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // MULTU
+                            `FUNC_MULTU: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_MULTU;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
                             end
                             default: begin
                             end
+                        // END FOR CASE func code
                         endcase
                     // END FOR SA 000000
                     end else if (rs == 5'h00000) begin 
@@ -225,10 +298,12 @@ module id(
                             end                                                                       
                             default: begin
                             end
+                        // END FOR CASE func code
                         endcase
+                    // END FOR rs 000000
                     end else begin
                     end
-                end // END FOR OPCODE 000000
+                end // END FOR OPCODE SPECIAL
                 // ORI
                 `OP_ORI: begin
                     waddr_o <= rt;
@@ -273,8 +348,53 @@ module id(
                     imm <= {inst_i[15:0], 16'h0};
                     inst_valid <= `InstValid;
                 end
+                // ADDI
+                `OP_ADDI: begin
+                    waddr_o <= rt;
+                    we_o <= `WriteEnable;
+                    aluop_o <= `ALU_OP_ADD;
+                    alusel_o <= `ALU_SEL_ARITHMETIC;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;
+                    imm <= signed_imm;
+                    inst_valid <= `InstValid;
+                end
+                // ADDIU
+                `OP_ADDIU: begin
+                    waddr_o <= rt;
+                    we_o <= `WriteEnable;
+                    aluop_o <= `ALU_OP_ADDU;
+                    alusel_o <= `ALU_SEL_ARITHMETIC;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;
+                    imm <= signed_imm;
+                    inst_valid <= `InstValid;
+                end
+                // SLTI
+                `OP_SLTI: begin
+                    waddr_o <= rt;
+                    we_o <= `WriteEnable;
+                    aluop_o <= `ALU_OP_SLT;
+                    alusel_o <= `ALU_SEL_ARITHMETIC;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;
+                    imm <= signed_imm;
+                    inst_valid <= `InstValid;
+                end
+                // SLTIU
+                `OP_SLTIU: begin
+                    waddr_o <= rt;
+                    we_o <= `WriteEnable;
+                    aluop_o <= `ALU_OP_SLTU;
+                    alusel_o <= `ALU_SEL_ARITHMETIC;re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;
+                    imm <= signed_imm;
+                    inst_valid <= `InstValid;
+                end
+
                 default: begin
                 end
+            // END FOR CASE OPCODE
             endcase
         end
     end

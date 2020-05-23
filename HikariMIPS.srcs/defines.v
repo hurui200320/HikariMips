@@ -23,6 +23,8 @@
 `define RegAddrBusWidth 5
 // 通用寄存器数据带宽
 `define RegBus 31:0
+// 双倍带宽，用于保存乘法结果
+`define DoubleRegBus 63:0
 // 通用寄存器个数
 `define RegNum 32
 // ALU运算方式带宽
@@ -37,6 +39,11 @@
 `define OP_ORI     6'b001101
 `define OP_XORI    6'b001110
 `define OP_LUI     6'b001111
+// 单周期算术运算
+`define OP_ADDI  6'b001000
+`define OP_ADDIU 6'b001001
+`define OP_SLTI  6'b001010
+`define OP_SLTIU 6'b001011
 
 // 功能码
 // 逻辑运算
@@ -56,6 +63,16 @@
 `define FUNC_MTHI 6'b010001
 `define FUNC_MFLO 6'b010010
 `define FUNC_MTLO 6'b010011
+// 单周期算术运算
+// TODO 如果主频上不去，可以考虑拆乘法
+`define FUNC_ADD   6'b100000
+`define FUNC_ADDU  6'b100001
+`define FUNC_SUB   6'b100010
+`define FUNC_SUBU  6'b100011
+`define FUNC_SLT   6'b101010
+`define FUNC_SLTU  6'b101011
+`define FUNC_MULT  6'b011000
+`define FUNC_MULTU 6'b011001
 
 // ALU OP
 `define ALU_OP_NOP 8'h00000000
@@ -69,16 +86,26 @@
 `define ALU_OP_SRL 8'b00000110
 `define ALU_OP_SRA 8'b00000111
 // 数据移动
-`define ALU_OP_MFHI 8'b00010000
-`define ALU_OP_MTHI 8'b00010001
-`define ALU_OP_MFLO 8'b00010010
-`define ALU_OP_MTLO 8'b00010011
+`define ALU_OP_MFHI 8'b00001000
+`define ALU_OP_MTHI 8'b00001001
+`define ALU_OP_MFLO 8'b00001010
+`define ALU_OP_MTLO 8'b00001011
+// 单周期算术运算
+`define ALU_OP_ADD   8'b00001100
+`define ALU_OP_ADDU  8'b00001101
+`define ALU_OP_SUB   8'b00001110
+`define ALU_OP_SUBU  8'b00001111
+`define ALU_OP_SLT   8'b00010000
+`define ALU_OP_SLTU  8'b00010001
+`define ALU_OP_MULT  8'b00010010
+`define ALU_OP_MULTU 8'b00010011
 
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000
 `define ALU_SEL_LOGIC 3'b001
 `define ALU_SEL_SHIFT 3'b010
 `define ALU_SEL_MOVE 3'b011
+`define ALU_SEL_ARITHMETIC 3'b100
 
 // NOP时操作的寄存器
 `define NOPRegAddr 5'b00000

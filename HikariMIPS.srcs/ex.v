@@ -42,6 +42,9 @@ module ex(
     reg[`RegBus] logic_result;
     reg[`RegBus] shift_result;
     reg[`RegBus] move_result;
+    reg[`RegBus] arithmetic_result;
+    reg[`DoubleRegBus] mult_result;
+
 
     // 这里存储排除数据相关后的HI/LO寄存器值
     reg[`RegBus] HI;
@@ -128,12 +131,80 @@ module ex(
         end
     end
 
+    // 算数运算部分
+    // 首先计算出第二个操作数，即减法和SLT（小于置1）时相当于+[-y]补
+    wire[`RegBus] reg2_i_mux;
+    assign reg2_i_mux = ( aluop_i == `ALU_OP_SUB || aluop_i == `ALU_OP_SUBU || aluop_i == `ALU_OP_SLT ) ? ~reg2_i + 1 : reg2_i;
+    // 计算加减和，如果是加法，则这里是求和，如果是减法或比较，则这里就是差
+    wire[`RegBus] result_sum;
+    assign result_sum = reg1_i + reg2_i_mux;
+    // 检查溢出：两数为正和为负，及两数为负和为正
+    wire sum_overflow;
+    assign sum_overflow = (!reg1_i[31] && !reg2_i_mux && result_sum[31]) || ( reg1_i[31] && reg2_i_mux[31] && !result_sum[31]);
+    // reg1是否小于reg2，情况有两种
+    // 有符号数看reg1 2的符号和result_sum的符号，其中一负一正则必然小于
+    // 无符号数直接比较两者符号
+    wire reg1_lt_reg2;
+    assign reg1_lt_reg2 = (aluop_i == `ALU_OP_SLTU) ? (reg1_i < reg2_i) : ( (reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31]) );
+    // 产生简单运算结果
+    always @ (*) begin
+        if(rst == `RstEnable) begin
+            arithmetic_result <= `ZeroWord;
+        end else begin
+            case (aluop_i)
+                `ALU_OP_SLT, `ALU_OP_SLTU: begin
+                    arithmetic_result <= reg1_lt_reg2 ;
+                end
+                `ALU_OP_ADD, `ALU_OP_ADDU: begin
+                    arithmetic_result <= result_sum; 
+                end
+                `ALU_OP_SUB, `ALU_OP_SUBU: begin
+                    arithmetic_result <= result_sum; 
+                end        
+                default: begin
+                    arithmetic_result <= `ZeroWord;
+                end
+            endcase
+        end
+    end
+
+    // 计算修正的乘法运算数，如果是有符号乘法且参数为负，求补码
+    wire[`RegBus] opdata1_mult;
+    assign opdata1_mult = ( aluop_i == `ALU_OP_MULT && reg1_i[31]) ? ~reg1_i + 1 : reg1_i;
+    wire[`RegBus] opdata2_mult;
+    assign opdata2_mult = ( aluop_i == `ALU_OP_MULT && reg2_i[31]) ? ~reg2_i + 1 : reg2_i;
+    // 计算乘法
+    wire[`DoubleRegBus] hilo_temp;
+    assign hilo_temp = opdata1_mult * opdata2_mult;
+    // 对结果修正并产生乘法结果
+    always @ (*) begin
+        if(rst == `RstEnable) begin
+            mult_result <= {`ZeroWord,`ZeroWord};
+        end else if (aluop_i == `ALU_OP_MULT)begin
+            // 如果是有符号乘法，且两操作数一正一负
+            if(reg1_i[31] ^ reg2_i[31]) begin
+                // 结果也应该是负，对结果求补码
+                mult_result <= ~hilo_temp + 1;
+            end else begin
+                mult_result <= hilo_temp;
+            end
+        end else begin
+                mult_result <= hilo_temp;
+        end
+    end
+
     // 数据移动，写HI/LO部分，只涉及MTxx指令
+    // 同时负责写入乘除法结果
     always @ (*) begin
         if(rst == `RstEnable) begin
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
-            lo_o <= `ZeroWord;        
+            lo_o <= `ZeroWord;
+        end else if(aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU) begin
+            // 是乘法，结果写入
+            we_hilo_o = `WriteEnable;
+            hi_o <= mult_result[63:32];
+            lo_o <= mult_result[31:0];
         end else if(aluop_i == `ALU_OP_MTHI) begin
             we_hilo_o <= `WriteEnable;
             hi_o <= reg1_i;
@@ -153,7 +224,13 @@ module ex(
     always @ (*) begin
         // 传递写相关信号
         waddr_o <= waddr_i;
-        we_o <= we_i;
+        // 是有符号运算则检查溢出（参考MIPS指令集手册）
+        if((aluop_i == `ALU_OP_ADD || aluop_i == `ALU_OP_SUB) && sum_overflow) begin
+            // 有溢出则禁止写 + 产生例外/异常
+            we_o <= `WriteDisable;
+        end else begin
+            we_o <= we_i;
+        end
         case (alusel_i) 
             `ALU_SEL_LOGIC: begin
                 wdata_o <= logic_result;
@@ -163,6 +240,9 @@ module ex(
             end   
             `ALU_SEL_MOVE: begin
                 wdata_o <= move_result;
+            end   
+            `ALU_SEL_ARITHMETIC: begin
+                wdata_o <= arithmetic_result;
             end   
             default: begin
                 wdata_o <= `ZeroWord;
