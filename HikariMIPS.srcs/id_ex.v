@@ -1,6 +1,5 @@
-
 //////////////////////////////////////////////////////////////////////////////////
-// ID/EXå¯„å­˜å™¨
+// ID/EX¼Ä´æÆ÷
 //////////////////////////////////////////////////////////////////////////////////
 `include "defines.v"
 
@@ -8,7 +7,7 @@ module id_ex(
     input wire clk,
     input wire rst,
     
-    //ä»è¯‘ç é˜¶æ®µä¼ é€’çš„ä¿¡æ¯
+    //´ÓÒëÂë½×¶Î´«µİµÄĞÅÏ¢
     input wire[`AluOpBus] id_aluop,
     input wire[`AluSelBus] id_alusel,
     input wire[`RegBus] id_reg1,
@@ -16,7 +15,7 @@ module id_ex(
     input wire[`RegAddrBus] id_waddr,
     input wire id_we,    
     
-    //ä¼ é€’åˆ°æ‰§è¡Œé˜¶æ®µçš„ä¿¡æ¯
+    //´«µİµ½Ö´ĞĞ½×¶ÎµÄĞÅÏ¢
     output reg[`AluOpBus] ex_aluop,
     output reg[`AluSelBus] ex_alusel,
     output reg[`RegBus] ex_reg1,

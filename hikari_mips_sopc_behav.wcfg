@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="58603fs"></ZoomStartTime>
-      <ZoomEndTime time="306604fs"></ZoomEndTime>
-      <Cursor1Time time="122003fs"></Cursor1Time>
+      <ZoomStartTime time="4907595fs"></ZoomStartTime>
+      <ZoomEndTime time="5078482fs"></ZoomEndTime>
+      <Cursor1Time time="4916391fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="175"></NameColumnWidth>
-      <ValueColumnWidth column_width="122"></ValueColumnWidth>
+      <ValueColumnWidth column_width="114"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="8" />
+   <WVObjectSize size="9" />
    <wvobject fp_name="/hikari_mips_sopc/rst" type="logic">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -55,7 +55,6 @@
    <wvobject fp_name="group66" type="group">
       <obj_property name="label">ID</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/if_id0/id_inst" type="array">
          <obj_property name="ElementShortName">id_inst[31:0]</obj_property>
          <obj_property name="ObjectShortName">id_inst[31:0]</obj_property>
@@ -91,10 +90,36 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/aluop_o" type="array">
          <obj_property name="ElementShortName">aluop_o[7:0]</obj_property>
          <obj_property name="ObjectShortName">aluop_o[7:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/alusel_o" type="array">
          <obj_property name="ElementShortName">alusel_o[2:0]</obj_property>
          <obj_property name="ObjectShortName">alusel_o[2:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/ex_we_i" type="logic">
+         <obj_property name="ElementShortName">ex_we_i</obj_property>
+         <obj_property name="ObjectShortName">ex_we_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/ex_waddr_i" type="array">
+         <obj_property name="ElementShortName">ex_waddr_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">ex_waddr_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/ex_wdata_i" type="array">
+         <obj_property name="ElementShortName">ex_wdata_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">ex_wdata_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/mem_we_i" type="logic">
+         <obj_property name="ElementShortName">mem_we_i</obj_property>
+         <obj_property name="ObjectShortName">mem_we_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/mem_waddr_i" type="array">
+         <obj_property name="ElementShortName">mem_waddr_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_waddr_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/mem_wdata_i" type="array">
+         <obj_property name="ElementShortName">mem_wdata_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_wdata_i[31:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/reg1_data_o" type="array">
          <obj_property name="ElementShortName">reg1_data_o[31:0]</obj_property>
@@ -116,7 +141,6 @@
    <wvobject fp_name="group68" type="group">
       <obj_property name="label">RegFile</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/regfile1/we" type="logic">
          <obj_property name="ElementShortName">we</obj_property>
          <obj_property name="ObjectShortName">we</obj_property>
@@ -182,6 +206,14 @@
          <obj_property name="ElementShortName">waddr_i[4:0]</obj_property>
          <obj_property name="ObjectShortName">waddr_i[4:0]</obj_property>
       </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/hi_i" type="array">
+         <obj_property name="ElementShortName">hi_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">hi_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/lo_i" type="array">
+         <obj_property name="ElementShortName">lo_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lo_i[31:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/waddr_o" type="array">
          <obj_property name="ElementShortName">waddr_o[4:0]</obj_property>
          <obj_property name="ObjectShortName">waddr_o[4:0]</obj_property>
@@ -193,6 +225,18 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/wdata_o" type="array">
          <obj_property name="ElementShortName">wdata_o[31:0]</obj_property>
          <obj_property name="ObjectShortName">wdata_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/we_hilo_o" type="logic">
+         <obj_property name="ElementShortName">we_hilo_o</obj_property>
+         <obj_property name="ObjectShortName">we_hilo_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/hi_o" type="array">
+         <obj_property name="ElementShortName">hi_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">hi_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/lo_o" type="array">
+         <obj_property name="ElementShortName">lo_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lo_o[31:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group78" type="group">
@@ -211,6 +255,18 @@
          <obj_property name="ElementShortName">wdata_o[31:0]</obj_property>
          <obj_property name="ObjectShortName">wdata_o[31:0]</obj_property>
       </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/we_hilo_o" type="logic">
+         <obj_property name="ElementShortName">we_hilo_o</obj_property>
+         <obj_property name="ObjectShortName">we_hilo_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/hi_o" type="array">
+         <obj_property name="ElementShortName">hi_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">hi_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/lo_o" type="array">
+         <obj_property name="ElementShortName">lo_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lo_o[31:0]</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="group82" type="group">
       <obj_property name="label">WB</obj_property>
@@ -227,6 +283,43 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_wdata" type="array">
          <obj_property name="ElementShortName">wb_wdata[31:0]</obj_property>
          <obj_property name="ObjectShortName">wb_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_we_hilo" type="logic">
+         <obj_property name="ElementShortName">wb_we_hilo</obj_property>
+         <obj_property name="ObjectShortName">wb_we_hilo</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_hi" type="array">
+         <obj_property name="ElementShortName">wb_hi[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_hi[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_lo" type="array">
+         <obj_property name="ElementShortName">wb_lo[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_lo[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group79" type="group">
+      <obj_property name="label">HI/LO</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/hilo_reg0/we" type="logic">
+         <obj_property name="ElementShortName">we</obj_property>
+         <obj_property name="ObjectShortName">we</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/hilo_reg0/hi_i" type="array">
+         <obj_property name="ElementShortName">hi_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">hi_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/hilo_reg0/lo_i" type="array">
+         <obj_property name="ElementShortName">lo_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lo_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/hilo_reg0/hi_o" type="array">
+         <obj_property name="ElementShortName">hi_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">hi_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/hilo_reg0/lo_o" type="array">
+         <obj_property name="ElementShortName">lo_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lo_o[31:0]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
