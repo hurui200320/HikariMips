@@ -7,6 +7,8 @@
 module ex_mem(
     input wire clk,
     input wire rst,
+
+    input wire[5:0] stall,
     
     //来自执行阶段的信息    
     input wire[`RegAddrBus] ex_waddr,
@@ -32,14 +34,23 @@ module ex_mem(
             mem_wdata <= `ZeroWord;
             mem_we_hilo <= `WriteDisable;
             mem_hi <= `ZeroWord;
-            mem_lo <= `ZeroWord;    
-        end else begin
+            mem_lo <= `ZeroWord;   
+        end else if (stall[3] == `Stop && stall[4] == `NoStop) begin
+            // 处于EX和MEM的暂停交界处，NOP
+            mem_waddr <= `NOPRegAddr;
+            mem_we <= `WriteDisable;
+            mem_wdata <= `ZeroWord;
+            mem_we_hilo <= `WriteDisable;
+            mem_hi <= `ZeroWord;
+            mem_lo <= `ZeroWord;   
+        end else if (stall[3] == `NoStop) begin
             mem_waddr <= ex_waddr;
             mem_we <= ex_we;
             mem_wdata <= ex_wdata;
             mem_we_hilo <= ex_we_hilo;
             mem_hi <= ex_hi;
             mem_lo <= ex_lo; 
+        end else begin
         end
     end
 

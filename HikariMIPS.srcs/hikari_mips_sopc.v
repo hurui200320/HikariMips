@@ -15,7 +15,7 @@ module hikari_mips_sopc();
         
     initial begin
         rst = `RstEnable;
-        #50 rst= `RstDisable;
+        #200 rst= `RstDisable;
         #5000 $stop;
     end
 
@@ -34,9 +34,14 @@ module hikari_mips_sopc();
     );
 
     inst_rom rom(
-        .addra(inst_addr[19:2]),
-        .clka(clk),
+        .addra(inst_addr),
+        .clka(~clk),
         .douta(inst),
         .ena(rom_ce)
     );
+    // inst_rom_distri rom(
+    //     .a(inst_addr[17:2]),
+    //     .qspo_ce(rom_ce),
+    //     .spo(inst)
+    // );
 endmodule

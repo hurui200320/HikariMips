@@ -37,7 +37,9 @@ module id(
     output reg[`RegBus] reg2_data_o,
     // 写寄存器阶段需要在执行完毕后写回阶段完成，但当前阶段应产生写目标的信息
     output reg we_o,
-    output reg[`RegAddrBus] waddr_o
+    output reg[`RegAddrBus] waddr_o,
+
+    output reg stallreq
     );
 
     // opcode
@@ -71,6 +73,7 @@ module id(
             re2_o <= `ReadDisable;
             raddr1_o <= `NOPRegAddr;
             raddr2_o <= `NOPRegAddr;
+            stallreq <= `NoStop;// TODO
         end else begin
             aluop_o <= `ALU_OP_NOP;
             alusel_o <= `ALU_SEL_NOP;
@@ -81,6 +84,8 @@ module id(
             re2_o <= `ReadDisable;
             raddr1_o <= rs;
             raddr2_o <= rt;
+            // 默认不需要暂停流水线
+            stallreq <= `NoStop;// TODO
             imm <= `ZeroWord;
             // 根据OPCODE译码
             case (opcode)
@@ -252,6 +257,22 @@ module id(
                             `FUNC_MULTU: begin
                                 we_o <= `WriteDisable;
                                 aluop_o <= `ALU_OP_MULTU;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // DIV
+                            `FUNC_DIV: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_DIV;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // DIVU
+                            `FUNC_DIVU: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_DIVU;
                                 re1_o <= `ReadEnable;
                                 re2_o <= `ReadEnable;
                                 inst_valid <= `InstValid;

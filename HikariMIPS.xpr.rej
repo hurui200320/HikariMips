@@ -1,0 +1,15 @@
+diff a/HikariMIPS.xpr b/HikariMIPS.xpr	(rejected hunks)
+@@ -157,6 +157,13 @@
+           <Attr Name="UsedIn" Val="simulation"/>
+         </FileInfo>
+       </File>
++      <File Path="$PSRCDIR/ctrl.v">
++        <FileInfo>
++          <Attr Name="UsedIn" Val="synthesis"/>
++          <Attr Name="UsedIn" Val="implementation"/>
++          <Attr Name="UsedIn" Val="simulation"/>
++        </FileInfo>
++      </File>
+       <Config>
+         <Option Name="DesignMode" Val="RTL"/>
+         <Option Name="TopModule" Val="hikari_mips"/>

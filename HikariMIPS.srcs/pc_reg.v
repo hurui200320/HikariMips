@@ -8,6 +8,8 @@ module pc_reg(
     input wire clk,
     input wire rst, 
 
+    input wire[5:0] stall,
+
     output reg[`InstAddrBus] pc,
     // 指令存储器使能信号
     output reg ce
@@ -27,7 +29,7 @@ module pc_reg(
         if (ce == `ChipDisable) begin
             pc <= `ZeroWord;
         end else begin
-            pc <= pc + 4'h4;
+            pc <= (stall[0] == `Stop ) ? pc : pc + 4'h4;
         end
     end
     

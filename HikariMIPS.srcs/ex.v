@@ -36,7 +36,18 @@ module ex(
 
     output reg we_hilo_o,
     output reg[`RegBus] hi_o,
-    output reg[`RegBus] lo_o
+    output reg[`RegBus] lo_o,
+
+    // 除法模块
+    input wire[`DoubleRegBus] div_result_i,
+    input wire div_ready_i,
+
+    output reg[`RegBus] div_opdata1_o,
+    output reg[`RegBus] div_opdata2_o,
+    output reg div_start_o,
+    output reg signed_div_o,
+
+    output reg stallreq // TODO 实现除法和累加乘法时
     );
 
     reg[`RegBus] logic_result;
@@ -45,6 +56,7 @@ module ex(
     reg[`RegBus] arithmetic_result;
     reg[`DoubleRegBus] mult_result;
 
+    reg stallreq_for_div; // 因除法暂停流水线   
 
     // 这里存储排除数据相关后的HI/LO寄存器值
     reg[`RegBus] HI;
@@ -193,6 +205,75 @@ module ex(
         end
     end
 
+    // 处理除法
+    always @ (*) begin
+        if(rst == `RstEnable) begin
+            stallreq_for_div <= `NoStop;
+            div_opdata1_o <= `ZeroWord;
+            div_opdata2_o <= `ZeroWord;
+            div_start_o <= `DivStop;
+            signed_div_o <= 1'b0;
+        end else begin
+            stallreq_for_div <= `NoStop;
+            div_opdata1_o <= `ZeroWord;
+            div_opdata2_o <= `ZeroWord;
+            div_start_o <= `DivStop;
+            signed_div_o <= 1'b0;     
+            case (aluop_i) 
+                `ALU_OP_DIV: begin
+                    if(div_ready_i == `DivResultNotReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStart;
+                        signed_div_o <= 1'b1;
+                        stallreq_for_div <= `Stop;
+                    end else if(div_ready_i == `DivResultReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b1;
+                        stallreq_for_div <= `NoStop;
+                    end else begin
+                        div_opdata1_o <= `ZeroWord;
+                        div_opdata2_o <= `ZeroWord;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `NoStop;
+                    end                         
+                end
+                `ALU_OP_DIVU: begin
+                    if(div_ready_i == `DivResultNotReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStart;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `Stop;
+                    end else if(div_ready_i == `DivResultReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `NoStop;
+                    end else begin
+                        div_opdata1_o <= `ZeroWord;
+                        div_opdata2_o <= `ZeroWord;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `NoStop;
+                    end                         
+                end
+                default: begin
+                end
+            endcase
+        end
+    end
+
+    // 处理暂停请求
+    always @ (*) begin
+        // 各可能的暂停请求之或
+        stallreq = stallreq_for_div;
+    end
+
     // 数据移动，写HI/LO部分，只涉及MTxx指令
     // 同时负责写入乘除法结果
     always @ (*) begin
@@ -205,6 +286,11 @@ module ex(
             we_hilo_o = `WriteEnable;
             hi_o <= mult_result[63:32];
             lo_o <= mult_result[31:0];
+        end else if (aluop_i == `ALU_OP_DIV || aluop_i == `ALU_OP_DIVU) begin
+            // 除法
+            we_hilo_o <= `WriteEnable;
+            hi_o <= div_result_i[63:32];
+            lo_o <= div_result_i[31:0];
         end else if(aluop_i == `ALU_OP_MTHI) begin
             we_hilo_o <= `WriteEnable;
             hi_o <= reg1_i;

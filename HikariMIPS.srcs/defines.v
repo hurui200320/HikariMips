@@ -10,8 +10,19 @@
 `define ChipDisable 1'b0
 `define InstValid 1'b0
 `define InstInvalid 1'b1
+`define Stop 1'b1
+`define NoStop 1'b0
 `define True_v 1'b1
 `define False_v 1'b0
+// 除法器相关
+`define DivFree 2'b00
+`define DivByZero 2'b01
+`define DivOn 2'b10
+`define DivEnd 2'b11
+`define DivResultReady 1'b1
+`define DivResultNotReady 1'b0
+`define DivStart 1'b1
+`define DivStop 1'b0
 
 // 指令存储器地址带宽
 `define InstAddrBus 31:0
@@ -73,6 +84,9 @@
 `define FUNC_SLTU  6'b101011
 `define FUNC_MULT  6'b011000
 `define FUNC_MULTU 6'b011001
+// 多周期除法运算
+`define FUNC_DIV   6'b011010
+`define FUNC_DIVU  6'b011011
 
 // ALU OP
 `define ALU_OP_NOP 8'h00000000
@@ -99,6 +113,9 @@
 `define ALU_OP_SLTU  8'b00010001
 `define ALU_OP_MULT  8'b00010010
 `define ALU_OP_MULTU 8'b00010011
+// 多周期除法运算
+`define ALU_OP_DIV   8'b00011010
+`define ALU_OP_DIVU  8'b00011011
 
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000
