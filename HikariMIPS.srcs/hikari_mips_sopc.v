@@ -16,7 +16,7 @@ module hikari_mips_sopc();
     initial begin
         rst = `RstEnable;
         #200 rst= `RstDisable;
-        #5000 $stop;
+        // #5000 $stop;
     end
 
     wire[`InstAddrBus] inst_addr;
@@ -35,7 +35,7 @@ module hikari_mips_sopc();
 
     inst_rom rom(
         .addra(inst_addr),
-        .clka(~clk),
+        .clka(~clk), // 反转时钟：上升沿CPU给地址，下降沿ROM给数据，下一个上升沿CPU取数据
         .douta(inst),
         .ena(rom_ce)
     );

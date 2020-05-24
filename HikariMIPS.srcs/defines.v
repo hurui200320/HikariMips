@@ -12,6 +12,10 @@
 `define InstInvalid 1'b1
 `define Stop 1'b1
 `define NoStop 1'b0
+`define Branch 1'b1
+`define NotBranch 1'b0
+`define InDelaySlot 1'b1
+`define NotInDelaySlot 1'b0
 `define True_v 1'b1
 `define False_v 1'b0
 // 除法器相关
@@ -55,6 +59,20 @@
 `define OP_ADDIU 6'b001001
 `define OP_SLTI  6'b001010
 `define OP_SLTIU 6'b001011
+// 分支跳转
+`define OP_REGIMM 6'b000001
+`define OP_J      6'b000010
+`define OP_JAL    6'b000011
+`define OP_BEQ    6'b000100
+`define OP_BNE    6'b000101
+`define OP_BLEZ   6'b000110
+`define OP_BGTZ   6'b000111
+
+// RT寄存器，配合OP为REGIMM时判断跳转类型
+`define RT_BLTZ   5'b00000
+`define RT_BGEZ   5'b00001
+`define RT_BLTZAL 5'b10000
+`define RT_BGEZAL 5'b10001
 
 // 功能码
 // 逻辑运算
@@ -87,6 +105,9 @@
 // 多周期除法运算
 `define FUNC_DIV   6'b011010
 `define FUNC_DIVU  6'b011011
+// 分支跳转
+`define FUNC_JR   6'b001000
+`define FUNC_JALR 6'b001001
 
 // ALU OP
 `define ALU_OP_NOP 8'h00000000
@@ -123,6 +144,7 @@
 `define ALU_SEL_SHIFT 3'b010
 `define ALU_SEL_MOVE 3'b011
 `define ALU_SEL_ARITHMETIC 3'b100
+`define ALU_SEL_JUMP_BRANCH 3'b101
 
 // NOP时操作的寄存器
 `define NOPRegAddr 5'b00000

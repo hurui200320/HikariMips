@@ -38,6 +38,10 @@ module ex(
     output reg[`RegBus] hi_o,
     output reg[`RegBus] lo_o,
 
+    // 延迟槽和跳转
+    input wire[`RegBus] link_address_i,
+    input wire is_in_delayslot_i, // 这个是异常处理部分使用的，目前尚未实装
+
     // 除法模块
     input wire[`DoubleRegBus] div_result_i,
     input wire div_ready_i,
@@ -330,6 +334,10 @@ module ex(
             `ALU_SEL_ARITHMETIC: begin
                 wdata_o <= arithmetic_result;
             end   
+            `ALU_SEL_JUMP_BRANCH: begin
+                // 写保存地址，实际是否写由ID产生的we_o决定
+                wdata_o <= link_address_i;
+            end
             default: begin
                 wdata_o <= `ZeroWord;
             end
