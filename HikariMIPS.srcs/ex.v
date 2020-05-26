@@ -15,6 +15,7 @@ module ex(
     input wire[`RegBus] reg2_i,
     input wire[`RegAddrBus] waddr_i,
     input wire we_i,
+    input wire[`RegBus] inst_i,
 
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
@@ -30,13 +31,18 @@ module ex(
     input wire mem_we_hilo_i,
 
     // 送到访存阶段的信息
+    // 访存转给写回的数据
     output reg[`RegAddrBus] waddr_o,
     output reg we_o,
     output reg[`RegBus] wdata_o,
-
     output reg we_hilo_o,
     output reg[`RegBus] hi_o,
     output reg[`RegBus] lo_o,
+    // 决定访存模块行为的参数
+    output wire[`AluOpBus] aluop_o,
+    output wire[`RegBus] mem_addr_o,
+    // rt寄存器内容，LWL这些命令修改寄存器的一部分
+    output wire[`RegBus] reg2_o, 
 
     // 延迟槽和跳转
     input wire[`RegBus] link_address_i,
@@ -65,6 +71,13 @@ module ex(
     // 这里存储排除数据相关后的HI/LO寄存器值
     reg[`RegBus] HI;
     reg[`RegBus] LO;
+
+    // 传递到MEM的参数
+    assign aluop_o = aluop_i;
+    // reg1_i = base，与低16位offset有符号拓展后相加
+    assign mem_addr_o = reg1_i + { {16{inst_i[15]}}, inst_i[15:0]};
+    // 被覆盖的寄存器原内容，供LWL等指令使用
+    assign reg2_o = reg2_i;
 
     // 组合逻辑电路，对所有信号敏感
     // 逻辑运算

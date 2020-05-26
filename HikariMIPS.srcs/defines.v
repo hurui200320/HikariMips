@@ -67,6 +67,22 @@
 `define OP_BNE    6'b000101
 `define OP_BLEZ   6'b000110
 `define OP_BGTZ   6'b000111
+// 访存指令
+`define OP_LB  6'b100000
+`define OP_LH  6'b100001
+`define OP_LWL 6'b100010
+`define OP_LW  6'b100011
+`define OP_LBU 6'b100100
+`define OP_LHU 6'b100101
+`define OP_LWR 6'b100110
+`define OP_SB  6'b101000
+`define OP_SH  6'b101001
+`define OP_SWL 6'b101010
+`define OP_SW  6'b101011
+`define OP_SWR 6'b101110
+// Read Modify Write链相关指令
+`define OP_LL  6'b110000
+`define OP_SC  6'b111000
 
 // RT寄存器，配合OP为REGIMM时判断跳转类型
 `define RT_BLTZ   5'b00000
@@ -145,6 +161,23 @@
 `define ALU_SEL_MOVE 3'b011
 `define ALU_SEL_ARITHMETIC 3'b100
 `define ALU_SEL_JUMP_BRANCH 3'b101
+`define ALU_SEL_LOAD_STORE 3'b110
+
+// MEM OP，仅在alusel为LOAD_STORE时有效，经由EX模块传递给MEM
+`define MEM_OP_LB  8'b11100000
+`define MEM_OP_LH  8'b11100001
+`define MEM_OP_LWL 8'b11100010
+`define MEM_OP_LW  8'b11100011
+`define MEM_OP_LBU 8'b11100100
+`define MEM_OP_LHU 8'b11100101
+`define MEM_OP_LWR 8'b11100110
+`define MEM_OP_SB  8'b11101000
+`define MEM_OP_SH  8'b11101001
+`define MEM_OP_SWL 8'b11101010
+`define MEM_OP_SW  8'b11101011
+`define MEM_OP_SWR 8'b11101110
+`define MEM_OP_LL  8'b11110000
+`define MEM_OP_SC  8'b11111000
 
 // NOP时操作的寄存器
 `define NOPRegAddr 5'b00000

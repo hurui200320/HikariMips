@@ -9,10 +9,18 @@ module hikari_mips(
     input wire clk,
     input wire rst,
 
-    // 指令寄存器类SRAM接口
+    // 指令ROM类SRAM接口
     input wire[`RegBus] rom_data_i,
     output wire[`RegBus] rom_addr_o,
-    output wire rom_ce_o
+    output wire rom_ce_o,
+
+    // 数据RAM类SRAM接口
+    input wire[`RegBus] ram_data_i,
+    output wire[`RegBus] ram_data_o,
+    output wire[`RegBus] ram_addr_o,
+    output wire ram_ce_o,
+    output wire ram_we_o,
+    output wire[3:0] ram_sel_o
     );
 
     // PC -> IF/ID
@@ -31,6 +39,7 @@ module hikari_mips(
     wire[`RegBus] id_link_address_o;
     wire is_in_delayslot_i;
     wire next_inst_in_delayslot_o;
+    wire[`RegBus] id_inst_o;
     // ID -> PC
     wire id_branch_flag_o;
     wire[`RegBus] branch_target_address_o;
@@ -44,6 +53,7 @@ module hikari_mips(
     wire[`RegAddrBus] ex_waddr_i;
     wire[`RegBus]  ex_link_address_i;
     wire ex_is_in_delayslot_i;
+    wire[`RegBus] ex_inst_i;
     
     // EX -> EX/MEM
     wire ex_we_o;
@@ -52,6 +62,9 @@ module hikari_mips(
     wire ex_we_hilo_o; 
     wire[`RegBus] ex_hi_o;
     wire[`RegBus] ex_lo_o;
+    wire[`AluOpBus] ex_aluop_o;
+    wire[`RegBus] ex_mem_addr_o;
+    wire[`RegBus] ex_reg2_o;
 
     // EX/MEM -> MEM
     wire mem_we_i;
@@ -60,6 +73,9 @@ module hikari_mips(
     wire mem_we_hilo_i; 
     wire[`RegBus] mem_hi_i;
     wire[`RegBus] mem_lo_i;
+    wire[`AluOpBus] mem_aluop_i;
+    wire[`RegBus] mem_mem_addr_i;
+    wire[`RegBus] mem_reg2_i;
 
     // MEM -> MEM/WB
     wire mem_we_o;
@@ -133,6 +149,7 @@ module hikari_mips(
 
         .pc_i(id_pc_i),
         .inst_i(id_inst_i),
+        .inst_o(id_inst_o),
 
         // 读regfile请求
         .re1_o(reg1_read),   
@@ -202,6 +219,7 @@ module hikari_mips(
         .id_link_address(id_link_address_o),
         .id_is_in_delayslot(id_is_in_delayslot_o),
         .next_inst_in_delayslot_i(next_inst_in_delayslot_o),
+        .id_inst(id_inst_o),
     
         //传递到执行阶段EX模块的信息
         .ex_aluop(ex_aluop_i),
@@ -212,7 +230,8 @@ module hikari_mips(
         .ex_we(ex_we_i),
         .ex_link_address(ex_link_address_i),
         .ex_is_in_delayslot(ex_is_in_delayslot_i),
-        .is_in_delayslot_o(is_in_delayslot_i)    
+        .is_in_delayslot_o(is_in_delayslot_i),
+        .ex_inst(ex_inst_i)
     );        
     
     // EX模块
@@ -239,6 +258,7 @@ module hikari_mips(
         .reg2_i(ex_reg2_i),
         .waddr_i(ex_waddr_i),
         .we_i(ex_we_i),
+        .inst_i(ex_inst_i),
       
         // EX模块的输出到EX/MEM模块信息
         .waddr_o(ex_waddr_o),
@@ -247,6 +267,11 @@ module hikari_mips(
         .we_hilo_o(ex_we_hilo_o),
         .hi_o(ex_hi_o),
         .lo_o(ex_lo_o),
+
+        // 访存指令
+        .aluop_o(ex_aluop_o),
+        .mem_addr_o(ex_mem_addr_o),
+        .reg2_o(ex_reg2_o),
 
         // 延迟槽和分支跳转
         .link_address_i(ex_link_address_i),
@@ -290,6 +315,9 @@ module hikari_mips(
         .ex_hi(ex_hi_o),
         .ex_lo(ex_lo_o),
         .ex_we_hilo(ex_we_hilo_o),
+        .ex_aluop(ex_aluop_o),
+        .ex_mem_addr(ex_mem_addr_o),
+        .ex_reg2(ex_reg2_o),
     
         //送到访存阶段MEM模块的信息
         .mem_waddr(mem_waddr_i),
@@ -297,7 +325,10 @@ module hikari_mips(
         .mem_wdata(mem_wdata_i),
         .mem_hi(mem_hi_i),
         .mem_lo(mem_lo_i),
-        .mem_we_hilo(mem_we_hilo_i)    
+        .mem_we_hilo(mem_we_hilo_i),
+        .mem_aluop(mem_aluop_i),
+        .mem_mem_addr(mem_mem_addr_i),
+        .mem_reg2(mem_reg2_i)  
     );
     
     // MEM模块例化
@@ -312,6 +343,9 @@ module hikari_mips(
         .hi_i(mem_hi_i),
         .lo_i(mem_lo_i),
         .we_hilo_i(mem_we_hilo_i),
+        .aluop_i(mem_aluop_i),
+        .mem_addr_i(mem_mem_addr_i),
+        .reg2_i(mem_reg2_i),
       
         //送到MEM/WB模块的信息
         .waddr_o(mem_waddr_o),
@@ -319,7 +353,15 @@ module hikari_mips(
         .wdata_o(mem_wdata_o),
         .hi_o(mem_hi_o),
         .lo_o(mem_lo_o),
-        .we_hilo_o(mem_we_hilo_o)
+        .we_hilo_o(mem_we_hilo_o),
+
+        // 数据RAM
+        .mem_data_i(ram_data_i),
+        .mem_addr_o(ram_addr_o),
+        .mem_we_o(ram_we_o),
+        .mem_sel_o(ram_sel_o),
+        .mem_data_o(ram_data_o),
+        .mem_ce_o(ram_ce_o)
     );
 
     // MEM/WB模块

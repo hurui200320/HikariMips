@@ -11,6 +11,9 @@ module id(
     input wire[`InstAddrBus] pc_i,
     input wire[`InstBus] inst_i,
     
+    // 传递指令给EX，便于EX计算访存指令的地址
+    output wire[`InstBus] inst_o,
+
     // 读regfile的控制信号
     output reg re1_o,
     output reg[`RegAddrBus] raddr1_o,
@@ -54,6 +57,9 @@ module id(
 
     output reg stallreq
     );
+
+    // 中继指令，EX通过指令计算出内存地址
+    assign inst_o = inst_i;
 
     // opcode
     wire[5:0] opcode = inst_i[31:26];
@@ -610,6 +616,142 @@ module id(
                         branch_flag_o <= `Branch;
                         next_inst_in_delayslot_o <= `InDelaySlot;  
                     end
+                end
+                // LB
+                `OP_LB: begin         
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LB;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable; // base
+                    re2_o <= `ReadDisable; 
+                    inst_valid <= `InstValid;    
+                end
+                // LH
+                `OP_LH: begin         
+                    waddr_o <= rt;
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LH;
+                    alusel_o <= `ALU_SEL_LOAD_STORE;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;  
+                    inst_valid <= `InstValid;    
+                end
+                // LWL
+                `OP_LWL: begin         
+                    waddr_o <= rt;
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LWL;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable; 
+                    inst_valid <= `InstValid;    
+                end
+                // LW
+                `OP_LW: begin          
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LW;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;
+                    inst_valid <= `InstValid;    
+                end
+                // LBU
+                `OP_LBU: begin        
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LBU;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;  
+                    inst_valid <= `InstValid;    
+                end
+                // LHU
+                `OP_LHU: begin        
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LHU;
+                    alusel_o <= `ALU_SEL_LOAD_STORE;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;  
+                    inst_valid <= `InstValid;    
+                end
+                // LWR
+                `OP_LWR: begin
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LWR;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable;          
+                    inst_valid <= `InstValid;    
+                end
+                // SB
+                `OP_SB: begin
+                    we_o <= `WriteDisable;
+                    aluop_o <= `MEM_OP_SB;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable;
+                    inst_valid <= `InstValid;    
+                end
+                // SH
+                `OP_SH: begin
+                    we_o <= `WriteDisable;
+                    aluop_o <= `MEM_OP_SH;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable; 
+                    inst_valid <= `InstValid;    
+                end
+                // SWL
+                `OP_SWL: begin
+                    we_o <= `WriteDisable;
+                    aluop_o <= `MEM_OP_SWL;
+                    alusel_o <= `ALU_SEL_LOAD_STORE;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable; 
+                    inst_valid <= `InstValid;     
+                end
+                // SWR
+                `OP_SWR: begin
+                    we_o <= `WriteDisable;
+                    aluop_o <= `MEM_OP_SWR;
+                    alusel_o <= `ALU_SEL_LOAD_STORE;
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable; 
+                    inst_valid <= `InstValid;     
+                end
+                // SW
+                `OP_SW: begin
+                    we_o <= `WriteDisable;
+                    aluop_o <= `MEM_OP_SW;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable;
+                    inst_valid <= `InstValid;    
+                end
+                // LL
+                `OP_LL: begin          
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_LL;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadDisable;
+                    inst_valid <= `InstValid;    
+                end
+                // SC
+                `OP_SC: begin         
+                    waddr_o <= rt; 
+                    we_o <= `WriteEnable;
+                    aluop_o <= `MEM_OP_SC;
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    alusel_o <= `ALU_SEL_LOAD_STORE; 
+                    re1_o <= `ReadEnable;
+                    re2_o <= `ReadEnable; 
+                    inst_valid <= `InstValid;    
                 end
                 default: begin
                 end
