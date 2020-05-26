@@ -163,6 +163,7 @@ module hikari_mips(
         .ex_we_i(ex_we_o),
         .ex_wdata_i(ex_wdata_o),
         .ex_waddr_i(ex_waddr_o),
+        // 解决Load相关，设置这个为`ALU_OP_NOP可以屏蔽相关处理
   	    .ex_aluop_i(ex_aluop_o),
 
         // MEM反馈

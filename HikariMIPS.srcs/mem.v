@@ -13,11 +13,12 @@
 // 关于LWL和LWR，需要按字节顺序想：
 // 物理地址下0x01~0x04是一个非对齐的字，要读取进寄存器：
 // | 0x00 0x01 0x02 0x03 | 0x04 0x05 0x06 0x07 |
-//       |  a   a+1  a+2   a+3 |
+// | a+1  a+2  a+3       |                 a   |
 // 转换成上面说的自定义编址（以32位的块访问，块内地址自定义）：
 // | 0x03 0x02 0x01 0x00 | 0x07 0x06 0x05 0x04 |
-//   a+2   a+1   a                         a+3
-// 这时候lwl 0x01正好就是从0x01开始向左读入寄存器，因为字节地址编码是对应寄存器来的
+//        a+3  a+2  a+1     a  
+// 这时候lwl 0x02 -> a+3 a+2 a+1 ...
+//      lwr 0x07 -> ... ... ...  a 
 // SWL和SWR刚好是LWL和LWR的逆操作，读哪里写哪里就是了。
 //////////////////////////////////////////////////////////////////////////////////
 `include "defines.v"
@@ -142,16 +143,16 @@ module mem(
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            wdata_o <= mem_data_i[31:0];
+                            wdata_o <= {mem_data_i[7:0],reg2_i[23:0]};
                         end
                         2'b01: begin
-                            wdata_o <= {mem_data_i[31:8],reg2_i[7:0]};
+                            wdata_o <= {mem_data_i[15:0],reg2_i[15:0]};
                         end
                         2'b10: begin
-                            wdata_o <= {mem_data_i[31:16],reg2_i[15:0]};
+                            wdata_o <= {mem_data_i[23:0],reg2_i[7:0]};
                         end
                         2'b11: begin
-                            wdata_o <= {mem_data_i[31:24],reg2_i[23:0]};
+                            wdata_o <= mem_data_i[31:0];
                         end
                         default: begin
                             wdata_o <= `ZeroWord;
@@ -216,16 +217,16 @@ module mem(
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            wdata_o <= {reg2_i[31:8],mem_data_i[7:0]};
+                            wdata_o <= mem_data_i;
                         end
                         2'b01: begin
-                            wdata_o <= {reg2_i[31:16],mem_data_i[15:0]};
+                            wdata_o <= {reg2_i[31:24],mem_data_i[31:8]};
                         end
                         2'b10: begin
-                            wdata_o <= {reg2_i[31:24],mem_data_i[23:0]};
+                            wdata_o <= {reg2_i[31:16],mem_data_i[31:16]};
                         end
                         2'b11: begin
-                            wdata_o <= mem_data_i[31:0];
+                            wdata_o <= {reg2_i[31:8],mem_data_i[31:24]};
                         end
                         default: begin
                             wdata_o <= `ZeroWord;
@@ -249,7 +250,7 @@ module mem(
                         2'b10: begin
                             mem_sel_o <= 4'b0100;
                         end
-                        2'b11: begin    
+                        2'b11: begin
                             mem_sel_o <= 4'b1000;
                         end
                         default: begin
@@ -282,17 +283,21 @@ module mem(
                     mem_data_o <= reg2_i;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
-                        2'b00: begin                          
-                            mem_sel_o <= 4'b1111;
+                        2'b00: begin
+                            mem_sel_o <= 4'b0001;
+                            mem_data_o <= {zero32[23:0],reg2_i[31:24]};
                         end
                         2'b01: begin
-                            mem_sel_o <= 4'b1110;
+                            mem_sel_o <= 4'b0011;
+                            mem_data_o <= {zero32[15:0],reg2_i[31:16]};
                         end
                         2'b10: begin
-                            mem_sel_o <= 4'b1100;
+                            mem_sel_o <= 4'b0111;
+                            mem_data_o <= {zero32[7:0],reg2_i[31:8]};
                         end
                         2'b11: begin
-                            mem_sel_o <= 4'b1000;
+                            mem_sel_o <= 4'b1111;
+                            mem_data_o <= reg2_i;
                         end
                         default: begin
                             mem_sel_o <= 4'b0000;
@@ -314,17 +319,21 @@ module mem(
                     mem_data_o <= reg2_i;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
-                        2'b00: begin                          
-                            mem_sel_o <= 4'b0001;
+                        2'b00: begin
+                            mem_sel_o <= 4'b1111;
+                            mem_data_o <= reg2_i[31:0];
                         end
                         2'b01: begin
-                            mem_sel_o <= 4'b0011;
+                            mem_sel_o <= 4'b1110;
+                            mem_data_o <= {reg2_i[23:0],zero32[7:0]};
                         end
                         2'b10: begin
-                            mem_sel_o <= 4'b0111;
+                            mem_sel_o <= 4'b1100;
+                            mem_data_o <= {reg2_i[15:0],zero32[15:0]};
                         end
                         2'b11: begin
-                            mem_sel_o <= 4'b1111;
+                            mem_sel_o <= 4'b1000;
+                            mem_data_o <= {reg2_i[7:0],zero32[23:0]};
                         end
                         default: begin
                             mem_sel_o <= 4'b0000;
