@@ -11,13 +11,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="844000fs"></ZoomStartTime>
-      <ZoomEndTime time="971201fs"></ZoomEndTime>
-      <Cursor1Time time="827300fs"></Cursor1Time>
+      <ZoomStartTime time="814619fs"></ZoomStartTime>
+      <ZoomEndTime time="942220fs"></ZoomEndTime>
+      <Cursor1Time time="924819fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="175"></NameColumnWidth>
-      <ValueColumnWidth column_width="90"></ValueColumnWidth>
+      <ValueColumnWidth column_width="86"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="11" />
    <wvobject fp_name="/hikari_mips_sopc/rst" type="logic">
@@ -326,6 +326,7 @@
    <wvobject fp_name="group225" type="group">
       <obj_property name="label">CTRL</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/stallreq_from_id" type="logic">
          <obj_property name="ElementShortName">stallreq_from_id</obj_property>
          <obj_property name="ObjectShortName">stallreq_from_id</obj_property>

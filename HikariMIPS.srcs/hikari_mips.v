@@ -163,6 +163,7 @@ module hikari_mips(
         .ex_we_i(ex_we_o),
         .ex_wdata_i(ex_wdata_o),
         .ex_waddr_i(ex_waddr_o),
+  	    .ex_aluop_i(ex_aluop_o),
 
         // MEM反馈
         .mem_we_i(mem_we_o),
@@ -269,6 +270,7 @@ module hikari_mips(
         .lo_o(ex_lo_o),
 
         // 访存指令
+        // MEM_OP_xxx传递给MEM进一步决定如何访存
         .aluop_o(ex_aluop_o),
         .mem_addr_o(ex_mem_addr_o),
         .reg2_o(ex_reg2_o),

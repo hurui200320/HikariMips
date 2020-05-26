@@ -27,6 +27,12 @@ module id(
     input wire ex_we_i,
     input wire[`RegBus] ex_wdata_i,
     input wire[`RegAddrBus] ex_waddr_i,
+    // 查看EX阶段的操作，如果EX是访存状态，那么回传的数据无效
+    // 因为访存指令在MEM阶段才获取数据，因此这里要暂停一拍流水线
+    // 使上一条指令行进到MEM阶段，这时如果MEM有延迟，MEM会提出暂停流水线
+    // 从而保证流水线回复时MEM返回的数据是有效的
+    // ID这里只需要空一拍将上一条指令从EX送入MEM就可以了
+    input wire[`AluOpBus] ex_aluop_i,
 
     //来自访存阶段的反馈，解决相隔一条指令的写后读
     input wire mem_we_i,
@@ -55,7 +61,7 @@ module id(
     output reg we_o,
     output reg[`RegAddrBus] waddr_o,
 
-    output reg stallreq
+    output wire stallreq
     );
 
     // 中继指令，EX通过指令计算出内存地址
@@ -90,7 +96,25 @@ module id(
     wire[`RegBus] b_addr_imm;
     assign b_addr_imm = {pc_next[31:28], inst_i[25:0], 2'b00};
 
-  
+    // 暂停流水线的请求
+    // 两个寄存器的LOAD相关状态
+    reg stallreq_for_reg1_loadrelated;
+    reg stallreq_for_reg2_loadrelated;
+    // 上一条指令是否为加载类指令
+    wire pre_inst_is_load;
+    assign pre_inst_is_load = ( (ex_aluop_i == `MEM_OP_LB) || 
+                                (ex_aluop_i == `MEM_OP_LBU)||
+                                (ex_aluop_i == `MEM_OP_LH) ||
+                                (ex_aluop_i == `MEM_OP_LHU)||
+                                (ex_aluop_i == `MEM_OP_LW) ||
+                                (ex_aluop_i == `MEM_OP_LWR)||
+                                (ex_aluop_i == `MEM_OP_LWL)||
+                                (ex_aluop_i == `MEM_OP_LL) ||
+                                (ex_aluop_i == `MEM_OP_SC)) ? 1'b1 : 1'b0;
+    // 产生stallreq，任意一种暂停请求生效，都向CTRL发起暂停请求
+    assign stallreq = stallreq_for_reg1_loadrelated | stallreq_for_reg2_loadrelated;
+
+
     // 对所有输入敏感，因为译码是组合逻辑电路
     // 译码并获取操作数（产生regfile控制信号）
     always @ (*) begin    
@@ -105,7 +129,6 @@ module id(
             re2_o <= `ReadDisable;
             raddr1_o <= `NOPRegAddr;
             raddr2_o <= `NOPRegAddr;
-            stallreq <= `NoStop;// TODO
             link_addr_o <= `ZeroWord;
             branch_target_address_o <= `ZeroWord;
             branch_flag_o <= `NotBranch;
@@ -120,8 +143,6 @@ module id(
             re2_o <= `ReadDisable;
             raddr1_o <= rs;
             raddr2_o <= rt;
-            // 默认不需要暂停流水线
-            stallreq <= `NoStop;
             imm <= `ZeroWord;
             link_addr_o <= `ZeroWord;
             branch_target_address_o <= `ZeroWord;
@@ -771,8 +792,14 @@ module id(
     
     // 处理第一个操作数
     always @ (*) begin
+        // 一上来就要重置相关情况，因为只要暂停一拍
+        stallreq_for_reg1_loadrelated <= `NoStop; 
         if(rst == `RstEnable) begin
             reg1_data_o <= `ZeroWord;
+        // 这里如果上一条是加载指令且加载的目标寄存器就是端口1读取的
+        // 那么就申请暂停流水线以解决LOAD相关
+        end else if(pre_inst_is_load && ex_waddr_i == raddr1_o && re1_o == `ReadEnable ) begin
+            stallreq_for_reg1_loadrelated <= `Stop;    
         end else if(re1_o == `ReadEnable && ex_we_i == `WriteEnable && ex_waddr_i == raddr1_o) begin
             // 端口1请求的数据正好是执行阶段（比访存阶段新）产生的将写入的数据
             reg1_data_o <= ex_wdata_i;
@@ -795,8 +822,14 @@ module id(
 
     // 同上，处理第二个操作数，第二个操作数可能来源于立即数
     always @ (*) begin
+        // 一上来就要重置相关情况，因为只要暂停一拍
+        stallreq_for_reg2_loadrelated <= `NoStop;  
         if(rst == `RstEnable) begin
             reg2_data_o <= `ZeroWord;
+        // 这里如果上一条是加载指令且加载的目标寄存器就是端口2读取的
+        // 那么就申请暂停流水线以解决LOAD相关
+        end else if(pre_inst_is_load && ex_waddr_i == raddr2_o && re2_o == `ReadEnable ) begin
+            stallreq_for_reg2_loadrelated <= `Stop;    
         end else if(re2_o == `ReadEnable && ex_we_i == `WriteEnable && ex_waddr_i == raddr2_o) begin
             // 端口2请求的数据正好是执行阶段（比访存阶段新）产生的将写入的数据
             reg2_data_o <= ex_wdata_i;
