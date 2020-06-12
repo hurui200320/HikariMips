@@ -12,10 +12,6 @@
 `define InstInvalid 1'b1
 `define Stop 1'b1
 `define NoStop 1'b0
-`define Branch 1'b1
-`define NotBranch 1'b0
-`define InDelaySlot 1'b1
-`define NotInDelaySlot 1'b0
 `define True_v 1'b1
 `define False_v 1'b0
 // 除法器相关
@@ -67,6 +63,11 @@
 `define OP_BNE    6'b000101
 `define OP_BLEZ   6'b000110
 `define OP_BGTZ   6'b000111
+// Branch likely
+`define OP_BEQL  6'b010100
+`define OP_BNEL  6'b010101
+`define OP_BLEZL 6'b010110
+`define OP_BGTZL 6'b010111
 // 访存指令
 `define OP_LB  6'b100000
 `define OP_LH  6'b100001
@@ -85,10 +86,14 @@
 `define OP_SC  6'b111000
 
 // RT寄存器，配合OP为REGIMM时判断跳转类型
-`define RT_BLTZ   5'b00000
-`define RT_BGEZ   5'b00001
-`define RT_BLTZAL 5'b10000
-`define RT_BGEZAL 5'b10001
+`define RT_BLTZ    5'b00000
+`define RT_BGEZ    5'b00001
+`define RT_BLTZL   5'b00010
+`define RT_BGEZL   5'b00011
+`define RT_BLTZAL  5'b10000
+`define RT_BGEZAL  5'b10001
+`define RT_BLTZALL 5'b10010
+`define RT_BGEZALL 5'b10011
 
 // 功能码
 // 逻辑运算

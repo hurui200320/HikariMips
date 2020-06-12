@@ -38,10 +38,12 @@ module hikari_mips(
     wire id_is_in_delayslot_o;
     wire[`RegBus] id_link_address_o;
     wire is_in_delayslot_i;
+    wire is_nullified_i;
     wire next_inst_in_delayslot_o;
+    wire next_inst_is_nullified_o;
     wire[`RegBus] id_inst_o;
     // ID -> PC
-    wire id_branch_flag_o;
+    wire id_is_branch_o;
     wire[`RegBus] branch_target_address_o;
     
     // ID/EX -> EX
@@ -124,7 +126,7 @@ module hikari_mips(
         .clk(clk),
         .rst(rst),
         .stall(stall),
-        .branch_flag_i(id_branch_flag_o),
+        .is_branch_i(id_is_branch_o),
         .branch_target_address_i(branch_target_address_o),
         .pc(pc),
         .ce(rom_ce_o)
@@ -173,8 +175,10 @@ module hikari_mips(
 
         // 延迟槽
         .is_in_delayslot_i(is_in_delayslot_i),
+        .is_nullified_i(is_nullified_i),
         .next_inst_in_delayslot_o(next_inst_in_delayslot_o),    
-        .branch_flag_o(id_branch_flag_o),
+        .next_inst_is_nullified_o(next_inst_is_nullified_o),    
+        .is_branch_o(id_is_branch_o),
         .branch_target_address_o(branch_target_address_o),       
         .link_addr_o(id_link_address_o),
         .is_in_delayslot_o(id_is_in_delayslot_o),
@@ -221,6 +225,7 @@ module hikari_mips(
         .id_link_address(id_link_address_o),
         .id_is_in_delayslot(id_is_in_delayslot_o),
         .next_inst_in_delayslot_i(next_inst_in_delayslot_o),
+        .next_inst_is_nullified_i(next_inst_is_nullified_o),
         .id_inst(id_inst_o),
     
         //传递到执行阶段EX模块的信息
@@ -233,6 +238,7 @@ module hikari_mips(
         .ex_link_address(ex_link_address_i),
         .ex_is_in_delayslot(ex_is_in_delayslot_i),
         .is_in_delayslot_o(is_in_delayslot_i),
+        .is_nullified_o(is_nullified_i),
         .ex_inst(ex_inst_i)
     );        
     

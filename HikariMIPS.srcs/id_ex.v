@@ -19,6 +19,7 @@ module id_ex(
     input wire id_is_in_delayslot,
     input wire[`RegBus] id_link_address,
     input wire next_inst_in_delayslot_i,
+    input wire next_inst_is_nullified_i,
     input wire[`RegBus] id_inst,
     
     //传递到执行阶段的信息
@@ -31,6 +32,7 @@ module id_ex(
     output reg ex_is_in_delayslot,
     output reg[`RegBus] ex_link_address,
     output reg is_in_delayslot_o,
+    output reg is_nullified_o,
     output reg[`RegBus] ex_inst
     );
 
@@ -42,9 +44,10 @@ module id_ex(
             ex_reg2 <= `ZeroWord;
             ex_waddr <= `NOPRegAddr;
             ex_we <= `WriteDisable;
-            ex_is_in_delayslot <= `NotInDelaySlot;
+            ex_is_in_delayslot <= `False_v;
             ex_link_address <= `ZeroWord;
-            is_in_delayslot_o <= `NotInDelaySlot;
+            is_in_delayslot_o <= `False_v;
+            is_nullified_o <= `False_v;
             ex_inst <= `ZeroWord;
         end else if (stall[2] == `Stop && stall[3] == `NoStop) begin
             // ID暂停而EX没有暂停，输出NOP状态
@@ -54,7 +57,7 @@ module id_ex(
             ex_reg2 <= `ZeroWord;
             ex_waddr <= `NOPRegAddr;
             ex_we <= `WriteDisable;
-            ex_is_in_delayslot <= `NotInDelaySlot;
+            ex_is_in_delayslot <= `False_v;
             ex_link_address <= `ZeroWord;
             ex_inst <= `ZeroWord;
             // ID当前指令是否在延迟槽中状态不变
@@ -68,6 +71,7 @@ module id_ex(
             ex_is_in_delayslot <= id_is_in_delayslot;
             ex_link_address <= id_link_address;
             is_in_delayslot_o <= next_inst_in_delayslot_i;
+            is_nullified_o <= next_inst_is_nullified_i;
             ex_inst <= id_inst;
         end else begin
         end
