@@ -50,11 +50,14 @@
 `define OP_ORI     6'b001101
 `define OP_XORI    6'b001110
 `define OP_LUI     6'b001111
-// 单周期算术运算
-`define OP_ADDI  6'b001000
-`define OP_ADDIU 6'b001001
-`define OP_SLTI  6'b001010
-`define OP_SLTIU 6'b001011
+// 算术运算
+// 单周期
+`define OP_ADDI      6'b001000
+`define OP_ADDIU     6'b001001
+`define OP_SLTI      6'b001010
+`define OP_SLTIU     6'b001011
+// 多周期和特殊运算
+`define OP_SPECIAL2  6'b011100
 // 分支跳转
 `define OP_REGIMM 6'b000001
 `define OP_J      6'b000010
@@ -123,6 +126,9 @@
 `define FUNC_SLTU  6'b101011
 `define FUNC_MULT  6'b011000
 `define FUNC_MULTU 6'b011001
+// 两周期运算和特殊运算
+`define FUNC_CLZ 6'b100000
+`define FUNC_CLO 6'b100001
 // 多周期除法运算
 `define FUNC_DIV   6'b011010
 `define FUNC_DIVU  6'b011011
@@ -155,6 +161,9 @@
 `define ALU_OP_SLTU  8'b00010001
 `define ALU_OP_MULT  8'b00010010
 `define ALU_OP_MULTU 8'b00010011
+// 两周期和特殊运算
+`define ALU_OP_CLZ 8'b00100000
+`define ALU_OP_CLO 8'b00100001
 // 多周期除法运算
 `define ALU_OP_DIV   8'b00011010
 `define ALU_OP_DIVU  8'b00011011

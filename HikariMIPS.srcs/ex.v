@@ -175,6 +175,10 @@ module ex(
     // 无符号数直接比较两者符号
     wire reg1_lt_reg2;
     assign reg1_lt_reg2 = (aluop_i == `ALU_OP_SLTU) ? (reg1_i < reg2_i) : ( (reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31]) );
+    // reg1取反
+    wire[`RegBus] reg1_not;
+    assign reg1_not = ~reg1_i;
+
     // 产生简单运算结果
     always @ (*) begin
         if(rst == `RstEnable) begin
@@ -189,7 +193,75 @@ module ex(
                 end
                 `ALU_OP_SUB, `ALU_OP_SUBU: begin
                     arithmetic_result <= result_sum; 
-                end        
+                end
+                `ALU_OP_CLZ: begin
+                    arithmetic_result <= reg1_i[31] ? 0 : 
+                                         reg1_i[30] ? 1 : 
+                                         reg1_i[29] ? 2 :
+                                         reg1_i[28] ? 3 : 
+                                         reg1_i[27] ? 4 : 
+                                         reg1_i[26] ? 5 :
+                                         reg1_i[25] ? 6 : 
+                                         reg1_i[24] ? 7 : 
+                                         reg1_i[23] ? 8 : 
+                                         reg1_i[22] ? 9 : 
+                                         reg1_i[21] ? 10 : 
+                                         reg1_i[20] ? 11 :
+                                         reg1_i[19] ? 12 : 
+                                         reg1_i[18] ? 13 : 
+                                         reg1_i[17] ? 14 : 
+                                         reg1_i[16] ? 15 : 
+                                         reg1_i[15] ? 16 : 
+                                         reg1_i[14] ? 17 : 
+                                         reg1_i[13] ? 18 : 
+                                         reg1_i[12] ? 19 : 
+                                         reg1_i[11] ? 20 :
+                                         reg1_i[10] ? 21 : 
+                                         reg1_i[9] ? 22 : 
+                                         reg1_i[8] ? 23 : 
+                                         reg1_i[7] ? 24 : 
+                                         reg1_i[6] ? 25 : 
+                                         reg1_i[5] ? 26 : 
+                                         reg1_i[4] ? 27 : 
+                                         reg1_i[3] ? 28 : 
+                                         reg1_i[2] ? 29 : 
+                                         reg1_i[1] ? 30 : 
+                                         reg1_i[0] ? 31 : 32 ;
+                end
+                `ALU_OP_CLO: begin
+                    arithmetic_result <= reg1_not[31] ? 0 :
+                                         reg1_not[30] ? 1 :
+                                         reg1_not[29] ? 2 :
+                                         reg1_not[28] ? 3 :
+                                         reg1_not[27] ? 4 : 
+                                         reg1_not[26] ? 5 :
+                                         reg1_not[25] ? 6 :
+                                         reg1_not[24] ? 7 : 
+                                         reg1_not[23] ? 8 : 
+                                         reg1_not[22] ? 9 :
+                                         reg1_not[21] ? 10 : 
+                                         reg1_not[20] ? 11 :
+                                         reg1_not[19] ? 12 : 
+                                         reg1_not[18] ? 13 : 
+                                         reg1_not[17] ? 14 : 
+                                         reg1_not[16] ? 15 : 
+                                         reg1_not[15] ? 16 : 
+                                         reg1_not[14] ? 17 : 
+                                         reg1_not[13] ? 18 : 
+                                         reg1_not[12] ? 19 : 
+                                         reg1_not[11] ? 20 :
+                                         reg1_not[10] ? 21 : 
+                                         reg1_not[9] ? 22 : 
+                                         reg1_not[8] ? 23 : 
+                                         reg1_not[7] ? 24 : 
+                                         reg1_not[6] ? 25 : 
+                                         reg1_not[5] ? 26 : 
+                                         reg1_not[4] ? 27 : 
+                                         reg1_not[3] ? 28 : 
+                                         reg1_not[2] ? 29 : 
+                                         reg1_not[1] ? 30 : 
+                                         reg1_not[0] ? 31 : 32 ;
+                end
                 default: begin
                     arithmetic_result <= `ZeroWord;
                 end
