@@ -370,8 +370,8 @@ module ex(
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
             lo_o <= `ZeroWord;
-        end else if(aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU) begin
-            // 是乘法，结果写入
+        end else if(alusel_i != `ALU_SEL_MUL && (aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU)) begin
+            // 是乘法，结果写入HILO，MUL指令除外
             we_hilo_o = `WriteEnable;
             hi_o <= mult_result[63:32];
             lo_o <= mult_result[31:0];
@@ -422,6 +422,10 @@ module ex(
             `ALU_SEL_JUMP_BRANCH: begin
                 // 写保存地址，实际是否写由ID产生的we_o决定
                 wdata_o <= link_address_i;
+            end
+            `ALU_SEL_MUL: begin
+                // 写寄存器的乘法
+                wdata_o <= mult_result[31:0];
             end
             default: begin
                 wdata_o <= `ZeroWord;

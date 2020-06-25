@@ -127,6 +127,7 @@
 `define FUNC_MULT  6'b011000
 `define FUNC_MULTU 6'b011001
 // 两周期运算和特殊运算
+`define FUNC_MUL 6'b000010
 `define FUNC_CLZ 6'b100000
 `define FUNC_CLO 6'b100001
 // 多周期除法运算
@@ -176,6 +177,7 @@
 `define ALU_SEL_ARITHMETIC 3'b100
 `define ALU_SEL_JUMP_BRANCH 3'b101
 `define ALU_SEL_LOAD_STORE 3'b110
+`define ALU_SEL_MUL 3'b111
 
 // MEM OP，仅在alusel为LOAD_STORE时有效，经由EX模块传递给MEM
 `define MEM_OP_LB  8'b11100000

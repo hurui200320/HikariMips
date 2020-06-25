@@ -4,8 +4,6 @@
     .set noreorder
     .set nomacro
 _start:
-	ori $1, $0, 0x0001
-	clz $2, $1 # $2 = 31
-	ori $1, $0, 0xFFFD
-	sll $1, $1, 16
-	clo $2, $1 # $2 = 30
+	ori $1, $0, 4
+	ori $2, $0, 5
+	mul $3, $1, $2
