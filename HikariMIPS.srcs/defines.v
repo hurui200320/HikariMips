@@ -129,9 +129,13 @@
 `define FUNC_MULT  6'b011000
 `define FUNC_MULTU 6'b011001
 // 两周期运算和特殊运算
-`define FUNC_MUL 6'b000010
-`define FUNC_CLZ 6'b100000
-`define FUNC_CLO 6'b100001
+`define FUNC_MADD  6'b000000
+`define FUNC_MADDU 6'b000001
+`define FUNC_MUL   6'b000010
+`define FUNC_MSUB  6'b000100
+`define FUNC_MSUBU 6'b000101
+`define FUNC_CLZ   6'b100000
+`define FUNC_CLO   6'b100001
 // 多周期除法运算
 `define FUNC_DIV   6'b011010
 `define FUNC_DIVU  6'b011011
@@ -168,9 +172,14 @@
 // 两周期和特殊运算
 `define ALU_OP_CLZ   8'b00010101
 `define ALU_OP_CLO   8'b00010110
+`define ALU_OP_MUL   8'b00010111
+`define ALU_OP_MADD  8'b00011000
+`define ALU_OP_MADDU 8'b00011001
+`define ALU_OP_MSUB  8'b00011010
+`define ALU_OP_MSUBU 8'b00011011
 // 多周期除法运算
-`define ALU_OP_DIV   8'b00010111
-`define ALU_OP_DIVU  8'b00011000
+`define ALU_OP_DIV   8'b00011100
+`define ALU_OP_DIVU  8'b00011101
 
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000

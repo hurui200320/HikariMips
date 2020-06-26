@@ -489,13 +489,49 @@ module id(
                                 // 这个乘法不写入HILO，而是写入GPR，所以要打开写使能
                                 we_o <= `WriteEnable;
                                 // 使用乘法计算得到乘法结果
-                                aluop_o <= `ALU_OP_MULT;
+                                aluop_o <= `ALU_OP_MUL;
                                 // 但是运算类型特殊：普通乘法写入HILO，这里不是
                                 alusel_o <= `ALU_SEL_MUL;
                                 re1_o <= `ReadEnable;
                                 re2_o <= `ReadEnable;
                                 inst_valid <= `InstValid;
-                            end    
+                            end
+                            // MADD
+                            `FUNC_MADD: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_MADD;
+                                alusel_o <= `ALU_SEL_MUL;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // MADDU
+                            `FUNC_MADDU: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_MADDU;
+                                alusel_o <= `ALU_SEL_MUL;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // MSUB
+                            `FUNC_MSUB: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_MSUB;
+                                alusel_o <= `ALU_SEL_MUL;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
+                            // MSUBU
+                            `FUNC_MSUBU: begin
+                                we_o <= `WriteDisable;
+                                aluop_o <= `ALU_OP_MSUBU;
+                                alusel_o <= `ALU_SEL_MUL;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                            end
                             default: begin
                             end
                         // END FOR CASE func code

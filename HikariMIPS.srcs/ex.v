@@ -57,7 +57,13 @@ module ex(
     output reg div_start_o,
     output reg signed_div_o,
 
-    output reg stallreq // TODO 实现除法和累加乘法时
+    // 双周期MADD、MADDU、MSUB、MSUBU用的状态机信号
+    input wire[`DoubleRegBus] mul_result_i, // 上一步产生的待累加的乘法结果
+    input wire[1:0] cnt_i, // current stage
+    output reg[`DoubleRegBus] mul_result_o, // 当前产生的要累加的乘法结果
+    output reg[1:0] cnt_o, // next stage
+
+    output reg stallreq
     );
 
     reg[`RegBus] logic_result;
@@ -67,6 +73,7 @@ module ex(
     reg[`DoubleRegBus] mult_result;
 
     reg stallreq_for_div; // 因除法暂停流水线   
+    reg stallreq_for_madd_msub; // 因MADD MSUB等指令暂停流水线   
 
     // 这里存储排除数据相关后的HI/LO寄存器值
     reg[`RegBus] HI;
@@ -274,9 +281,9 @@ module ex(
 
     // 计算修正的乘法运算数，如果是有符号乘法且参数为负，求补码
     wire[`RegBus] opdata1_mult;
-    assign opdata1_mult = ( aluop_i == `ALU_OP_MULT && reg1_i[31]) ? ~reg1_i + 1 : reg1_i;
+    assign opdata1_mult = ( (aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MUL || aluop_i == `ALU_OP_MADD || aluop_i == `ALU_OP_MSUB) && reg1_i[31]) ? ~reg1_i + 1 : reg1_i;
     wire[`RegBus] opdata2_mult;
-    assign opdata2_mult = ( aluop_i == `ALU_OP_MULT && reg2_i[31]) ? ~reg2_i + 1 : reg2_i;
+    assign opdata2_mult = ( (aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MUL || aluop_i == `ALU_OP_MADD || aluop_i == `ALU_OP_MSUB) && reg2_i[31]) ? ~reg2_i + 1 : reg2_i;
     // 计算乘法
     wire[`DoubleRegBus] hilo_temp;
     assign hilo_temp = opdata1_mult * opdata2_mult;
@@ -284,7 +291,7 @@ module ex(
     always @ (*) begin
         if(rst == `RstEnable) begin
             mult_result <= {`ZeroWord,`ZeroWord};
-        end else if (aluop_i == `ALU_OP_MULT)begin
+        end else if (aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MUL || aluop_i == `ALU_OP_MADD || aluop_i == `ALU_OP_MSUB)begin
             // 如果是有符号乘法，且两操作数一正一负
             if(reg1_i[31] ^ reg2_i[31]) begin
                 // 结果也应该是负，对结果求补码
@@ -294,6 +301,74 @@ module ex(
             end
         end else begin
                 mult_result <= hilo_temp;
+        end
+    end
+
+    // 处理累加累减乘法
+    reg[`DoubleRegBus] accu_temp;
+    always @ (*) begin
+        if (rst == `RstEnable) begin
+            // 复位
+            mul_result_o <= {`ZeroWord, `ZeroWord};
+            cnt_o <= 2'b00;
+            stallreq_for_madd_msub <= `NoStop;
+        end else begin
+            case (aluop_i)
+                // MADD MADDU
+                `ALU_OP_MADD, `ALU_OP_MADDU: begin
+                    // 状态机
+                    case (cnt_i)
+                        2'b00: begin // 第一步计算乘法并申请流水线暂停
+                            mul_result_o <= mult_result; // 传递乘法结果
+                            accu_temp <= {`ZeroWord, `ZeroWord}; // 清零准备累加
+                            stallreq_for_madd_msub <= `Stop; // 申请流水线暂停
+                            cnt_o <= 2'b01; // 跳到下一步
+                        end
+                        2'b01: begin // 第二步进行累加
+                            mul_result_o <= {`ZeroWord, `ZeroWord}; // 清零传递
+                            accu_temp <= mul_result_i + {HI, LO}; // 累加
+                            stallreq_for_madd_msub <= `NoStop; // 解除流水线暂停
+                            cnt_o <= 2'b00; // 清零，为下一条累乘做准备
+                        end
+                        default: begin
+                            // 跑飞，同复位
+                            mul_result_o <= {`ZeroWord, `ZeroWord};
+                            cnt_o <= 2'b00;
+                            stallreq_for_madd_msub <= `NoStop;
+                        end 
+                    endcase
+                end 
+                // MSUB MSUBU
+                `ALU_OP_MSUB, `ALU_OP_MSUBU: begin
+                    // 状态机
+                    case (cnt_i)
+                        2'b00: begin // 第一步计算乘法并申请流水线暂停
+                            mul_result_o <= ~mult_result + 1; // 传递乘法结果的负数（补码）
+                            accu_temp <= {`ZeroWord, `ZeroWord}; // 清零准备累减
+                            stallreq_for_madd_msub <= `Stop; // 申请流水线暂停
+                            cnt_o <= 2'b01; // 跳到下一步
+                        end
+                        2'b01: begin // 第二步进行累加
+                            mul_result_o <= {`ZeroWord, `ZeroWord}; // 清零传递
+                            accu_temp <= mul_result_i + {HI, LO}; // 累减
+                            stallreq_for_madd_msub <= `NoStop; // 解除流水线暂停
+                            cnt_o <= 2'b00; // 清零，为下一条累乘做准备
+                        end
+                        default: begin
+                            // 跑飞，同复位
+                            mul_result_o <= {`ZeroWord, `ZeroWord};
+                            cnt_o <= 2'b00;
+                            stallreq_for_madd_msub <= `NoStop;
+                        end 
+                    endcase
+                end 
+                default: begin
+                    // 非累加指令，同复位
+                    mul_result_o <= {`ZeroWord, `ZeroWord};
+                    cnt_o <= 2'b00;
+                    stallreq_for_madd_msub <= `NoStop;
+                end
+            endcase
         end
     end
 
@@ -363,7 +438,7 @@ module ex(
     // 处理暂停请求
     always @ (*) begin
         // 各可能的暂停请求之或
-        stallreq = stallreq_for_div;
+        stallreq = stallreq_for_div || stallreq_for_madd_msub;
     end
 
     // 数据移动，写HI/LO部分，只涉及MTxx指令
@@ -373,7 +448,7 @@ module ex(
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
             lo_o <= `ZeroWord;
-        end else if(alusel_i != `ALU_SEL_MUL && (aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU)) begin
+        end else if(aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU) begin
             // 是乘法，结果写入HILO，MUL指令除外
             we_hilo_o = `WriteEnable;
             hi_o <= mult_result[63:32];
@@ -383,6 +458,13 @@ module ex(
             we_hilo_o <= `WriteEnable;
             hi_o <= div_result_i[63:32];
             lo_o <= div_result_i[31:0];
+        end else if (aluop_i == `ALU_OP_MADD || aluop_i == `ALU_OP_MADDU || aluop_i == `ALU_OP_MSUB || aluop_i == `ALU_OP_MSUBU) begin
+            // 累加、累减
+            we_hilo_o <= `WriteEnable;
+            hi_o <= accu_temp[63:32];
+            lo_o <= accu_temp[31:0];
+            // 这里在第一第二阶段都会传递出accu_temp写入HILO
+            // 但是流水线暂停使得EX/MEM传出NOP，取消暂停之后正常传出accu_temp
         end else if(aluop_i == `ALU_OP_MTHI) begin
             we_hilo_o <= `WriteEnable;
             hi_o <= reg1_i;

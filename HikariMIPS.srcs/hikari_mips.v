@@ -67,6 +67,8 @@ module hikari_mips(
     wire[`AluOpBus] ex_aluop_o;
     wire[`RegBus] ex_mem_addr_o;
     wire[`RegBus] ex_reg2_o;
+    wire[`DoubleRegBus] ex_mul_result_o;
+    wire[1:0] ex_cnt_o;
 
     // EX/MEM -> MEM
     wire mem_we_i;
@@ -78,6 +80,9 @@ module hikari_mips(
     wire[`AluOpBus] mem_aluop_i;
     wire[`RegBus] mem_mem_addr_i;
     wire[`RegBus] mem_reg2_i;
+    // EX/MEM -> EX
+    wire[`DoubleRegBus] ex_mul_result_i;
+    wire[1:0] ex_cnt_i;
 
     // MEM -> MEM/WB
     wire mem_we_o;
@@ -294,6 +299,12 @@ module hikari_mips(
         .div_start_o(div_start),
         .signed_div_o(signed_div),
 
+        // 累加累减状态机
+        .mul_result_i(ex_mul_result_i),
+        .cnt_i(ex_cnt_i),
+        .mul_result_o(ex_mul_result_o),
+        .cnt_o(ex_cnt_o),
+
         .stallreq(stallreq_from_ex)
     );
 
@@ -327,6 +338,8 @@ module hikari_mips(
         .ex_aluop(ex_aluop_o),
         .ex_mem_addr(ex_mem_addr_o),
         .ex_reg2(ex_reg2_o),
+        .mul_result_i(ex_mul_result_o),
+        .cnt_i(ex_cnt_o),
     
         //送到访存阶段MEM模块的信息
         .mem_waddr(mem_waddr_i),
@@ -337,7 +350,9 @@ module hikari_mips(
         .mem_we_hilo(mem_we_hilo_i),
         .mem_aluop(mem_aluop_i),
         .mem_mem_addr(mem_mem_addr_i),
-        .mem_reg2(mem_reg2_i)  
+        .mem_reg2(mem_reg2_i),
+        .mul_result_o(ex_mul_result_i),
+        .cnt_o(ex_cnt_i)
     );
     
     // MEM模块例化

@@ -21,6 +21,9 @@ module ex_mem(
     input wire[`AluOpBus] ex_aluop,
     input wire[`RegBus] ex_mem_addr,
     input wire[`RegBus] ex_reg2,
+    // 供自身状态机使用的信号
+    input wire[`DoubleRegBus] mul_result_i,
+    input wire[1:0] cnt_i,
     
     //送到访存阶段的信息
     output reg[`RegAddrBus] mem_waddr,
@@ -32,7 +35,10 @@ module ex_mem(
     // 访存
     output reg[`AluOpBus] mem_aluop,
     output reg[`RegBus] mem_mem_addr,
-    output reg[`RegBus] mem_reg2
+    output reg[`RegBus] mem_reg2,
+    // 送回EX的信息，供MADD MSUB等状态机使用
+    output reg[`DoubleRegBus] mul_result_o,
+    output reg[1:0] cnt_o
     );
 
     always @ (posedge clk) begin
@@ -46,6 +52,8 @@ module ex_mem(
             mem_aluop <= `ALU_OP_NOP;
             mem_mem_addr <= `ZeroWord;
             mem_reg2 <= `ZeroWord;
+            mul_result_o <= {`ZeroWord, `ZeroWord};
+            cnt_o <= 2'b00;
         end else if (stall[3] == `Stop && stall[4] == `NoStop) begin
             // 处于EX和MEM的暂停交界处，NOP
             mem_waddr <= `NOPRegAddr;
@@ -57,6 +65,8 @@ module ex_mem(
             mem_aluop <= `ALU_OP_NOP;
             mem_mem_addr <= `ZeroWord;
             mem_reg2 <= `ZeroWord; 
+            mul_result_o <= mul_result_i;
+            cnt_o <= cnt_i;
         end else if (stall[3] == `NoStop) begin
             mem_waddr <= ex_waddr;
             mem_we <= ex_we;
@@ -67,7 +77,11 @@ module ex_mem(
             mem_aluop <= ex_aluop;
             mem_mem_addr <= ex_mem_addr;
             mem_reg2 <= ex_reg2;
+            mul_result_o <= {`ZeroWord, `ZeroWord};
+            cnt_o <= 2'b00;
         end else begin
+            mul_result_o <= mul_result_i;
+            cnt_o <= cnt_i;
         end
     end
 
