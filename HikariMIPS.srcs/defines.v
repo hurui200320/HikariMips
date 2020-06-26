@@ -112,6 +112,8 @@
 `define FUNC_SRLV 6'b000110
 `define FUNC_SRAV 6'b000111
 // 数据移动
+`define FUNC_MOVZ 6'b001010
+`define FUNC_MOVN 6'b001011
 `define FUNC_MFHI 6'b010000
 `define FUNC_MTHI 6'b010001
 `define FUNC_MFLO 6'b010010
@@ -138,36 +140,37 @@
 `define FUNC_JALR 6'b001001
 
 // ALU OP
-`define ALU_OP_NOP 8'h00000000
-// 逻辑运算
-`define ALU_OP_OR  8'b00000001
-`define ALU_OP_AND 8'b00000010
-`define ALU_OP_XOR 8'b00000011
-`define ALU_OP_NOR 8'b00000100
-// 位移运算
-`define ALU_OP_SLL 8'b00000101
-`define ALU_OP_SRL 8'b00000110
-`define ALU_OP_SRA 8'b00000111
+`define ALU_OP_NOP   8'h00000000
+// 逻辑运算  
+`define ALU_OP_OR    8'b00000001
+`define ALU_OP_AND   8'b00000010
+`define ALU_OP_XOR   8'b00000011
+`define ALU_OP_NOR   8'b00000100
+// 位移运算  
+`define ALU_OP_SLL   8'b00000101
+`define ALU_OP_SRL   8'b00000110
+`define ALU_OP_SRA   8'b00000111
 // 数据移动
-`define ALU_OP_MFHI 8'b00001000
-`define ALU_OP_MTHI 8'b00001001
-`define ALU_OP_MFLO 8'b00001010
-`define ALU_OP_MTLO 8'b00001011
+`define ALU_OP_MFHI  8'b00001000
+`define ALU_OP_MTHI  8'b00001001
+`define ALU_OP_MFLO  8'b00001010
+`define ALU_OP_MTLO  8'b00001011
+`define ALU_OP_MOV   8'b00001100
 // 单周期算术运算
-`define ALU_OP_ADD   8'b00001100
-`define ALU_OP_ADDU  8'b00001101
-`define ALU_OP_SUB   8'b00001110
-`define ALU_OP_SUBU  8'b00001111
-`define ALU_OP_SLT   8'b00010000
-`define ALU_OP_SLTU  8'b00010001
-`define ALU_OP_MULT  8'b00010010
-`define ALU_OP_MULTU 8'b00010011
+`define ALU_OP_ADD   8'b00001101
+`define ALU_OP_ADDU  8'b00001110
+`define ALU_OP_SUB   8'b00001111
+`define ALU_OP_SUBU  8'b00010000
+`define ALU_OP_SLT   8'b00010001
+`define ALU_OP_SLTU  8'b00010010
+`define ALU_OP_MULT  8'b00010011
+`define ALU_OP_MULTU 8'b00010100
 // 两周期和特殊运算
-`define ALU_OP_CLZ 8'b00100000
-`define ALU_OP_CLO 8'b00100001
+`define ALU_OP_CLZ   8'b00010101
+`define ALU_OP_CLO   8'b00010110
 // 多周期除法运算
-`define ALU_OP_DIV   8'b00011010
-`define ALU_OP_DIVU  8'b00011011
+`define ALU_OP_DIV   8'b00010111
+`define ALU_OP_DIVU  8'b00011000
 
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000

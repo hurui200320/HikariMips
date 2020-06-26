@@ -154,6 +154,9 @@ module ex(
                 `ALU_OP_MFLO: begin
                     move_result <= LO;
                 end
+                `ALU_OP_MOV: begin
+                    move_result <= reg1_i;
+                end
                 default : begin
                 end
             endcase

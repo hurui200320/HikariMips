@@ -388,6 +388,32 @@ module id(
                                 is_branch_o <= `True_v;
                                 next_inst_in_delayslot_o <= `True_v;
                                 inst_valid <= `InstValid;
+                            end    
+                            // MOVN               
+                            `FUNC_MOVN: begin
+                                aluop_o <= `ALU_OP_MOV;
+                                alusel_o <= `ALU_SEL_MOVE;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                                if (reg2_data_o != `ZeroWord) begin
+                                    we_o <= `WriteEnable;
+                                end else begin
+                                    we_o <= `WriteDisable;
+                                end
+                            end 
+                            // MOVZ              
+                            `FUNC_MOVZ: begin
+                                aluop_o <= `ALU_OP_MOV;
+                                alusel_o <= `ALU_SEL_MOVE;
+                                re1_o <= `ReadEnable;
+                                re2_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                                if (reg2_data_o == `ZeroWord) begin
+                                    we_o <= `WriteEnable;
+                                end else begin
+                                    we_o <= `WriteDisable;
+                                end
                             end
                             default: begin
                             end
