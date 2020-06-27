@@ -4,26 +4,52 @@
     .set noreorder
     .set nomacro
 _start:
-	ori $1, $0, 4
-	ori $2, $0, 5
-	mul $3, $1, $2 # $3 = 20
+	addi $s0,$0,-1
+    addi $s1,$0,0
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    addi $s0,$s0,1
+    addi $s1,$s1,4
+    sw $s0,512($s1)
+    
+    add $s0,$zero,$zero   
+    addi $s1,$zero,28   #排序区间
+sort_loop:
+    lw $s3,512($s0)     
+    lw $s4,512($s1)
+    slt $t0,$s3,$s4
+    beq $t0,$0,sort_next   #降序排序
+	nop
+    sw $s3, 512($s1)
+    sw $s4, 512($s0)   
+sort_next:
+    addi $s1, $s1, -4   
+    bne $s0, $s1, sort_loop  
+    nop
+    addi $s0,$s0,4
+    addi $s1,$zero,28
+    bne $s0, $s1, sort_loop
+	nop
+    addi   $v0,$zero,10 
+	j _loop
 	
-	ori  $1,$0,0xffff                  
-    sll  $1,$1,16
-    ori  $1,$1,0xfffb           # $1 = -5
-    ori  $2,$0,6                # $2 = 6
-    
-    mult $1,$2                  # hi = 0xffffffff
-                                # lo = 0xffffffe2
-    
-    madd $1,$2                  # hi = 0xffffffff
-                                # lo = 0xffffffc4
-    
-    maddu $1,$2                 # hi = 0x5
-                                # lo = 0xffffffa6
-    
-    msub $1,$2                  # hi = 0x5
-                                # lo = 0xffffffc4   
-    
-    msubu $1,$2                 # hi = 0xffffffff
-                                # lo = 0xffffffe2  
+_loop:
+	j _loop
+	nop

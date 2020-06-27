@@ -64,7 +64,6 @@ module mem(
     wire[`RegBus] zero32;
     assign zero32 = `ZeroWord;
 
-    // 由于访存还没有实装，这里只是简单的将信号传递下去
     always @ (*) begin
         if(rst == `RstEnable) begin
             waddr_o <= `NOPRegAddr;
