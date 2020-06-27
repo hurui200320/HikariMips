@@ -92,23 +92,18 @@ module id(
 
     // 计算分支跳转相关的数据
     // PC下一条指令和下两条指令的地址，后者用于保存返回地址
-    wire[`RegBus] pc_next;
-    wire[`RegBus] pc_next_2;
-    assign pc_next = pc_i + 4;
-    assign pc_next_2 = pc_i + 8;
+    wire[`RegBus] pc_next = pc_i + 4;
+    wire[`RegBus] pc_next_2 = pc_i + 8;
     // 用于地址的立即数，左移两位并有符号扩展到32位
-    wire[`RegBus] addr_offset_imm;
-    assign addr_offset_imm = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
-    wire[`RegBus] b_addr_imm;
-    assign b_addr_imm = {pc_next[31:28], inst_i[25:0], 2'b00};
+    wire[`RegBus] addr_offset_imm = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
+    wire[`RegBus] b_addr_imm = {pc_next[31:28], inst_i[25:0], 2'b00};
 
     // 暂停流水线的请求
     // 两个寄存器的LOAD相关状态
     reg stallreq_for_reg1_loadrelated;
     reg stallreq_for_reg2_loadrelated;
     // 上一条指令是否为加载类指令
-    wire pre_inst_is_load;
-    assign pre_inst_is_load = ( (ex_aluop_i == `MEM_OP_LB) || 
+    wire pre_inst_is_load = ( (ex_aluop_i == `MEM_OP_LB) || 
                                 (ex_aluop_i == `MEM_OP_LBU)||
                                 (ex_aluop_i == `MEM_OP_LH) ||
                                 (ex_aluop_i == `MEM_OP_LHU)||
