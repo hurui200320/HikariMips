@@ -21,11 +21,7 @@ module ex(
     input wire[`RegBus] hi_i,
     input wire[`RegBus] lo_i,
 
-    // 来自访存与回写的反馈，同ID模块解决数据相关的思路
-    input wire[`RegBus] wb_hi_i,
-    input wire[`RegBus] wb_lo_i,
-    input wire wb_we_hilo_i,
-    
+    // 来自访存的反馈，同ID模块解决数据相关的思路    
     input wire[`RegBus] mem_hi_i,
     input wire[`RegBus] mem_lo_i,
     input wire mem_we_hilo_i,
@@ -141,8 +137,6 @@ module ex(
             {HI,LO} <= {`ZeroWord,`ZeroWord};
         end else if(mem_we_hilo_i == `WriteEnable) begin
             {HI,LO} <= {mem_hi_i,mem_lo_i};
-        end else if(wb_we_hilo_i == `WriteEnable) begin
-            {HI,LO} <= {wb_hi_i,wb_lo_i};
         end else begin
             {HI,LO} <= {hi_i,lo_i};            
         end
@@ -447,6 +441,7 @@ module ex(
         if(rst == `RstEnable) begin
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
+
             lo_o <= `ZeroWord;
         end else if(aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU) begin
             // 是乘法，结果写入HILO，MUL指令除外

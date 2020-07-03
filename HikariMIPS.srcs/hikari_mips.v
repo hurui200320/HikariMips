@@ -256,10 +256,7 @@ module hikari_mips(
         .hi_i(hi),
         .lo_i(lo),
 
-        // 来自访存与回写的反馈，同ID模块解决数据相关的思路
-        .wb_hi_i(wb_hi_i),
-        .wb_lo_i(wb_lo_i),
-        .wb_we_hilo_i(wb_we_hilo_i),
+        // 来自访存的反馈，同ID模块解决数据相关的思路
         .mem_hi_i(mem_hi_o),
         .mem_lo_i(mem_lo_o),
         .mem_we_hilo_i(mem_we_hilo_o),
