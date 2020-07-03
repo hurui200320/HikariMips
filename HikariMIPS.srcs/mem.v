@@ -37,6 +37,9 @@ module mem(
     input wire[`AluOpBus] aluop_i,
     input wire[`RegBus] mem_addr_i,
     input wire[`RegBus] reg2_i,
+    input wire cp0_we_i,
+    input wire[7:0] cp0_waddr_i,
+    input wire[`RegBus] cp0_wdata_i,
     
     // 送到回写阶段的信息
     output reg[`RegAddrBus] waddr_o,
@@ -45,6 +48,9 @@ module mem(
     output reg we_hilo_o,
     output reg[`RegBus] hi_o,
     output reg[`RegBus] lo_o,
+    output reg cp0_we_o,
+    output reg[7:0] cp0_waddr_o,
+    output reg[`RegBus] cp0_wdata_o,
     
     // 来自数据RAM的数据
     input wire[`RegBus] mem_data_i,
@@ -77,6 +83,9 @@ module mem(
             mem_sel_o <= 4'b0000;
             mem_data_o <= `ZeroWord;
             mem_ce_o <= `ChipDisable;
+            cp0_we_o <= `WriteDisable;
+            cp0_waddr_o <= 8'b00000000;
+            cp0_wdata_o <= `ZeroWord;
         end else begin
             waddr_o <= waddr_i;
             we_o <= we_i;
@@ -88,6 +97,9 @@ module mem(
             mem_we_o <= `WriteDisable;
             mem_sel_o <= 4'b1111;
             mem_ce_o <= `ChipDisable;
+            cp0_we_o <= cp0_we_i;
+            cp0_waddr_o <= cp0_waddr_i;
+            cp0_wdata_o <= cp0_wdata_i;
             // 下面根据MEM_OP决定wdata、mem_data和mem_sel及片选和写使能
             case (aluop_i)
                 // LB

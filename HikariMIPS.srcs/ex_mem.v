@@ -17,6 +17,9 @@ module ex_mem(
     input wire ex_we_hilo, 
     input wire[`RegBus] ex_hi,
     input wire[`RegBus] ex_lo,
+    input wire ex_cp0_we,
+    input wire[7:0] ex_cp0_waddr,
+    input wire[`RegBus] ex_cp0_wdata,
     // 访存
     input wire[`AluOpBus] ex_aluop,
     input wire[`RegBus] ex_mem_addr,
@@ -32,6 +35,9 @@ module ex_mem(
     output reg mem_we_hilo,
     output reg[`RegBus] mem_hi,
     output reg[`RegBus] mem_lo,
+    output reg mem_cp0_we,
+    output reg[7:0] mem_cp0_waddr,
+    output reg[`RegBus] mem_cp0_wdata,
     // 访存
     output reg[`AluOpBus] mem_aluop,
     output reg[`RegBus] mem_mem_addr,
@@ -54,6 +60,9 @@ module ex_mem(
             mem_reg2 <= `ZeroWord;
             mul_result_o <= {`ZeroWord, `ZeroWord};
             cnt_o <= 2'b00;
+            mem_cp0_we <= `WriteDisable;
+            mem_cp0_waddr <= 8'b00000000;
+            mem_cp0_wdata <= `ZeroWord;
         end else if (stall[3] == `Stop && stall[4] == `NoStop) begin
             // 处于EX和MEM的暂停交界处，NOP
             mem_waddr <= `NOPRegAddr;
@@ -67,6 +76,9 @@ module ex_mem(
             mem_reg2 <= `ZeroWord; 
             mul_result_o <= mul_result_i;
             cnt_o <= cnt_i;
+            mem_cp0_we <= `WriteDisable;
+            mem_cp0_waddr <= 8'b00000000;
+            mem_cp0_wdata <= `ZeroWord;
         end else if (stall[3] == `NoStop) begin
             mem_waddr <= ex_waddr;
             mem_we <= ex_we;
@@ -79,6 +91,9 @@ module ex_mem(
             mem_reg2 <= ex_reg2;
             mul_result_o <= {`ZeroWord, `ZeroWord};
             cnt_o <= 2'b00;
+            mem_cp0_we <= ex_cp0_we;
+            mem_cp0_waddr <= ex_cp0_waddr;
+            mem_cp0_wdata <= ex_cp0_wdata;
         end else begin
             mul_result_o <= mul_result_i;
             cnt_o <= cnt_i;

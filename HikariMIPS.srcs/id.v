@@ -662,6 +662,33 @@ module id(
                     // END FOR CASE rt
                     endcase
                 end // END FOR OPCODE REGIMM
+                `OP_COP0: begin
+                    case (rs)
+                        // MFC0
+                        `CP0_RS_MF: begin
+                            waddr_o <= rt;
+                            we_o <= `WriteEnable;
+                            aluop_o <= `ALU_OP_MFC0;
+                            alusel_o <= `ALU_SEL_MOVE;
+                            re1_o <= `ReadDisable;
+                            re2_o <= `ReadDisable;
+                            inst_valid <= `InstValid;
+                        end 
+                        // MTC0
+                        `CP0_RS_MT: begin
+                            we_o <= `WriteDisable;
+                            aluop_o <= `ALU_OP_MTC0;
+                            alusel_o <= `ALU_SEL_MOVE;
+                            raddr1_o <= rt;
+                            re1_o <= `ReadEnable;
+                            re2_o <= `ReadDisable;
+                            inst_valid <= `InstValid;
+                        end 
+                        default: begin
+                            // do nothing
+                        end
+                    endcase
+                end // END FOR OPCODE COP0
                 // ORI
                 `OP_ORI: begin
                     waddr_o <= rt;

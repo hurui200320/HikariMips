@@ -20,11 +20,21 @@ module ex(
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
     input wire[`RegBus] lo_i,
-
     // 来自访存的反馈，同ID模块解决数据相关的思路    
     input wire[`RegBus] mem_hi_i,
     input wire[`RegBus] mem_lo_i,
     input wire mem_we_hilo_i,
+
+    // CP0寄存器
+    input wire[`RegBus] cp0_rdata_i,
+    output reg[7:0] cp0_raddr_o,
+    output reg cp0_we_o,
+    output reg[7:0] cp0_waddr_o,
+    output reg[`RegBus] cp0_wdata_o,
+    // 来自MEM的反馈，解决数据相关
+    input wire mem_cp0_we_i,
+    input wire[7:0] mem_cp0_waddr_i,
+    input wire[`RegBus] mem_cp0_wdata_i,
 
     // 送到访存阶段的信息
     // 访存转给写回的数据
@@ -143,6 +153,7 @@ module ex(
     end
 
     // 数据移动，写Regfile部分，只涉及MFxx指令
+    wire[7:0] cp0_addr = {inst_i[15:11], inst_i[2:0]};
     always @ (*) begin
         if(rst == `RstEnable) begin
             move_result <= `ZeroWord;
@@ -158,6 +169,16 @@ module ex(
                 `ALU_OP_MOV: begin
                     move_result <= reg1_i;
                 end
+                `ALU_OP_MFC0: begin
+                    cp0_raddr_o <= cp0_addr;
+                    // 处理数据相关
+                    if (mem_cp0_we_i && mem_cp0_waddr_i == cp0_addr) begin
+                        move_result <= mem_cp0_wdata_i;
+                    end else begin
+                        // 没有数据相关
+                        move_result <= cp0_rdata_i;
+                    end
+                end
                 default : begin
                 end
             endcase
@@ -166,22 +187,17 @@ module ex(
 
     // 算数运算部分
     // 首先计算出第二个操作数，即减法和SLT（小于置1）时相当于+[-y]补
-    wire[`RegBus] reg2_i_mux;
-    assign reg2_i_mux = ( aluop_i == `ALU_OP_SUB || aluop_i == `ALU_OP_SUBU || aluop_i == `ALU_OP_SLT ) ? ~reg2_i + 1 : reg2_i;
+    wire[`RegBus] reg2_i_mux = ( aluop_i == `ALU_OP_SUB || aluop_i == `ALU_OP_SUBU || aluop_i == `ALU_OP_SLT ) ? ~reg2_i + 1 : reg2_i;
     // 计算加减和，如果是加法，则这里是求和，如果是减法或比较，则这里就是差
-    wire[`RegBus] result_sum;
-    assign result_sum = reg1_i + reg2_i_mux;
+    wire[`RegBus] result_sum = reg1_i + reg2_i_mux;
     // 检查溢出：两数为正和为负，及两数为负和为正
-    wire sum_overflow;
-    assign sum_overflow = (!reg1_i[31] && !reg2_i_mux && result_sum[31]) || ( reg1_i[31] && reg2_i_mux[31] && !result_sum[31]);
+    wire sum_overflow = (!reg1_i[31] && !reg2_i_mux && result_sum[31]) || ( reg1_i[31] && reg2_i_mux[31] && !result_sum[31]);
     // reg1是否小于reg2，情况有两种
     // 有符号数看reg1 2的符号和result_sum的符号，其中一负一正则必然小于
     // 无符号数直接比较两者符号
-    wire reg1_lt_reg2;
-    assign reg1_lt_reg2 = (aluop_i == `ALU_OP_SLTU) ? (reg1_i < reg2_i) : ( (reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31]) );
+    wire reg1_lt_reg2 = (aluop_i == `ALU_OP_SLTU) ? (reg1_i < reg2_i) : ( (reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31]) );
     // reg1取反
-    wire[`RegBus] reg1_not;
-    assign reg1_not = ~reg1_i;
+    wire[`RegBus] reg1_not = ~reg1_i;
 
     // 产生简单运算结果
     always @ (*) begin
@@ -435,7 +451,7 @@ module ex(
         stallreq = stallreq_for_div || stallreq_for_madd_msub;
     end
 
-    // 数据移动，写HI/LO部分，只涉及MTxx指令
+    // 数据移动，写HI/LO部分，只涉及MTHI/LO指令
     // 同时负责写入乘除法结果
     always @ (*) begin
         if(rst == `RstEnable) begin
@@ -473,6 +489,23 @@ module ex(
             hi_o <= `ZeroWord;
             lo_o <= `ZeroWord;
         end                
+    end
+
+    // 数据移动，写CP0部分，只涉及MTC0指令
+    always @ (*) begin
+        if (rst == `RstEnable) begin
+            cp0_waddr_o <= 8'b00000000;
+            cp0_we_o <= `WriteDisable;
+            cp0_wdata_o <= `ZeroWord;
+        end else if (aluop_i == `ALU_OP_MTC0) begin
+            cp0_waddr_o <= cp0_addr;
+            cp0_we_o <= `WriteEnable;
+            cp0_wdata_o <= reg1_i;
+        end else begin
+            cp0_waddr_o <= 8'b00000000;
+            cp0_we_o <= `WriteDisable;
+            cp0_wdata_o <= `ZeroWord;
+        end
     end
 
     // 按照运算类型选择一个结果输出

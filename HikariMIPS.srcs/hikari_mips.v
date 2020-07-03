@@ -69,6 +69,11 @@ module hikari_mips(
     wire[`RegBus] ex_reg2_o;
     wire[`DoubleRegBus] ex_mul_result_o;
     wire[1:0] ex_cnt_o;
+    wire ex_cp0_we_o;
+    wire[7:0] ex_cp0_waddr_o;
+    wire[`RegBus] ex_cp0_wdata_o;
+    // EX -> CP0
+    wire[7:0] ex_cp0_raddr_o;
 
     // EX/MEM -> MEM
     wire mem_we_i;
@@ -80,6 +85,9 @@ module hikari_mips(
     wire[`AluOpBus] mem_aluop_i;
     wire[`RegBus] mem_mem_addr_i;
     wire[`RegBus] mem_reg2_i;
+    wire mem_cp0_we_i;
+    wire[7:0] mem_cp0_waddr_i;
+    wire[`RegBus] mem_cp0_wdata_i;
     // EX/MEM -> EX
     wire[`DoubleRegBus] ex_mul_result_i;
     wire[1:0] ex_cnt_i;
@@ -91,6 +99,9 @@ module hikari_mips(
     wire mem_we_hilo_o; 
     wire[`RegBus] mem_hi_o;
     wire[`RegBus] mem_lo_o;
+    wire mem_cp0_we_o;
+    wire[7:0] mem_cp0_waddr_o;
+    wire[`RegBus] mem_cp0_wdata_o;
     
     // MEM/WB -> WB   
     wire wb_we_i;
@@ -99,6 +110,9 @@ module hikari_mips(
     wire wb_we_hilo_i;
     wire[`RegBus] wb_hi_i;
     wire[`RegBus] wb_lo_i;
+    wire wb_cp0_we_i;
+    wire[7:0] wb_cp0_waddr_i;
+    wire[`RegBus] wb_cp0_wdata_i;
     
     // ID -> Regfile
     wire reg1_read;
@@ -111,6 +125,9 @@ module hikari_mips(
     // HI/LO -> EX
     wire [`RegBus] hi;
     wire [`RegBus] lo;
+
+    // CP0 -> EX
+    wire[`RegBus] cp0_rdata_o;
 
     // CTRL <-> 各模块
     wire[5:0] stall;
@@ -255,11 +272,21 @@ module hikari_mips(
         // hi/LO寄存器
         .hi_i(hi),
         .lo_i(lo),
-
         // 来自访存的反馈，同ID模块解决数据相关的思路
         .mem_hi_i(mem_hi_o),
         .mem_lo_i(mem_lo_o),
         .mem_we_hilo_i(mem_we_hilo_o),
+
+        // CP0寄存器
+        .cp0_rdata_i(cp0_rdata_o),
+        .cp0_raddr_o(ex_cp0_raddr_o),
+        .cp0_we_o(ex_cp0_we_o),
+        .cp0_waddr_o(ex_cp0_waddr_o),
+        .cp0_wdata_o(ex_cp0_wdata_o),
+        // 来自MEM的反馈，解决数据相关
+        .mem_cp0_we_i(mem_cp0_we_o),
+        .mem_cp0_waddr_i(mem_cp0_waddr_o),
+        .mem_cp0_wdata_i(mem_cp0_wdata_o),
 
         // 送到执行阶段EX模块的信息
         .aluop_i(ex_aluop_i),
@@ -337,6 +364,9 @@ module hikari_mips(
         .ex_reg2(ex_reg2_o),
         .mul_result_i(ex_mul_result_o),
         .cnt_i(ex_cnt_o),
+        .ex_cp0_we(ex_cp0_we_o),
+        .ex_cp0_waddr(ex_cp0_waddr_o),
+        .ex_cp0_wdata(ex_cp0_wdata_o),
     
         //送到访存阶段MEM模块的信息
         .mem_waddr(mem_waddr_i),
@@ -349,7 +379,10 @@ module hikari_mips(
         .mem_mem_addr(mem_mem_addr_i),
         .mem_reg2(mem_reg2_i),
         .mul_result_o(ex_mul_result_i),
-        .cnt_o(ex_cnt_i)
+        .cnt_o(ex_cnt_i),
+        .mem_cp0_we(mem_cp0_we_i),
+        .mem_cp0_waddr(mem_cp0_waddr_i),
+        .mem_cp0_wdata(mem_cp0_wdata_i)
     );
     
     // MEM模块例化
@@ -367,6 +400,9 @@ module hikari_mips(
         .aluop_i(mem_aluop_i),
         .mem_addr_i(mem_mem_addr_i),
         .reg2_i(mem_reg2_i),
+        .cp0_we_i(mem_cp0_we_i),
+        .cp0_waddr_i(mem_cp0_waddr_i),
+        .cp0_wdata_i(mem_cp0_wdata_i),
       
         //送到MEM/WB模块的信息
         .waddr_o(mem_waddr_o),
@@ -375,6 +411,9 @@ module hikari_mips(
         .hi_o(mem_hi_o),
         .lo_o(mem_lo_o),
         .we_hilo_o(mem_we_hilo_o),
+        .cp0_we_o(mem_cp0_we_o),
+        .cp0_waddr_o(mem_cp0_waddr_o),
+        .cp0_wdata_o(mem_cp0_wdata_o),
 
         // 数据RAM
         .mem_data_i(ram_data_i),
@@ -397,7 +436,10 @@ module hikari_mips(
         .mem_wdata(mem_wdata_o),
         .mem_hi(mem_hi_o),
         .mem_lo(mem_lo_o),
-        .mem_we_hilo(mem_we_hilo_o),
+        .mem_we_hilo(mem_we_hilo_o),    
+        .mem_cp0_we(mem_cp0_we_o),
+        .mem_cp0_waddr(mem_cp0_waddr_o),
+        .mem_cp0_wdata(mem_cp0_wdata_o),
     
         //送到回写阶段的信息
         .wb_waddr(wb_waddr_i),
@@ -405,7 +447,10 @@ module hikari_mips(
         .wb_wdata(wb_wdata_i),
         .wb_hi(wb_hi_i),
         .wb_lo(wb_lo_i),
-        .wb_we_hilo(wb_we_hilo_i)
+        .wb_we_hilo(wb_we_hilo_i),
+        .wb_cp0_we(wb_cp0_we_i),
+        .wb_cp0_waddr(wb_cp0_waddr_i),
+        .wb_cp0_wdata(wb_cp0_wdata_i)
     );
 
     // HI/LO寄存器
@@ -419,6 +464,18 @@ module hikari_mips(
     
         .hi_o(hi),
         .lo_o(lo)    
+    );
+
+    cp0_reg cp0_reg0(
+        .clk(clk),
+        .rst(rst),
+
+        .we_i(wb_cp0_we_i),
+        .waddr_i(wb_cp0_waddr_i),
+        .wdata_i(wb_cp0_wdata_i),
+
+        .raddr_i(ex_cp0_raddr_o),
+        .rdata_o(cp0_rdata_o)
     );
 
     // CTRL

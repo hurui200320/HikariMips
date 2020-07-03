@@ -87,6 +87,13 @@
 // Read Modify Write链相关指令
 `define OP_LL  6'b110000
 `define OP_SC  6'b111000
+// 协处理器指令
+`define OP_COP0 6'b010000
+
+// RS寄存器，配合OP为COP0时判断指令类型
+`define CP0_RS_MF 5'b00000
+`define CP0_RS_MT 5'b00100
+`define CP0_RS_CO 5'b10000 // TLB等指令，副作用影响CP0内容
 
 // RT寄存器，配合OP为REGIMM时判断跳转类型
 `define RT_BLTZ    5'b00000
@@ -120,6 +127,7 @@
 `define FUNC_MTLO 6'b010011
 // 单周期算术运算
 // TODO 如果主频上不去，可以考虑拆乘法
+// TODO 用IP核做乘除法，可以与CPU同周期而调整核流水线延迟
 `define FUNC_ADD   6'b100000
 `define FUNC_ADDU  6'b100001
 `define FUNC_SUB   6'b100010
@@ -159,27 +167,29 @@
 `define ALU_OP_MTHI  8'b00001001
 `define ALU_OP_MFLO  8'b00001010
 `define ALU_OP_MTLO  8'b00001011
-`define ALU_OP_MOV   8'b00001100
-// 单周期算术运算
-`define ALU_OP_ADD   8'b00001101
-`define ALU_OP_ADDU  8'b00001110
-`define ALU_OP_SUB   8'b00001111
-`define ALU_OP_SUBU  8'b00010000
-`define ALU_OP_SLT   8'b00010001
-`define ALU_OP_SLTU  8'b00010010
-`define ALU_OP_MULT  8'b00010011
-`define ALU_OP_MULTU 8'b00010100
-// 两周期和特殊运算
-`define ALU_OP_CLZ   8'b00010101
-`define ALU_OP_CLO   8'b00010110
-`define ALU_OP_MUL   8'b00010111
-`define ALU_OP_MADD  8'b00011000
-`define ALU_OP_MADDU 8'b00011001
-`define ALU_OP_MSUB  8'b00011010
-`define ALU_OP_MSUBU 8'b00011011
+`define ALU_OP_MFC0  8'b00001100
+`define ALU_OP_MTC0  8'b00001101
+`define ALU_OP_MOV   8'b00001110
+// 单周期算术运算     
+`define ALU_OP_ADD   8'b00001111
+`define ALU_OP_ADDU  8'b00010000
+`define ALU_OP_SUB   8'b00010001
+`define ALU_OP_SUBU  8'b00010010
+`define ALU_OP_SLT   8'b00010011
+`define ALU_OP_SLTU  8'b00010100
+`define ALU_OP_MULT  8'b00010101
+`define ALU_OP_MULTU 8'b00010110
+// 两周期和特殊运算   
+`define ALU_OP_CLZ   8'b00010111
+`define ALU_OP_CLO   8'b00011000
+`define ALU_OP_MUL   8'b00011001
+`define ALU_OP_MADD  8'b00011010
+`define ALU_OP_MADDU 8'b00011011
+`define ALU_OP_MSUB  8'b00011100
+`define ALU_OP_MSUBU 8'b00011101
 // 多周期除法运算
-`define ALU_OP_DIV   8'b00011100
-`define ALU_OP_DIVU  8'b00011101
+`define ALU_OP_DIV   8'b00011110
+`define ALU_OP_DIVU  8'b00011111
 
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000
