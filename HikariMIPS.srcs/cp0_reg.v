@@ -42,12 +42,29 @@ module cp0_reg(
 
     `define CountAddr 8'b01001000
     reg[`RegBus] count;
+    always @ (posedge clk) begin // 定时器
+        if (we_i == `WriteEnable && waddr_i == CountAddr) begin
+            // 写入则无事可做
+        end else begin
+            // 否则自增
+            count <= count + 1;
+        end
+    end
 
     `define EntryHiAddr 8'b01010000
     reg[`RegBus] entryHi;
 
     `define CompareAddr 8'b01011000
     reg[`RegBus] compare;
+    always @ (posedge clk) begin // 定时器中断
+    // TODO 考证compare不为0是从何来
+        if (compare != `ZeroWord && count == compare) begin
+            // 引发定时器中断
+            cause[15] = 1'b1;
+            // MIPS32R1中将定时器和性能计数器中断与IP7合并
+            // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
+        end
+    end
 
     `define StatusAddr 8'b01100000
     reg[`RegBus] status;
@@ -122,21 +139,18 @@ module cp0_reg(
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
             // 复位，按照指令集赋值
-            // TODO 按照指令集赋值
+            // 只有需要清零的才有，如果reset后为undefined则不需要清零
             index <= `ZeroWord;
-            random <= `ZeroWord;
             entryLo0 <= `ZeroWord;
             entryLo1 <= `ZeroWord;
             context <= `ZeroWord;
             pageMask <= `ZeroWord;
             wired <= `ZeroWord;
-            badVAddr <= `ZeroWord;
-            count <= `ZeroWord;
             entryHi <= `ZeroWord;
-            compare <= `ZeroWord;
-            status <= `ZeroWord;
             cause <= `ZeroWord;
-            ePC <= `ZeroWord;
+            // TODO 下面的寄存器按照指令集赋值
+            random <= `ZeroWord;
+            status <= `ZeroWord;
             pRId <= `ZeroWord;
             config0 <= `ZeroWord;
             config1 <= `ZeroWord;
@@ -156,62 +170,66 @@ module cp0_reg(
             dataLo3 <= `ZeroWord;
             tagHi3 <= `ZeroWord;
             dataHi3 <= `ZeroWord;
-            errorEPC <= `ZeroWord;
         end else if (we_i == `WriteEnable) begin
             // 根据Addr写数据
-            // TODO 筛选只读及部分可写
             case (waddr_i)
-                `IndexAddr: begin
-                    index <= wdata_i;
-                end
-                `RandomAddr: begin
-                    random <= wdata_i;
-                end
                 `EntryLo0Addr: begin
-                    entryLo0 <= wdata_i;
+                    entryLo0[29:0] <= wdata_i[29:0];
                 end
                 `EntryLo1Addr: begin
-                    entryLo1 <= wdata_i;
+                    entryLo1[29:0] <= wdata_i[29:0];
                 end
                 `ContextAddr: begin
-                    context <= wdata_i;
+                    context[31:23] <= wdata_i[31:23];
                 end
                 `PageMaskAddr: begin
-                    pageMask <= wdata_i;
-                end
-                `WiredAddr: begin
-                    wired <= wdata_i;
-                end
-                `BadVAddrAddr: begin
-                    badVAddr <= wdata_i;
+                    pageMask[28:13] <= wdata_i[28:13];
+                    pageMask[12:11] <= wdata_i[12:11];
                 end
                 `CountAddr: begin
                     count <= wdata_i;
                 end
                 `EntryHiAddr: begin
-                    entryHi <= wdata_i;
+                    entryHi[31:13] <= wdata_i[31:13];
+                    entryHi[12:11] <= wdata_i[12:11];
+                    entryHi[7:0] <= wdata_i[7:0];
                 end
                 `CompareAddr: begin
                     compare <= wdata_i;
                 end
                 `StatusAddr: begin
-                    status <= wdata_i;
+                    status[31:25] <= wdata_i[31:25];
+                    status[22:19] <= wdata_i[22:19];
+                    status[17:16] <= wdata_i[17:16]; // 具体实现使用
+                    status[15:8] <= wdata_i[15:8];
+                    status[4] <= wdata_i[4];
+                    status[2:0] <= wdata_i[2:0];
                 end
                 `CauseAddr: begin
-                    cause <= wdata_i;
+                    cause[27] <= wdata_i[27];
+                    cause[23:22] <= wdata_i[23:22];
+                    cause[9:8] <= wdata_i[9:8];
                 end
                 `EPCAddr: begin
                     ePC <= wdata_i;
                 end
-                `PRIdAddr: begin
-                    pRId <= wdata_i;
-                end
                 `Config0Addr: begin
-                    config0 <= wdata_i;
+                    config0[30:25] <= wdata_i[30:25];
+                    config0[24:16] <= wdata_i[24:16]; // 具体实现使用
+                    config0[2:0] <= wdata_i[2:0];
                 end
-                `Config1Addr: begin
-                    config1 <= wdata_i;
+                `ErrorEPCAddr: begin
+                    errorEPC <= wdata_i;
                 end
+
+                // TODO 筛选只读及部分可写
+                `IndexAddr: begin
+                    index <= wdata_i;
+                end
+                `WiredAddr: begin
+                    wired <= wdata_i;
+                end
+                
                 `TagLo0Addr: begin
                     tagLo0 <= wdata_i;
                 end
@@ -259,9 +277,6 @@ module cp0_reg(
                 end
                 `DataHi3Addr: begin
                     dataHi3 <= wdata_i;
-                end
-                `ErrorEPCAddr: begin
-                    errorEPC <= wdata_i;
                 end
                 default: begin
                     // unknown register
