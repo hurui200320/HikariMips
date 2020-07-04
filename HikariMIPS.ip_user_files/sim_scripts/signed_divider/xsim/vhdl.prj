@@ -1,0 +1,4 @@
+vhdl xil_defaultlib  \
+"../../../../HikariMIPS.srcs/sources_1/ip/signed_divider/sim/signed_divider.vhd" \
+
+nosort
