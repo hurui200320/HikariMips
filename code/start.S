@@ -4,20 +4,51 @@
     .set noreorder
     .set nomacro
 _start:
-	# 测试HILO在WB的数据相关
-	ori $1, $0, 0xFF
-	mthi $1
-	nop
-	mfhi $2
-	# 测试CP0
-	ori $1, $0, 0xf
-	mtc0 $1, $11, 0x0 # 写入Compare寄存器
+    ori  $2,$0,0xffff                  
+    sll  $2,$2,16
+    ori  $2,$2,0xfff1           # $2 = -15
+    ori  $3,$0,0x11             # $3 = 17
+    
+    div $zero,$2,$3             # hi = 0xfffffff1            
+                                # lo = 0x0
+    divu $zero,$2,$3            # hi = 0x00000003
+                                # lo = 0x0f0f0f0e
+    
+    div  $zero,$3,$2            # hi = 2
+                                # lo = 0xffffffff
 	
-	lui $1, 0x1000
-	ori $1, $1, 0x401 # $1 = 0x10000401
-	mtc0 $1, $12, 0x0 # 写入Status寄存器
-	mfc0 $2, $12, 0x0 # $2 = 0x10000401
-	
+	# 测试完除法再测试乘法
+	ori  $1,$0,0xffff                  
+    sll  $1,$1,16
+    ori  $1,$1,0xfffb           # $1 = -5
+    ori  $2,$0,6                # $2 = 6
+    mul  $3,$1,$2               # $3 = -30 = 0xffffffe2
+    
+    mult $1,$2                  # hi = 0xffffffff
+                                # lo = 0xffffffe2
+    
+    multu $1,$2                 # hi = 0x5
+                                # lo = 0xffffffe2
+	# 测试累加累减
+	ori  $1,$0,0xffff                  
+    sll  $1,$1,16
+    ori  $1,$1,0xfffb           # $1 = -5
+    ori  $2,$0,6                # $2 = 6
+    
+    mult $1,$2                  # hi = 0xffffffff
+                                # lo = 0xffffffe2
+    
+    madd $1,$2                  # hi = 0xffffffff
+                                # lo = 0xffffffc4
+    
+    maddu $1,$2                 # hi = 0x5
+                                # lo = 0xffffffa6
+    
+    msub $1,$2                  # hi = 0x5
+                                # lo = 0xffffffc4   
+    
+    msubu $1,$2                 # hi = 0xffffffff
+                                # lo = 0xffffffe2 
 _loop:
 	j _loop
 	nop

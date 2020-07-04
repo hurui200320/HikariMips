@@ -1,8 +1,3 @@
-HikariMIPS.cache/
-HikariMIPS.ip_user_files/
-HikariMIPS.runs/
-HikariMIPS.sim/
-HikariMIPS.hw/
 code/obj/
 *.o
 code/bin.lds

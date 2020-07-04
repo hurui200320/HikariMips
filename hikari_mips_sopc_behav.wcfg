@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="225000fs"></ZoomStartTime>
-      <ZoomEndTime time="576940fs"></ZoomEndTime>
-      <Cursor1Time time="483421fs"></Cursor1Time>
+      <ZoomStartTime time="1463970fs"></ZoomStartTime>
+      <ZoomEndTime time="1657771fs"></ZoomEndTime>
+      <Cursor1Time time="21000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="207"></NameColumnWidth>
+      <NameColumnWidth column_width="199"></NameColumnWidth>
       <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="11" />
+   <WVObjectSize size="13" />
    <wvobject fp_name="/hikari_mips_sopc/rst" type="logic">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -490,6 +490,127 @@
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/mult_result_i" type="array">
+         <obj_property name="ElementShortName">mult_result_i[63:0]</obj_property>
+         <obj_property name="ObjectShortName">mult_result_i[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/mult_ready_i" type="logic">
+         <obj_property name="ElementShortName">mult_ready_i</obj_property>
+         <obj_property name="ObjectShortName">mult_ready_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/mult_opdata1_o" type="array">
+         <obj_property name="ElementShortName">mult_opdata1_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mult_opdata1_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/mult_opdata2_o" type="array">
+         <obj_property name="ElementShortName">mult_opdata2_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mult_opdata2_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/mult_start_o" type="logic">
+         <obj_property name="ElementShortName">mult_start_o</obj_property>
+         <obj_property name="ObjectShortName">mult_start_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/signed_mult_o" type="logic">
+         <obj_property name="ElementShortName">signed_mult_o</obj_property>
+         <obj_property name="ObjectShortName">signed_mult_o</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group274" type="group">
+      <obj_property name="label">multiplier</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/rst" type="logic">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/signed_mul_i" type="logic">
+         <obj_property name="ElementShortName">signed_mul_i</obj_property>
+         <obj_property name="ObjectShortName">signed_mul_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/opdata1_i" type="array">
+         <obj_property name="ElementShortName">opdata1_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata1_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/opdata2_i" type="array">
+         <obj_property name="ElementShortName">opdata2_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata2_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/start_i" type="logic">
+         <obj_property name="ElementShortName">start_i</obj_property>
+         <obj_property name="ObjectShortName">start_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/annul_i" type="logic">
+         <obj_property name="ElementShortName">annul_i</obj_property>
+         <obj_property name="ObjectShortName">annul_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/result_o" type="array">
+         <obj_property name="ElementShortName">result_o[63:0]</obj_property>
+         <obj_property name="ObjectShortName">result_o[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/ready_o" type="logic">
+         <obj_property name="ElementShortName">ready_o</obj_property>
+         <obj_property name="ObjectShortName">ready_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/state" type="array">
+         <obj_property name="ElementShortName">state[1:0]</obj_property>
+         <obj_property name="ObjectShortName">state[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/count" type="array">
+         <obj_property name="ElementShortName">count[3:0]</obj_property>
+         <obj_property name="ObjectShortName">count[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/signed_result" type="array">
+         <obj_property name="ElementShortName">signed_result[63:0]</obj_property>
+         <obj_property name="ObjectShortName">signed_result[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/unsigned_result" type="array">
+         <obj_property name="ElementShortName">unsigned_result[63:0]</obj_property>
+         <obj_property name="ObjectShortName">unsigned_result[63:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group130" type="group">
+      <obj_property name="label">divider</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/rst" type="logic">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/signed_div_i" type="logic">
+         <obj_property name="ElementShortName">signed_div_i</obj_property>
+         <obj_property name="ObjectShortName">signed_div_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/opdata1_i" type="array">
+         <obj_property name="ElementShortName">opdata1_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata1_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/opdata2_i" type="array">
+         <obj_property name="ElementShortName">opdata2_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata2_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/start_i" type="logic">
+         <obj_property name="ElementShortName">start_i</obj_property>
+         <obj_property name="ObjectShortName">start_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/annul_i" type="logic">
+         <obj_property name="ElementShortName">annul_i</obj_property>
+         <obj_property name="ObjectShortName">annul_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/result_o" type="array">
+         <obj_property name="ElementShortName">result_o[63:0]</obj_property>
+         <obj_property name="ObjectShortName">result_o[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/div0/ready_o" type="logic">
+         <obj_property name="ElementShortName">ready_o</obj_property>
+         <obj_property name="ObjectShortName">ready_o</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="group225" type="group">
       <obj_property name="label">CTRL</obj_property>
@@ -510,7 +631,6 @@
    <wvobject fp_name="group78" type="group">
       <obj_property name="label">MEM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/waddr_o" type="array">
          <obj_property name="ElementShortName">waddr_o[4:0]</obj_property>
          <obj_property name="ObjectShortName">waddr_o[4:0]</obj_property>

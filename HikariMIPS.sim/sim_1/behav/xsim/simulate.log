@@ -1,0 +1,21 @@
+Vivado Simulator 2019.2
+Time resolution is 1 ps
+ Block Memory Generator module loading initial data...
+ Block Memory Generator data initialization complete.
+Block Memory Generator module hikari_mips_sopc.rom.inst.native_mem_mapped_module.blk_mem_gen_v8_4_4_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
+Block Memory Generator module hikari_mips_sopc.ram.inst.native_mem_mapped_module.blk_mem_gen_v8_4_4_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
+                 750  0
+                 770  1
+                 910  0
+                 930  1
+                1070  0
+                1170  1
+                1310  0
+                1330  1
+                1470  0
+                1490  1
+                1630  0
+                1650  1
+                1790  0
+                1810  1
+                1950  0

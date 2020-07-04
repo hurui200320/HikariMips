@@ -1,0 +1,124 @@
+Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2019.2 (win64) Build 2708876 Wed Nov  6 21:40:23 MST 2019
+| Date         : Sat Jul  4 15:17:52 2020
+| Host         : Blake-Belladonna running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file hikari_mips_control_sets_placed.rpt
+| Design       : hikari_mips
+| Device       : xc7a200t
+----------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |    46 |
+|    Minimum number of control sets                        |    46 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |    52 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |    46 |
+| >= 0 to < 4        |     2 |
+| >= 4 to < 6        |     1 |
+| >= 6 to < 8        |     0 |
+| >= 8 to < 10       |     2 |
+| >= 10 to < 12      |     0 |
+| >= 12 to < 14      |     0 |
+| >= 14 to < 16      |     0 |
+| >= 16              |    41 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |             106 |           63 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |             527 |          300 |
+| Yes          | No                    | No                     |             128 |           62 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |            1091 |          478 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++----------------+----------------------------------+----------------------------+------------------+----------------+
+|  Clock Signal  |           Enable Signal          |      Set/Reset Signal      | Slice Load Count | Bel Load Count |
++----------------+----------------------------------+----------------------------+------------------+----------------+
+|  id_ex0/rst    |                                  | rst_IBUF                   |                1 |              1 |
+|  clk_IBUF_BUFG |                                  |                            |                2 |              2 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_19         | rst_IBUF                   |                3 |              5 |
+|  id_ex0/E[0]   |                                  |                            |                3 |              8 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[5]_2[0] | rst_IBUF                   |                5 |              9 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_20[0]      | rst_IBUF                   |                9 |             18 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[5]_1[0] | rst_IBUF                   |                5 |             18 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[6]_0[0] | rst_IBUF                   |               14 |             25 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[6]_1[0] | rst_IBUF                   |                9 |             29 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[4]_1[0] | rst_IBUF                   |               10 |             30 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[4]_0[0] | rst_IBUF                   |               10 |             30 |
+|  n_3_239_BUFG  |                                  |                            |               13 |             32 |
+|  n_1_178_BUFG  |                                  | rst_IBUF                   |               17 |             32 |
+|  n_2_3338_BUFG |                                  | rst_IBUF                   |               23 |             32 |
+|  clk_IBUF_BUFG | id_ex0/p_0_in                    | pc_reg0/clear              |                9 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/E[0]                     |                            |                9 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[4]_2[0] |                            |               16 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_13[0]      | rst_IBUF                   |               12 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_11[0]      | rst_IBUF                   |               17 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_waddr_reg[6]_2[0] |                            |               18 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_7[0]       | rst_IBUF                   |               14 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_8[0]       | rst_IBUF                   |                7 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_1[0]       | rst_IBUF                   |                9 |             32 |
+|  n_0_107_BUFG  |                                  | rst_IBUF                   |               21 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_6[0]       | rst_IBUF                   |                6 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_9[0]       | rst_IBUF                   |               17 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_2[0]       | rst_IBUF                   |               15 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_16[0]      | rst_IBUF                   |               10 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_15[0]      | rst_IBUF                   |               32 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_17[0]      | rst_IBUF                   |               12 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_3[0]       | rst_IBUF                   |               20 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_21[0]      |                            |               19 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_5[0]       | rst_IBUF                   |               13 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_18[0]      | rst_IBUF                   |               14 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_12[0]      | rst_IBUF                   |               19 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_10[0]      | rst_IBUF                   |               16 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_4[0]       | rst_IBUF                   |               17 |             32 |
+|  clk_IBUF_BUFG | mem_wb0/wb_cp0_we_reg_14[0]      | rst_IBUF                   |                8 |             32 |
+|  accu_temp     |                                  |                            |               45 |             64 |
+|  clk_IBUF_BUFG | mem_wb0/wb_we_hilo_i             | rst_IBUF                   |               40 |             64 |
+|  clk_IBUF_BUFG | div0/result_o[63]_i_1_n_4        | rst_IBUF                   |               29 |             64 |
+|  clk_IBUF_BUFG | id_ex0/p_0_in                    | rst_IBUF                   |               26 |             64 |
+|  clk_IBUF_BUFG | mem_wb0/p_0_in                   |                            |               12 |             96 |
+|  clk_IBUF_BUFG | id_ex0/p_0_in                    | id_ex0/ex_aluop[7]_i_1_n_4 |               51 |            127 |
+|  clk_IBUF_BUFG |                                  | id_ex0/rst_0               |              118 |            214 |
+|  clk_IBUF_BUFG |                                  | rst_IBUF                   |              120 |            216 |
++----------------+----------------------------------+----------------------------+------------------+----------------+
+
+
