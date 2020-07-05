@@ -27,7 +27,7 @@ module mul(
 
     wire[63:0] signed_result;
     signed_multiplier signed_multiplier(
-        .clk(~clk),
+        .CLK(~clk),
         .A(opdata1_i),
         .B(opdata2_i),
         .P(signed_result)
@@ -36,7 +36,7 @@ module mul(
     wire[63:0] unsigned_result;
 
     unsigned_multiplier unsigned_multiplier(
-        .clk(~clk),
+        .CLK(~clk),
         .A(opdata1_i),
         .B(opdata2_i),
         .P(unsigned_result)

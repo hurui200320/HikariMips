@@ -20,7 +20,9 @@ module hikari_mips(
     output wire[`RegBus] ram_addr_o,
     output wire ram_ce_o,
     output wire ram_we_o,
-    output wire[3:0] ram_sel_o
+    output wire[3:0] ram_sel_o,
+
+    input wire[4:0] init_i
     );
 
     // PC -> IF/ID
@@ -491,7 +493,9 @@ module hikari_mips(
         .wdata_i(wb_cp0_wdata_i),
 
         .raddr_i(ex_cp0_raddr_o),
-        .rdata_o(cp0_rdata_o)
+        .rdata_o(cp0_rdata_o),
+
+        .init_i(init_i)
     );
 
     // CTRL

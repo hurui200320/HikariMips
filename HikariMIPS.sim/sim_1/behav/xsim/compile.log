@@ -37,3 +37,11 @@ INFO: [VRFC 10-2263] Analyzing Verilog file "D:/HikariMIPS/HikariMIPS.srcs/sourc
 INFO: [VRFC 10-311] analyzing module hikari_mips_sopc
 INFO: [VRFC 10-2263] Analyzing Verilog file "D:/HikariMIPS/HikariMIPS.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-163] Analyzing VHDL file "D:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/unsigned_multiplier/sim/unsigned_multiplier.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'unsigned_multiplier'
+INFO: [VRFC 10-163] Analyzing VHDL file "D:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/signed_multiplier/sim/signed_multiplier.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'signed_multiplier'
+INFO: [VRFC 10-163] Analyzing VHDL file "D:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/unsigned_divider/sim/unsigned_divider.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'unsigned_divider'
+INFO: [VRFC 10-163] Analyzing VHDL file "D:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/signed_divider/sim/signed_divider.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'signed_divider'

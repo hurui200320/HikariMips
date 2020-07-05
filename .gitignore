@@ -2,3 +2,5 @@ code/obj/
 *.o
 code/bin.lds
 code/convert
+HikariMIPS.cache/
+HikariMIPS.runs/
