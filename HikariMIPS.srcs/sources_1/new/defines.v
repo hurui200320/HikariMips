@@ -20,10 +20,6 @@
 `define ComputeStart 1'b1
 `define ComputeStop 1'b0
 
-// 指令存储器地址带宽
-`define InstAddrBus 31:0
-// 指令储存器数据带宽
-`define InstBus 31:0
 // 通用寄存器地址带宽，5位可寻址32个
 `define RegAddrBus 4:0
 // 通用寄存器地址宽度
@@ -96,6 +92,12 @@
 `define RT_BGEZ    5'b00001
 `define RT_BLTZL   5'b00010
 `define RT_BGEZL   5'b00011
+`define RT_TEQI    5'b01100
+`define RT_TGEI    5'b01000
+`define RT_TGEIU   5'b01001
+`define RT_TLTI    5'b01010
+`define RT_TLTIU   5'b01011
+`define RT_TNEI    5'b01110
 `define RT_BLTZAL  5'b10000
 `define RT_BGEZAL  5'b10001
 `define RT_BLTZALL 5'b10010
@@ -122,8 +124,6 @@
 `define FUNC_MFLO 6'b010010
 `define FUNC_MTLO 6'b010011
 // 单周期算术运算
-// TODO 如果主频上不去，可以考虑拆乘法
-// TODO 用IP核做乘除法，可以与CPU同周期而调整核流水线延迟
 `define FUNC_ADD   6'b100000
 `define FUNC_ADDU  6'b100001
 `define FUNC_SUB   6'b100010
@@ -146,6 +146,16 @@
 // 分支跳转
 `define FUNC_JR   6'b001000
 `define FUNC_JALR 6'b001001
+// 异常相关指令
+`define FUNC_BREAK   6'b001101
+`define FUNC_SYSCALL 6'b001100
+`define FUNC_ERET    6'b011000
+`define FUNC_TGE     6'b110000
+`define FUNC_TGEU    6'b110001
+`define FUNC_TLT     6'b110010
+`define FUNC_TLTU    6'b110011
+`define FUNC_TEQ     6'b110100
+`define FUNC_TNE     6'b110110
 
 // ALU OP
 `define ALU_OP_NOP   8'h00000000
@@ -186,6 +196,13 @@
 // 多周期除法运算
 `define ALU_OP_DIV   8'b00011110
 `define ALU_OP_DIVU  8'b00011111
+// 异常相关
+`define ALU_OP_TEQ   8'b00100000
+`define ALU_OP_TNE   8'b00100001
+`define ALU_OP_TGE   8'b00100010
+`define ALU_OP_TGEU  8'b00100011
+`define ALU_OP_TLT   8'b00100100
+`define ALU_OP_TLTU  8'b00100101
 
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000
@@ -215,6 +232,17 @@
 
 // NOP时操作的寄存器
 `define NOPRegAddr 5'b00000
+
+// CP0
+`define BadVAddrAddr 8'b01000000
+`define CountAddr 8'b01001000
+`define CompareAddr 8'b01011000
+`define StatusAddr 8'b01100000
+`define CauseAddr 8'b01101000
+`define EPCAddr 8'b01110000
+`define Config0Addr 8'b10000000
+`define Config1Addr 8'b10000001
+`define ErrorEPCAddr 8'b11110000
 
 // 关闭隐式声明，防止变量名拼写错误时自动生成新变量
 `default_nettype none

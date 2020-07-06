@@ -43,7 +43,7 @@ module mul(
     );
 
     always @ (posedge clk) begin
-        if (rst == 1'b1) begin
+        if (rst) begin
             state <= 2'b00;
             count <= 0;
             ready_o <= 1'b0;
@@ -51,7 +51,7 @@ module mul(
         end else begin
             case (state)
                 2'b00: begin // 尚未开始
-                    if(start_i == 1'b1 && annul_i == 1'b0) begin
+                    if(start_i && annul_i == 1'b0) begin
                         // 没被取消，且要求开始
                         state <= 2'b01;
                         count <= count + 1;
@@ -82,7 +82,7 @@ module mul(
                     end    
                 end
                 2'b10: begin // 计算完成
-                    if(signed_mul_i == 1'b1) begin
+                    if(signed_mul_i) begin
                         // 有符号结果
                         result_o <= signed_result;
                     end else begin

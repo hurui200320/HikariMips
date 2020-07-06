@@ -54,7 +54,7 @@ module div(
     );
 
     always @ (posedge clk) begin
-        if (rst == 1'b1) begin
+        if (rst) begin
             signed_start <= 1'b0;
             unsigned_start <= 1'b0;
             state <= 2'b00;
@@ -63,7 +63,7 @@ module div(
         end else begin
             case (state)
                 2'b00: begin // 尚未开始
-                    if(start_i == 1'b1 && annul_i == 1'b0) begin
+                    if(start_i && annul_i == 1'b0) begin
                         // 没被取消，且要求开始
                         if(opdata2_i == 32'd0) begin
                             // 除数是0，进入计算出错状态
@@ -72,7 +72,7 @@ module div(
                             // 准备开始
                             state <= 2'b01;
                             // 判断有无符号
-                            if(signed_div_i == 1'b1) begin
+                            if(signed_div_i) begin
                                 signed_start <= 1'b1;
                             end else begin
                                 unsigned_start <= 1'b1;
@@ -87,12 +87,12 @@ module div(
                 2'b01: begin // 正在计算
                     if(annul_i == 1'b0) begin
                         // 没有被取消，等待dout tvalid信号
-                        if(signed_div_i == 1'b1 && signed_dout_valid == 1'b1) begin
+                        if(signed_div_i && signed_dout_valid) begin
                             // 有符号结果
                             result_o <= signed_result;  
                             ready_o <= 1'b1;
                             state <= 2'b10; // 计算完成
-                        end else if (signed_div_i == 1'b0 && unsigned_dout_valid == 1'b1) begin
+                        end else if (signed_div_i == 1'b0 && unsigned_dout_valid) begin
                             // 无符号结果
                             result_o <= unsigned_result;  
                             state <= 2'b10; // 计算完成

@@ -6,6 +6,7 @@
 module mem_wb(
     input wire clk,
     input wire rst,
+    input wire flush,
 
     input wire[5:0] stall,
 
@@ -33,7 +34,7 @@ module mem_wb(
     );
 
     always @ (posedge clk) begin
-        if(rst == `RstEnable) begin
+        if(rst == `RstEnable || flush) begin
             wb_waddr <= `NOPRegAddr;
             wb_we <= `WriteDisable;
             wb_wdata <= `ZeroWord;  

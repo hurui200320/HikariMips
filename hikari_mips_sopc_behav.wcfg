@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1463970fs"></ZoomStartTime>
-      <ZoomEndTime time="1657771fs"></ZoomEndTime>
-      <Cursor1Time time="21000000fs"></Cursor1Time>
+      <ZoomStartTime time="539810fs"></ZoomStartTime>
+      <ZoomEndTime time="859078fs"></ZoomEndTime>
+      <Cursor1Time time="699587fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="199"></NameColumnWidth>
+      <NameColumnWidth column_width="191"></NameColumnWidth>
       <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="13" />
+   <WVObjectSize size="14" />
    <wvobject fp_name="/hikari_mips_sopc/rst" type="logic">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -127,6 +127,10 @@
          <obj_property name="ObjectShortName">is_nullified_i</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/inst_valid" type="logic">
+         <obj_property name="ElementShortName">inst_valid</obj_property>
+         <obj_property name="ObjectShortName">inst_valid</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/next_inst_in_delayslot_o" type="logic">
          <obj_property name="ElementShortName">next_inst_in_delayslot_o</obj_property>
@@ -273,7 +277,6 @@
    <wvobject fp_name="group69" type="group">
       <obj_property name="label">EX</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id_ex0/next_inst_in_delayslot_i" type="logic">
          <obj_property name="ElementShortName">next_inst_in_delayslot_i</obj_property>
          <obj_property name="ObjectShortName">next_inst_in_delayslot_i</obj_property>
@@ -518,7 +521,6 @@
    <wvobject fp_name="group274" type="group">
       <obj_property name="label">multiplier</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mul0/clk" type="logic">
          <obj_property name="ElementShortName">clk</obj_property>
          <obj_property name="ObjectShortName">clk</obj_property>
@@ -615,6 +617,7 @@
    <wvobject fp_name="group225" type="group">
       <obj_property name="label">CTRL</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/stallreq_from_id" type="logic">
          <obj_property name="ElementShortName">stallreq_from_id</obj_property>
          <obj_property name="ObjectShortName">stallreq_from_id</obj_property>
@@ -627,10 +630,31 @@
          <obj_property name="ElementShortName">stall[5:0]</obj_property>
          <obj_property name="ObjectShortName">stall[5:0]</obj_property>
       </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/cp0_epc_i" type="array">
+         <obj_property name="ElementShortName">cp0_epc_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cp0_epc_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/exception_occured_i" type="logic">
+         <obj_property name="ElementShortName">exception_occured_i</obj_property>
+         <obj_property name="ObjectShortName">exception_occured_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/exc_code_i" type="array">
+         <obj_property name="ElementShortName">exc_code_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">exc_code_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/epc_o" type="array">
+         <obj_property name="ElementShortName">epc_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">epc_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/flush" type="logic">
+         <obj_property name="ElementShortName">flush</obj_property>
+         <obj_property name="ObjectShortName">flush</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="group78" type="group">
       <obj_property name="label">MEM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/waddr_o" type="array">
          <obj_property name="ElementShortName">waddr_o[4:0]</obj_property>
          <obj_property name="ObjectShortName">waddr_o[4:0]</obj_property>
@@ -671,12 +695,6 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/we_o" type="logic">
          <obj_property name="ElementShortName">we_o</obj_property>
          <obj_property name="ObjectShortName">we_o</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/wdata_o" type="array">
-         <obj_property name="ElementShortName">wdata_o[31:0]</obj_property>
-         <obj_property name="ObjectShortName">wdata_o[31:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
@@ -728,6 +746,35 @@
          <obj_property name="ObjectShortName">mem_ce_o</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_is_in_delayslot_o" type="logic">
+         <obj_property name="ElementShortName">mem_is_in_delayslot_o</obj_property>
+         <obj_property name="ObjectShortName">mem_is_in_delayslot_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_exception_occured_o" type="logic">
+         <obj_property name="ElementShortName">mem_exception_occured_o</obj_property>
+         <obj_property name="ObjectShortName">mem_exception_occured_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_exc_code_o" type="array">
+         <obj_property name="ElementShortName">mem_exc_code_o[4:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_exc_code_o[4:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_bad_addr_o" type="array">
+         <obj_property name="ElementShortName">mem_bad_addr_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_bad_addr_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_we_o" type="logic">
+         <obj_property name="ElementShortName">cp0_we_o</obj_property>
+         <obj_property name="ObjectShortName">cp0_we_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_waddr_o" type="array">
+         <obj_property name="ElementShortName">cp0_waddr_o[7:0]</obj_property>
+         <obj_property name="ObjectShortName">cp0_waddr_o[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_wdata_o" type="array">
+         <obj_property name="ElementShortName">cp0_wdata_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cp0_wdata_o[31:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group82" type="group">
@@ -788,6 +835,103 @@
          <obj_property name="ObjectShortName">wb_cp0_wdata[31:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group747" type="group">
+      <obj_property name="label">cp0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/we_i" type="logic">
+         <obj_property name="ElementShortName">we_i</obj_property>
+         <obj_property name="ObjectShortName">we_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/waddr_i" type="array">
+         <obj_property name="ElementShortName">waddr_i[7:0]</obj_property>
+         <obj_property name="ObjectShortName">waddr_i[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/wdata_i" type="array">
+         <obj_property name="ElementShortName">wdata_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wdata_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/raddr_i" type="array">
+         <obj_property name="ElementShortName">raddr_i[7:0]</obj_property>
+         <obj_property name="ObjectShortName">raddr_i[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/rdata_o" type="array">
+         <obj_property name="ElementShortName">rdata_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">rdata_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/init_i" type="array">
+         <obj_property name="ElementShortName">init_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">init_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/status_o" type="array">
+         <obj_property name="ElementShortName">status_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">status_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/cause_o" type="array">
+         <obj_property name="ElementShortName">cause_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cause_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/epc_o" type="array">
+         <obj_property name="ElementShortName">epc_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">epc_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/exception_occured_i" type="logic">
+         <obj_property name="ElementShortName">exception_occured_i</obj_property>
+         <obj_property name="ObjectShortName">exception_occured_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/exc_code_i" type="array">
+         <obj_property name="ElementShortName">exc_code_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">exc_code_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/pc_i" type="array">
+         <obj_property name="ElementShortName">pc_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">pc_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/is_in_delayslot_i" type="logic">
+         <obj_property name="ElementShortName">is_in_delayslot_i</obj_property>
+         <obj_property name="ObjectShortName">is_in_delayslot_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/bad_addr_i" type="array">
+         <obj_property name="ElementShortName">bad_addr_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">bad_addr_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/badVAddr" type="array">
+         <obj_property name="ElementShortName">badVAddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">badVAddr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/count" type="array">
+         <obj_property name="ElementShortName">count[31:0]</obj_property>
+         <obj_property name="ObjectShortName">count[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/compare" type="array">
+         <obj_property name="ElementShortName">compare[31:0]</obj_property>
+         <obj_property name="ObjectShortName">compare[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/status" type="array">
+         <obj_property name="ElementShortName">status[31:0]</obj_property>
+         <obj_property name="ObjectShortName">status[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/cause" type="array">
+         <obj_property name="ElementShortName">cause[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cause[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/epc" type="array">
+         <obj_property name="ElementShortName">epc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">epc[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/config0" type="array">
+         <obj_property name="ElementShortName">config0[31:0]</obj_property>
+         <obj_property name="ObjectShortName">config0[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/config1" type="array">
+         <obj_property name="ElementShortName">config1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">config1[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/cp0_reg0/errorEPC" type="array">
+         <obj_property name="ElementShortName">errorEPC[31:0]</obj_property>
+         <obj_property name="ObjectShortName">errorEPC[31:0]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
