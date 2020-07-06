@@ -19,8 +19,8 @@ module hikari_mips_sopc();
         // #5000 $stop;
     end
 
-    wire[`InstAddrBus] inst_addr;
-    wire[`InstBus] inst;
+    wire[`RegBus] inst_addr;
+    wire[`RegBus] inst;
     wire rom_ce;
 
     wire[`RegBus] ram_data_i;
@@ -45,7 +45,8 @@ module hikari_mips_sopc();
     .ram_addr_o(ram_addr),
     .ram_ce_o(ram_ce),
     .ram_we_o(ram_we),
-    .ram_sel_o(ram_sel)
+    .ram_sel_o(ram_sel),
+    .init_i(5'b00000)
     );
 
     inst_rom rom(

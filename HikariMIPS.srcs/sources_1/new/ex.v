@@ -16,6 +16,8 @@ module ex(
     input wire[`RegAddrBus] waddr_i,
     input wire we_i,
     input wire[`RegBus] inst_i,
+    input wire[`RegBus] pc_i,
+    input wire[`RegBus] exceptions_i,
 
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
@@ -52,7 +54,12 @@ module ex(
 
     // 延迟槽和跳转
     input wire[`RegBus] link_address_i,
-    input wire is_in_delayslot_i, // 这个是异常处理部分使用的，目前尚未实装
+    input wire is_in_delayslot_i,
+
+    // 异常
+    output wire[`RegBus] pc_o,
+    output wire[`RegBus] exceptions_o,
+    output wire is_in_delayslot_o,
 
     // 除法模块
     input wire[`DoubleRegBus] div_result_i,
@@ -72,6 +79,13 @@ module ex(
 
     output reg stallreq
     );
+
+    reg trap_occured;
+    reg overflow_occured;
+    assign pc_o = pc_i;
+    assign is_in_delayslot_o = is_in_delayslot_i;
+    // IF ID使用了低五位，这里第六、七位表示溢出和自陷，其余应当为0
+    assign exceptions_o = {exceptions_i[31:7], trap_occured, overflow_occured, exceptions_i[4:0]};
 
     reg[`RegBus] logic_result;
     reg[`RegBus] shift_result;
@@ -187,7 +201,11 @@ module ex(
 
     // 算数运算部分
     // 首先计算出第二个操作数，即减法和SLT（小于置1）时相当于+[-y]补
-    wire[`RegBus] reg2_i_mux = ( aluop_i == `ALU_OP_SUB || aluop_i == `ALU_OP_SUBU || aluop_i == `ALU_OP_SLT ) ? ~reg2_i + 1 : reg2_i;
+    wire[`RegBus] reg2_i_mux = ( aluop_i == `ALU_OP_SUB 
+                                || aluop_i == `ALU_OP_SUBU
+                                || aluop_i == `ALU_OP_SLT 
+                                || aluop_i == `ALU_OP_TLT 
+                                || aluop_i == `ALU_OP_TGE ) ? ~reg2_i + 1 : reg2_i;
     // 计算加减和，如果是加法，则这里是求和，如果是减法或比较，则这里就是差
     wire[`RegBus] result_sum = reg1_i + reg2_i_mux;
     // 检查溢出：两数为正和为负，及两数为负和为正
@@ -195,7 +213,7 @@ module ex(
     // reg1是否小于reg2，情况有两种
     // 有符号数看reg1 2的符号和result_sum的符号，其中一负一正则必然小于
     // 无符号数直接比较两者符号
-    wire reg1_lt_reg2 = (aluop_i == `ALU_OP_SLTU) ? (reg1_i < reg2_i) : ( (reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31]) );
+    wire reg1_lt_reg2 = (aluop_i == `ALU_OP_SLTU || aluop_i == `ALU_OP_TLTU || aluop_i == `ALU_OP_TGEU ) ? (reg1_i < reg2_i) : ( (reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31]) );
     // reg1取反
     wire[`RegBus] reg1_not = ~reg1_i;
 
@@ -284,6 +302,34 @@ module ex(
                 end
                 default: begin
                     arithmetic_result <= `ZeroWord;
+                end
+            endcase
+        end
+    end
+    // 利用上面的结果判断是否自陷
+    always @ (*) begin
+        if (rst == `RstEnable) begin
+            trap_occured <= `False_v;
+        end else begin
+            case (aluop_i)
+                // TEQ TEQI
+                `ALU_OP_TEQ: begin
+                    trap_occured <= (reg1_i == reg2_i);
+                end 
+                // TEG TEGI TEGU TEGIU
+                `ALU_OP_TGE, `ALU_OP_TGEU: begin
+                    trap_occured <= (~reg1_lt_reg2); // not less than -> great equal than
+                end
+                // TLT TLTU TLTI TLTIU
+                `ALU_OP_TLT, `ALU_OP_TLTU: begin
+                    trap_occured <= reg1_lt_reg2;
+                end
+                // TNE TNEI
+                `ALU_OP_TNE: begin
+                    trap_occured <= (reg1_i != reg2_i);
+                end
+                default: begin
+                    trap_occured <= `False_v; // 默认没有
                 end
             endcase
         end
@@ -466,7 +512,7 @@ module ex(
             lo_o <= `ZeroWord;
         end else if(aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU) begin
             // 是乘法，结果写入HILO，MUL指令除外
-            we_hilo_o = `WriteEnable;
+            we_hilo_o <= `WriteEnable;
             hi_o <= mult_result_i[63:32];
             lo_o <= mult_result_i[31:0];
         end else if (aluop_i == `ALU_OP_DIV || aluop_i == `ALU_OP_DIVU) begin
@@ -521,8 +567,10 @@ module ex(
         if((aluop_i == `ALU_OP_ADD || aluop_i == `ALU_OP_SUB) && sum_overflow) begin
             // 有溢出则禁止写 + 产生例外/异常
             we_o <= `WriteDisable;
+            overflow_occured <= `True_v;
         end else begin
             we_o <= we_i;
+            overflow_occured <= `False_v;
         end
         case (alusel_i) 
             `ALU_SEL_LOGIC: begin

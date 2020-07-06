@@ -14,7 +14,11 @@ module pc_reg(
     input wire is_branch_i,
     input wire[`RegBus] branch_target_address_i,
 
-    output reg[`InstAddrBus] pc,
+    // 异常
+    input wire flush,
+    input wire[`RegBus] epc,
+
+    output reg[`RegBus] pc,
     // 指令存储器使能信号
     output reg ce
     );
@@ -27,11 +31,16 @@ module pc_reg(
             ce <= `ChipEnable;
         end
     end
+    
+    // TODO 取指地址未对齐则产生AdEL异常
 
     // 两个块并行执行
     always @ (posedge clk) begin
         if (ce == `ChipDisable) begin
             pc <= `ZeroWord;
+        end else if (flush) begin
+            // 出现异常，使用epc的值
+            pc <= epc;
         end else if (stall[0] == `NoStop) begin
             // IF未暂停
             if(is_branch_i) begin

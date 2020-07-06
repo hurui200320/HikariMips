@@ -26,9 +26,10 @@ module hikari_mips(
     );
 
     // PC -> IF/ID
-    wire[`InstAddrBus] pc;
-    wire[`InstAddrBus] id_pc_i;
-    wire[`InstBus] id_inst_i;    
+    wire[`RegBus] pc;
+    wire[`RegBus] id_pc_i;
+    wire[`RegBus] id_pc_o;
+    wire[`RegBus] id_inst_i;    
     
     // ID -> ID/EX
     wire[`AluOpBus] id_aluop_o;
@@ -44,6 +45,7 @@ module hikari_mips(
     wire next_inst_in_delayslot_o;
     wire next_inst_is_nullified_o;
     wire[`RegBus] id_inst_o;
+    wire[31:0] id_exceptions_o;
     // ID -> PC
     wire id_is_branch_o;
     wire[`RegBus] branch_target_address_o;
@@ -58,6 +60,8 @@ module hikari_mips(
     wire[`RegBus]  ex_link_address_i;
     wire ex_is_in_delayslot_i;
     wire[`RegBus] ex_inst_i;
+    wire[`RegBus] ex_pc_i;
+    wire[31:0] ex_exceptions_i;
     
     // EX -> EX/MEM
     wire ex_we_o;
@@ -72,6 +76,9 @@ module hikari_mips(
     wire ex_cp0_we_o;
     wire[7:0] ex_cp0_waddr_o;
     wire[`RegBus] ex_cp0_wdata_o;
+    wire[`RegBus] ex_pc_o;
+    wire[31:0] ex_exceptions_o;
+    wire ex_is_in_delayslot_o;
     // EX -> CP0
     wire[7:0] ex_cp0_raddr_o;
 
@@ -88,6 +95,9 @@ module hikari_mips(
     wire mem_cp0_we_i;
     wire[7:0] mem_cp0_waddr_i;
     wire[`RegBus] mem_cp0_wdata_i;
+    wire[`RegBus] mem_pc_i;
+    wire[31:0] mem_exceptions_i;
+    wire mem_is_in_delayslot_i;
 
     // MEM -> MEM/WB
     wire mem_we_o;
@@ -99,6 +109,11 @@ module hikari_mips(
     wire mem_cp0_we_o;
     wire[7:0] mem_cp0_waddr_o;
     wire[`RegBus] mem_cp0_wdata_o;
+    wire[`RegBus] mem_pc_o;
+    wire mem_is_in_delayslot_o;
+    wire mem_exception_occured_o;
+    wire[4:0] mem_exc_code_o;
+    wire[`RegBus] mem_bad_addr_o;
     
     // MEM/WB -> WB   
     wire wb_we_i;
@@ -125,11 +140,17 @@ module hikari_mips(
 
     // CP0 -> EX
     wire[`RegBus] cp0_rdata_o;
+    // CP0 <-> 各模块
+    wire[`RegBus] cp0_status_o;
+    wire[`RegBus] cp0_cause_o;
+    wire[`RegBus] cp0_epc_o;
 
     // CTRL <-> 各模块
     wire[5:0] stall;
     wire stallreq_from_id;    
     wire stallreq_from_ex;
+    wire[`RegBus] ctrl_epc_o;
+    wire ctrl_flush_o;
 
     // EX <-> DIV
     wire[`DoubleRegBus] div_result;
@@ -157,7 +178,9 @@ module hikari_mips(
         .is_branch_i(id_is_branch_o),
         .branch_target_address_i(branch_target_address_o),
         .pc(pc),
-        .ce(rom_ce_o)
+        .ce(rom_ce_o),
+        .flush(ctrl_flush_o),
+        .epc(ctrl_epc_o)
     );
     assign rom_addr_o = pc;
 
@@ -165,6 +188,7 @@ module hikari_mips(
     if_id if_id0(
         .clk(clk),
         .rst(rst),
+        .flush(ctrl_flush_o),
         .stall(stall),
         .if_pc(pc),
         .if_inst(rom_data_i),
@@ -178,6 +202,7 @@ module hikari_mips(
         .rst(rst),
 
         .pc_i(id_pc_i),
+        .pc_o(id_pc_o),
         .inst_i(id_inst_i),
         .inst_o(id_inst_o),
 
@@ -211,6 +236,9 @@ module hikari_mips(
         .link_addr_o(id_link_address_o),
         .is_in_delayslot_o(id_is_in_delayslot_o),
 
+        // 异常
+        .exceptions_o(id_exceptions_o),
+
         //送到ID/EX模块的信息
         .aluop_o(id_aluop_o),
         .alusel_o(id_alusel_o),
@@ -241,6 +269,7 @@ module hikari_mips(
     id_ex id_ex0(
         .clk(clk),
         .rst(rst),
+        .flush(ctrl_flush_o),
         .stall(stall),
         
         //从译码阶段ID模块传递的信息
@@ -255,6 +284,8 @@ module hikari_mips(
         .next_inst_in_delayslot_i(next_inst_in_delayslot_o),
         .next_inst_is_nullified_i(next_inst_is_nullified_o),
         .id_inst(id_inst_o),
+        .id_pc(id_pc_o),
+        .id_exceptions(id_exceptions_o),
     
         //传递到执行阶段EX模块的信息
         .ex_aluop(ex_aluop_i),
@@ -267,7 +298,9 @@ module hikari_mips(
         .ex_is_in_delayslot(ex_is_in_delayslot_i),
         .is_in_delayslot_o(is_in_delayslot_i),
         .is_nullified_o(is_nullified_i),
-        .ex_inst(ex_inst_i)
+        .ex_inst(ex_inst_i),
+        .ex_pc(ex_pc_i),
+        .ex_exceptions(ex_exceptions_i)
     );        
     
     // EX模块
@@ -302,6 +335,8 @@ module hikari_mips(
         .waddr_i(ex_waddr_i),
         .we_i(ex_we_i),
         .inst_i(ex_inst_i),
+        .pc_i(ex_pc_i),
+        .exceptions_i(ex_exceptions_i),
       
         // EX模块的输出到EX/MEM模块信息
         .waddr_o(ex_waddr_o),
@@ -320,6 +355,11 @@ module hikari_mips(
         // 延迟槽和分支跳转
         .link_address_i(ex_link_address_i),
         .is_in_delayslot_i(ex_is_in_delayslot_i),    
+
+        // 异常
+        .pc_o(ex_pc_o),
+        .exceptions_o(ex_exceptions_o),
+        .is_in_delayslot_o(ex_is_in_delayslot_o),
 
         // 除法模块
         .div_result_i(div_result),
@@ -349,7 +389,7 @@ module hikari_mips(
         .opdata1_i(div_opdata1),
         .opdata2_i(div_opdata2),
         .start_i(div_start),
-        .annul_i(1'b0), // 目前还没有异常机制，不需要取消除法，取消机制需要测试
+        .annul_i(ctrl_flush_o), // TODO 测试取消
         .result_o(div_result),
         .ready_o(div_ready)
     );
@@ -363,7 +403,7 @@ module hikari_mips(
         .opdata1_i(mul_opdata1),
         .opdata2_i(mul_opdata2),
         .start_i(mul_start),
-        .annul_i(1'b0), // 目前还没有异常机制，不需要取消乘法，取消机制需要测试
+        .annul_i(ctrl_flush_o), // TODO 取消机制需要测试
         .result_o(mul_result),
         .ready_o(mul_ready)
     );
@@ -372,6 +412,7 @@ module hikari_mips(
     ex_mem ex_mem0(
         .clk(clk),
         .rst(rst),
+        .flush(ctrl_flush_o),
         .stall(stall),
       
         //来自执行阶段EX模块的信息    
@@ -387,6 +428,9 @@ module hikari_mips(
         .ex_cp0_we(ex_cp0_we_o),
         .ex_cp0_waddr(ex_cp0_waddr_o),
         .ex_cp0_wdata(ex_cp0_wdata_o),
+        .ex_pc(ex_pc_o),
+        .ex_exceptions(ex_exceptions_o),
+        .ex_is_in_delayslot(ex_is_in_delayslot_o),
     
         //送到访存阶段MEM模块的信息
         .mem_waddr(mem_waddr_i),
@@ -400,7 +444,10 @@ module hikari_mips(
         .mem_reg2(mem_reg2_i),
         .mem_cp0_we(mem_cp0_we_i),
         .mem_cp0_waddr(mem_cp0_waddr_i),
-        .mem_cp0_wdata(mem_cp0_wdata_i)
+        .mem_cp0_wdata(mem_cp0_wdata_i),
+        .mem_pc(mem_pc_i),
+        .mem_exceptions(mem_exceptions_i),
+        .mem_is_in_delayslot(mem_is_in_delayslot_i)
     );
     
     // MEM模块例化
@@ -421,7 +468,20 @@ module hikari_mips(
         .cp0_we_i(mem_cp0_we_i),
         .cp0_waddr_i(mem_cp0_waddr_i),
         .cp0_wdata_i(mem_cp0_wdata_i),
+        .exceptions_i(mem_exceptions_i),
+        .pc_i(mem_pc_i),
+        .is_in_delayslot_i(mem_is_in_delayslot_i),
       
+        .cp0_status_i(cp0_status_o),
+        .cp0_cause_i(cp0_cause_o),
+        .cp0_epc_i(cp0_epc_o),
+
+        .pc_o(mem_pc_o),
+        .is_in_delayslot_o(mem_is_in_delayslot_o),
+        .exception_occured_o(mem_exception_occured_o),
+        .exc_code_o(mem_exc_code_o),
+        .bad_addr_o(mem_bad_addr_o),
+
         //送到MEM/WB模块的信息
         .waddr_o(mem_waddr_o),
         .we_o(mem_we_o),
@@ -446,6 +506,7 @@ module hikari_mips(
     mem_wb mem_wb0(
         .clk(clk),
         .rst(rst),
+        .flush(ctrl_flush_o),
         .stall(stall),
 
         //来自访存阶段MEM模块的信息    
@@ -495,7 +556,17 @@ module hikari_mips(
         .raddr_i(ex_cp0_raddr_o),
         .rdata_o(cp0_rdata_o),
 
-        .init_i(init_i)
+        .init_i(init_i),
+        
+        .status_o(cp0_status_o),
+        .cause_o(cp0_cause_o),
+        .epc_o(cp0_epc_o),
+
+        .exception_occured_i(mem_exception_occured_o),
+        .exc_code_i(mem_exc_code_o),
+        .pc_i(mem_pc_o),
+        .is_in_delayslot_i(mem_is_in_delayslot_o),
+        .bad_addr_i(mem_bad_addr_o) 
     );
 
     // CTRL
@@ -505,7 +576,13 @@ module hikari_mips(
 
         .stallreq_from_id(stallreq_from_id),
         .stallreq_from_ex(stallreq_from_ex),
-        .stall(stall)
+        .stall(stall),
+
+        .cp0_epc_i(cp0_epc_o),
+        .exception_occured_i(mem_exception_occured_o),
+        .exc_code_i(mem_exc_code_o),
+        .epc_o(ctrl_epc_o),
+        .flush(ctrl_flush_o)
     );
 
 endmodule
