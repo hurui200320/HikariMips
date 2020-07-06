@@ -46,7 +46,7 @@ module hikari_mips_sopc();
     .ram_ce_o(ram_ce),
     .ram_we_o(ram_we),
     .ram_sel_o(ram_sel),
-    .init_i(4'b0000)
+    .init_i(5'b00000)
     );
 
     inst_rom rom(

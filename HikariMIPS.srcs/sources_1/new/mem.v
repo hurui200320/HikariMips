@@ -99,7 +99,7 @@ module mem(
             // 等待cpu复位或清空流水线
             if (pc_i != `ZeroWord) begin
                 exception_occured_o <= `True_v; // 默认有异常
-                if ((cp0_cause_i[15:8] & cp0_status_i[15:8] != 8'd0) // 有未被屏蔽的中断申请
+                if (((cp0_cause_i[15:8] & cp0_status_i[15:8]) != 8'd0) // 有未被屏蔽的中断申请
                 && cp0_status_i[2] == 1'b0 && cp0_status_i[1] == 1'b0 // 不在异常级或错误级中
                 && cp0_status_i[0] == 1'b1 /* 总中断开启 */)  begin
                     exc_code_o <= 5'h00;

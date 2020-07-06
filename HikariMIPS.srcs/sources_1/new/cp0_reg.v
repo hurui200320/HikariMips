@@ -38,6 +38,11 @@ module cp0_reg(
     reg[`RegBus] config1;
     reg[`RegBus] errorEPC;
 
+    // 仿真用
+    initial begin
+        count <= `ZeroWord;
+    end
+
     // 排除status、cause和epc的数据相关
     always @ (*) begin
         status_o <= status;
@@ -80,18 +85,13 @@ module cp0_reg(
             // TODO TLB chache things...
             config0 <= 32'b1000_0000_0000_0000_0000_0000_0000_0000;
             config1 <= `ZeroWord;
-        end else if (we_i == `WriteEnable) begin
+        end else begin
             // count自增
             count <= count + 1;
             // 写外部硬件中断至casue
             cause[14:10] <= init_i;
-            if (count == compare) begin
-                // 引发定时器中断
-                cause[15] <= 1'b1;
-                // MIPS32R1中将定时器和性能计数器中断与IP7合并
-                // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
-            end
-
+        end 
+        if (we_i == `WriteEnable) begin
             // 根据Addr写数据
             case (waddr_i)
                 `CountAddr: begin
@@ -127,11 +127,16 @@ module cp0_reg(
                     // unknown register
                 end
             endcase 
-        end else begin
-            // do nothing
         end
 
         if (rst == `RstDisable) begin
+            if (count == compare) begin
+                // 引发定时器中断
+                cause[15] <= 1'b1;
+                // MIPS32R1中将定时器和性能计数器中断与IP7合并
+                // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
+            end
+
             // 处理异常产生的寄存器变动，ERET不能更新EPC
             if (exception_occured_i && exc_code_i != 5'h10) begin
                 // 发生了异常，先记录EPC
@@ -153,7 +158,11 @@ module cp0_reg(
                     default: begin
                     end
                 endcase
-            end else begin
+            end
+            // ERET重置异常级
+            if (exception_occured_i && exc_code_i == 5'h10) begin
+                status[2] <= 1'b0;
+                status[1] <= 1'b0;
             end
         end
     end
