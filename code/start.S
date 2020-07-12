@@ -4,52 +4,24 @@
     .set noreorder
     .set nomacro
 _start:
-	addi $s0,$0,-1
-    addi $s1,$0,0
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    addi $s0,$s0,1
-    addi $s1,$s1,4
-    sw $s0,512($s1)
-    
-    add $s0,$zero,$zero   
-    addi $s1,$zero,28   #排序区间
-sort_loop:
-    lw $s3,512($s0)     
-    lw $s4,512($s1)
-    slt $t0,$s3,$s4
-    beq $t0,$0,sort_next   #降序排序
-	nop
-    sw $s3, 512($s1)
-    sw $s4, 512($s0)   
-sort_next:
-    addi $s1, $s1, -4   
-    bne $s0, $s1, sort_loop  
+    ori $1,$0,0x100     # $1 = 0x100
+    jr $1
     nop
-    addi $s0,$s0,4
-    addi $s1,$zero,28
-    bne $s0, $s1, sort_loop
-	nop
-    addi   $v0,$zero,10 
-	j _loop
-	
+    
+    .org 0x40 # 异常处理
+	mfc0 $4, $14, 0x00
+	addi $4, $4, 0x04
+	mtc0 $4, $14, 0x00
+    mult $2, $3
+    eret
+    nop
+    
+    .org 0x100
+    ori $2,$0,200
+    ori $1,$0,100
+    ori $3,$0,400
+    syscall # 测试乘法取消
+	mult $1, $2
 _loop:
 	j _loop
 	nop

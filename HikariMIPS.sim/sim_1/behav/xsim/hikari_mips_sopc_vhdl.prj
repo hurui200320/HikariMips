@@ -1,0 +1,9 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../HikariMIPS.srcs/sources_1/ip/unsigned_multiplier/sim/unsigned_multiplier.vhd" \
+"../../../../HikariMIPS.srcs/sources_1/ip/signed_multiplier/sim/signed_multiplier.vhd" \
+"../../../../HikariMIPS.srcs/sources_1/ip/unsigned_divider/sim/unsigned_divider.vhd" \
+"../../../../HikariMIPS.srcs/sources_1/ip/signed_divider/sim/signed_divider.vhd" \
+
+# Do not sort compile order
+nosort
