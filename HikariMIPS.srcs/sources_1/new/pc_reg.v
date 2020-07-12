@@ -17,6 +17,7 @@ module pc_reg(
     // 异常
     input wire flush,
     input wire[`RegBus] epc,
+    output reg[31:0] exceptions_o,
 
     output reg[`RegBus] pc,
     // 指令存储器使能信号
@@ -27,8 +28,17 @@ module pc_reg(
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
             ce <= `ChipDisable;
+            exceptions_o <= `ZeroWord;
         end else begin
-            ce <= `ChipEnable;
+            if (pc[1:0] == 2'b00) begin
+                // 地址对齐
+                ce <= `ChipEnable;
+                exceptions_o[0] <= 1'b0;
+            end else begin
+                // 地址未对齐
+                ce <= `ChipDisable;
+                exceptions_o[0] <= 1'b1;
+            end
         end
     end
     

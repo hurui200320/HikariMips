@@ -110,6 +110,7 @@ module mem(
                 end else if (exceptions_i[1]) begin
                     // 无效指令
                     exc_code_o <= 5'h0a;
+                    // TODO 协处理器不可用异常，总线异常
                 end else if (exceptions_i[5]) begin
                     // 溢出
                     exc_code_o <= 5'h0c;

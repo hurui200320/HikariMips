@@ -30,6 +30,8 @@ module hikari_mips(
     wire[`RegBus] id_pc_i;
     wire[`RegBus] id_pc_o;
     wire[`RegBus] id_inst_i;    
+    wire[31:0] pc_exceptions_o;
+    wire[31:0] id_exceptions_i;
     
     // ID -> ID/EX
     wire[`AluOpBus] id_aluop_o;
@@ -180,7 +182,8 @@ module hikari_mips(
         .pc(pc),
         .ce(rom_ce_o),
         .flush(ctrl_flush_o),
-        .epc(ctrl_epc_o)
+        .epc(ctrl_epc_o),
+        .exceptions_o(pc_exceptions_o)
     );
     assign rom_addr_o = pc;
 
@@ -192,8 +195,10 @@ module hikari_mips(
         .stall(stall),
         .if_pc(pc),
         .if_inst(rom_data_i),
+        .if_exceptions(pc_exceptions_o),
         .id_pc(id_pc_i),
-        .id_inst(id_inst_i)          
+        .id_inst(id_inst_i),
+        .id_exceptions(id_exceptions_i)
     );
     
     // IF/ID -> ID -> ID/EX, PC
@@ -237,6 +242,7 @@ module hikari_mips(
         .is_in_delayslot_o(id_is_in_delayslot_o),
 
         // 异常
+        .exceptions_i(id_exceptions_i),
         .exceptions_o(id_exceptions_o),
 
         //送到ID/EX模块的信息

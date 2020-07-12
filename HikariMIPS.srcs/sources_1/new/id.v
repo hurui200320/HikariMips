@@ -60,6 +60,7 @@ module id(
     output reg is_in_delayslot_o,
 
     // 异常
+    output wire[31:0] exceptions_i,
     output wire[31:0] exceptions_o,
 
     // 执行阶段所需信号
@@ -99,8 +100,8 @@ module id(
     reg exception_is_break;
     reg exception_is_syscall;
     reg exception_is_eret;
-    // TODO 明确含义：低五位分别是系统调用、断点、ERET、指令无效、取指未对齐(未实装)
-    assign exceptions_o = {27'd0, exception_is_syscall, exception_is_break, exception_is_eret, inst_valid, 1'b0};
+    // 明确含义：低五位分别是系统调用、断点、ERET、指令无效、取指未对齐
+    assign exceptions_o = {27'd0, exception_is_syscall, exception_is_break, exception_is_eret, inst_valid, exceptions_i[0]};
 
 
     // 计算分支跳转相关的数据

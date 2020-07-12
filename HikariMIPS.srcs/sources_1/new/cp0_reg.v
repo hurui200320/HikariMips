@@ -82,7 +82,7 @@ module cp0_reg(
             // 只有需要清零的才有，如果reset后为undefined则不需要清零
             status <= 32'b0001_0000_0100_0000_0000_0000_0000_0100;
             cause <= `ZeroWord;
-            // TODO TLB chache things...
+            // TODO TLB cache things...
             config0 <= 32'b1000_0000_0000_0000_0000_0000_0000_0000;
             config1 <= `ZeroWord;
         end else begin
