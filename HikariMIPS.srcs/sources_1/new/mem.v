@@ -67,26 +67,69 @@ module mem(
     output reg[7:0] cp0_waddr_o,
     output reg[`RegBus] cp0_wdata_o,
     
-    // 来自数据RAM的数据
+    // 数据RAM
     input wire[`RegBus] mem_data_i,
-
+    input wire mem_addr_ok,
+    input wire mem_data_ok,
     // 送往数据RAM的信号
     output reg[`RegBus] mem_addr_o,
-    output reg mem_we_o,
-    // 字节选择遮罩，为1代表选择对应字节
-    // mem_sel_o对应寄存器
+    output reg mem_wr_o,
     // 寄存器： 31:24   23:16   15:8   7:0
-    // mem_sel  1000    0100   0010   0001
-    output reg[3:0] mem_sel_o,
+    // strb     1000    0100   0010   0001
+    output reg[3:0] mem_strb_o,
     output reg[`RegBus] mem_data_o,
-    output wire mem_ce_o
+    output wire mem_req_o,
+    output reg stallreq
     );
+
+    // TODO 读写状态机
+    reg req_en; // 不可能同时读写，因此共用一个req_en status
+    reg status;
 
     reg mem_ce;
     // 没有发生异常才允许存储器操作
-    assign mem_ce_o = mem_ce && (~exception_occured_o);
+    assign mem_req_o = req_en && mem_ce && (~exception_occured_o);
     assign is_in_delayslot_o = is_in_delayslot_i;
     assign pc_o = pc_i;
+
+    // 处理握手
+    always @ (posedge clk) begin
+        if (mem_ce == `ChipEnable) begin
+            // 存在请求
+            case (status)
+                1'b0: begin
+                    // 等待地址握手
+                    if (!mem_addr_ok) begin
+                        stallreq <= `True_v;
+                    end else begin
+                        // 地址握手成功，转入数据握手
+                        // 地址握手成功后取消req信号
+                        req_en <= `False_v;
+                        status <= 1'b1;
+                    end
+                end
+                1'b1: begin
+                    // 等待数据握手
+                    if (!mem_data_ok) begin
+                        stallreq <= `True_v;
+                    end else begin
+                        // 数据握手成功，取消暂停流水线
+                        // 同时允许发出请求，返回等待地址握手阶段
+                        stallreq <= `False_v;
+                        req_en <= `True_v;
+                        status <= 1'b0;
+                    end
+                end
+                default: begin
+                    stallreq <= `False_v;
+                    req_en <= `True_v;
+                    status <= 1'b0;
+                end
+            endcase
+        end else begin
+            status <= 1'b0;
+        end
+    end
 
     reg read_exception;
     reg write_exception;
@@ -95,6 +138,7 @@ module mem(
     always @ (*) begin
         if (rst == `RstEnable) begin
             exception_occured_o <= `False_v;
+            stallreq <= `False_v;
         end else begin
             // 等待cpu复位或清空流水线
             if (pc_i != `ZeroWord) begin
@@ -110,7 +154,6 @@ module mem(
                 end else if (exceptions_i[1]) begin
                     // 无效指令
                     exc_code_o <= 5'h0a;
-                    // TODO 协处理器不可用异常，总线异常
                 end else if (exceptions_i[5]) begin
                     // 溢出
                     exc_code_o <= 5'h0c;
@@ -147,7 +190,7 @@ module mem(
         read_exception <= `False_v;
         write_exception <= `False_v;
         mem_addr_o <= `ZeroWord;
-        mem_we_o <= `WriteDisable;
+        mem_wr_o <= `WriteDisable;
         mem_ce <= `ChipDisable;
         if(rst == `RstEnable) begin
             waddr_o <= `NOPRegAddr;
@@ -156,7 +199,7 @@ module mem(
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
             lo_o <= `ZeroWord;
-            mem_sel_o <= 4'b0000;
+            mem_strb_o <= 4'b0000;
             mem_data_o <= `ZeroWord;
             cp0_we_o <= `WriteDisable;
             cp0_waddr_o <= 8'b00000000;
@@ -168,7 +211,7 @@ module mem(
             we_hilo_o <= we_hilo_i;
             hi_o <= hi_i;
             lo_o <= lo_i;
-            mem_sel_o <= 4'b1111;
+            mem_strb_o <= 4'b1111;
             cp0_we_o <= cp0_we_i;
             cp0_waddr_o <= cp0_waddr_i;
             cp0_wdata_o <= cp0_wdata_i;
@@ -181,19 +224,19 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{24{mem_data_i[7]}},mem_data_i[7:0]};
-                            mem_sel_o <= 4'b0001;
+                            mem_strb_o <= 4'b0001;
                         end
                         2'b01: begin
                             wdata_o <= {{24{mem_data_i[15]}},mem_data_i[15:8]};
-                            mem_sel_o <= 4'b0010;
+                            mem_strb_o <= 4'b0010;
                         end
                         2'b10: begin
                             wdata_o <= {{24{mem_data_i[23]}},mem_data_i[23:16]};
-                            mem_sel_o <= 4'b0100;
+                            mem_strb_o <= 4'b0100;
                         end
                         2'b11: begin
                             wdata_o <= {{24{mem_data_i[31]}},mem_data_i[31:24]};
-                            mem_sel_o <= 4'b1000;
+                            mem_strb_o <= 4'b1000;
                         end
                         default: begin
                             wdata_o <= `ZeroWord;
@@ -207,11 +250,11 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{16{mem_data_i[15]}}, mem_data_i[15:0]};
-                            mem_sel_o <= 4'b0011;
+                            mem_strb_o <= 4'b0011;
                         end
                         2'b10: begin
                             wdata_o <= {{16{mem_data_i[31]}}, mem_data_i[31:16]};
-                            mem_sel_o <= 4'b1100;
+                            mem_strb_o <= 4'b1100;
                         end
                         default: begin
                             // 此时一定是最低没有对齐，应当抛地址异常
@@ -223,7 +266,7 @@ module mem(
                 // LWL
                 `MEM_OP_LWL: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
-                    mem_sel_o <= 4'b1111;
+                    mem_strb_o <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
@@ -247,7 +290,7 @@ module mem(
                 `MEM_OP_LW: begin
                     mem_addr_o <= mem_addr_i;
                     wdata_o <= mem_data_i;
-                    mem_sel_o <= 4'b1111;
+                    mem_strb_o <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     if (mem_addr_i[1:0] != 2'b00) begin 
                         read_exception <= `True_v;
@@ -260,19 +303,19 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[7:0]};
-                            mem_sel_o <= 4'b0001;
+                            mem_strb_o <= 4'b0001;
                         end
                         2'b01: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[15:8]};
-                            mem_sel_o <= 4'b0010;
+                            mem_strb_o <= 4'b0010;
                         end
                         2'b10: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[23:16]};
-                            mem_sel_o <= 4'b0100;
+                            mem_strb_o <= 4'b0100;
                         end
                         2'b11: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[31:24]};
-                            mem_sel_o <= 4'b1000;
+                            mem_strb_o <= 4'b1000;
                         end
                         default: begin
                             wdata_o <= `ZeroWord;
@@ -286,11 +329,11 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{16{1'b0}}, mem_data_i[15:0]};
-                            mem_sel_o <= 4'b0011;
+                            mem_strb_o <= 4'b0011;
                         end
                         2'b10: begin
                             wdata_o <= {{16{1'b0}}, mem_data_i[31:16]};
-                            mem_sel_o <= 4'b1100;
+                            mem_strb_o <= 4'b1100;
                         end
                         default: begin
                             read_exception <= `True_v;
@@ -301,7 +344,7 @@ module mem(
                 // LWR
                 `MEM_OP_LWR: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
-                    mem_sel_o <= 4'b1111;
+                    mem_strb_o <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
@@ -324,81 +367,81 @@ module mem(
                 // SB
                 `MEM_OP_SB: begin
                     mem_addr_o <= mem_addr_i;
-                    mem_we_o <= `WriteEnable;
+                    mem_wr_o <= `WriteEnable;
                     // 因为只写入1byte，因此全部复制最低位要写入的数据
                     mem_data_o <= {reg2_i[7:0],reg2_i[7:0],reg2_i[7:0],reg2_i[7:0]};
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_sel_o <= 4'b0001;
+                            mem_strb_o <= 4'b0001;
                         end
                         2'b01: begin
-                            mem_sel_o <= 4'b0010;
+                            mem_strb_o <= 4'b0010;
                         end
                         2'b10: begin
-                            mem_sel_o <= 4'b0100;
+                            mem_strb_o <= 4'b0100;
                         end
                         2'b11: begin
-                            mem_sel_o <= 4'b1000;
+                            mem_strb_o <= 4'b1000;
                         end
                         default: begin
-                            mem_sel_o <= 4'b0000;
+                            mem_strb_o <= 4'b0000;
                         end
                     endcase
                 end
                 // SH
                 `MEM_OP_SH: begin
                     mem_addr_o <= mem_addr_i;
-                    mem_we_o <= `WriteEnable;
+                    mem_wr_o <= `WriteEnable;
                     mem_data_o <= {reg2_i[15:0], reg2_i[15:0]};
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_sel_o <= 4'b0011;
+                            mem_strb_o <= 4'b0011;
                         end
                         2'b10: begin
-                            mem_sel_o <= 4'b1100;
+                            mem_strb_o <= 4'b1100;
                         end
                         default: begin
                             write_exception <= `True_v;
-                            mem_sel_o <= 4'b0000;
+                            mem_strb_o <= 4'b0000;
                         end
                     endcase
                 end
                 // SWL
                 `MEM_OP_SWL: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
-                    mem_we_o <= `WriteEnable;
+                    mem_wr_o <= `WriteEnable;
                     mem_data_o <= reg2_i;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_sel_o <= 4'b0001;
+                            mem_strb_o <= 4'b0001;
                             mem_data_o <= {zero32[23:0],reg2_i[31:24]};
                         end
                         2'b01: begin
-                            mem_sel_o <= 4'b0011;
+                            mem_strb_o <= 4'b0011;
                             mem_data_o <= {zero32[15:0],reg2_i[31:16]};
                         end
                         2'b10: begin
-                            mem_sel_o <= 4'b0111;
+                            mem_strb_o <= 4'b0111;
                             mem_data_o <= {zero32[7:0],reg2_i[31:8]};
                         end
                         2'b11: begin
-                            mem_sel_o <= 4'b1111;
+                            mem_strb_o <= 4'b1111;
                             mem_data_o <= reg2_i;
                         end
                         default: begin
-                            mem_sel_o <= 4'b0000;
+                            mem_strb_o <= 4'b0000;
                         end
                     endcase
                 end
                 // SW
                 `MEM_OP_SW: begin
                     mem_addr_o <= mem_addr_i;
-                    mem_we_o <= `WriteEnable;
+                    mem_wr_o <= `WriteEnable;
                     mem_data_o <= reg2_i;
-                    mem_sel_o <= 4'b1111;
+                    mem_strb_o <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     if (mem_addr_i[1:0] != 2'b00) begin
                         write_exception <= `True_v;
@@ -407,38 +450,38 @@ module mem(
                 // SWR
                 `MEM_OP_SWR: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
-                    mem_we_o <= `WriteEnable;
+                    mem_wr_o <= `WriteEnable;
                     mem_data_o <= reg2_i;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_sel_o <= 4'b1111;
+                            mem_strb_o <= 4'b1111;
                             mem_data_o <= reg2_i[31:0];
                         end
                         2'b01: begin
-                            mem_sel_o <= 4'b1110;
+                            mem_strb_o <= 4'b1110;
                             mem_data_o <= {reg2_i[23:0],zero32[7:0]};
                         end
                         2'b10: begin
-                            mem_sel_o <= 4'b1100;
+                            mem_strb_o <= 4'b1100;
                             mem_data_o <= {reg2_i[15:0],zero32[15:0]};
                         end
                         2'b11: begin
-                            mem_sel_o <= 4'b1000;
+                            mem_strb_o <= 4'b1000;
                             mem_data_o <= {reg2_i[7:0],zero32[23:0]};
                         end
                         default: begin
-                            mem_sel_o <= 4'b0000;
+                            mem_strb_o <= 4'b0000;
                         end
                     endcase
                 end
                 // LL
                 `MEM_OP_LL: begin
-                    // TODO
+                    // TODO LL
                 end
                 // SC
                 `MEM_OP_SC: begin
-                    // TODO
+                    // TODO SC
                 end
                 default: begin
                 end

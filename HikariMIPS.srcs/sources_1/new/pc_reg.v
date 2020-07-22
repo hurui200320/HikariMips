@@ -20,11 +20,10 @@ module pc_reg(
     output reg[31:0] exceptions_o,
 
     output reg[`RegBus] pc,
-    // 指令存储器使能信号
     output reg ce
     );
-
-    // 先处理复位信号
+    
+    // 产生访存请求信号ce
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
             ce <= `ChipDisable;
@@ -42,9 +41,7 @@ module pc_reg(
         end
     end
     
-    // TODO 取指地址未对齐则产生AdEL异常
-
-    // 两个块并行执行
+    // 修改PC
     always @ (posedge clk) begin
         if (ce == `ChipDisable) begin
             pc <= `ZeroWord;
