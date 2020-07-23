@@ -82,55 +82,97 @@ module mem(
     output reg stallreq
     );
 
-    // TODO 读写状态机
-    reg req_en; // 不可能同时读写，因此共用一个req_en status
-    reg status;
-
+    reg req_en;    
     reg mem_ce;
-    // 没有发生异常才允许存储器操作
-    assign mem_req_o = req_en && mem_ce && (~exception_occured_o);
-    assign is_in_delayslot_o = is_in_delayslot_i;
-    assign pc_o = pc_i;
 
-    // 处理握手
+
+    reg[1:0] status;
+
+    // 握手状态机
     always @ (posedge clk) begin
-        if (mem_ce == `ChipEnable) begin
-            // 存在请求
+        if (rst == `RstEnable) begin
+            req_en <= `False_v;
+            status <= 2'b00;
+        end else begin
             case (status)
-                1'b0: begin
-                    // 等待地址握手
-                    if (!mem_addr_ok) begin
-                        stallreq <= `True_v;
+                2'b00: begin // 空闲阶段
+                    if (mem_ce) begin
+                        // 如果CE启用（要访问）
+                        // 进入等待地址握手阶段
+                        req_en <= `True_v;
+                        status <= 2'b01;
                     end else begin
-                        // 地址握手成功，转入数据握手
-                        // 地址握手成功后取消req信号
+                        // 原地等待
                         req_en <= `False_v;
-                        status <= 1'b1;
                     end
                 end
-                1'b1: begin
-                    // 等待数据握手
+                2'b01: begin // 等待地址握手
+                    if (!mem_addr_ok) begin
+                        // 地址握手不成功，原地等待
+                    end else begin
+                        // 地址握手成功，撤销req请求并转入地址握手
+                        req_en <= `False_v;
+                        status <= 2'b10;
+                    end
+                end
+                2'b10: begin // 等待数据握手
                     if (!mem_data_ok) begin
+                        // 数据握手不成功，原地等待
+                    end else begin
+                        // 数据握手成功，撤销流水线暂停
+                        // 转入空闲阶段
+                        status <= 2'b00;
+                    end
+                end
+                default: begin
+                    req_en <= `True_v;
+                    status <= 2'b00;
+                end
+            endcase
+        end
+    end
+
+    // 产生流水线暂停信号
+    always @ (*) begin
+        if (rst == `RstEnable) begin
+            stallreq <= `False_v;
+        end else begin
+            case (status)
+                2'b00: begin // 空闲阶段
+                    if (mem_ce) begin
+                        // 如果CE启用（要访问）
+                        // 立刻暂停流水线，随后进入等待地址握手阶段
                         stallreq <= `True_v;
                     end else begin
-                        // 数据握手成功，取消暂停流水线
-                        // 同时允许发出请求，返回等待地址握手阶段
+                        // 原地等待
                         stallreq <= `False_v;
-                        req_en <= `True_v;
-                        status <= 1'b0;
+                    end
+                end
+                2'b01: begin // 等待地址握手
+                    // 地址握手期间始终保持流水线暂停
+                    stallreq <= `True_v;
+                end
+                2'b10: begin // 等待数据握手
+                    if (!mem_data_ok) begin
+                        // 数据握手不成功，原地等待
+                        stallreq <= `True_v;
+                    end else begin
+                        // 数据握手成功，立刻撤销流水线暂停
+                        // 转入空闲阶段
+                        stallreq <= `False_v;
                     end
                 end
                 default: begin
                     stallreq <= `False_v;
-                    req_en <= `True_v;
-                    status <= 1'b0;
                 end
             endcase
-        end else begin
-            status <= 1'b0;
         end
     end
 
+    // 没有发生异常才允许存储器操作
+    assign mem_req_o = req_en && mem_ce && (~exception_occured_o);
+    assign is_in_delayslot_o = is_in_delayslot_i;
+    assign pc_o = pc_i;
     reg read_exception;
     reg write_exception;
 
