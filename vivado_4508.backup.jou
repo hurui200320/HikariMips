@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2019.2 (64-bit)
+# SW Build 2708876 on Wed Nov  6 21:40:23 MST 2019
+# IP Build 2700528 on Thu Nov  7 00:09:20 MST 2019
+# Start of session at: Tue Jul 21 11:29:11 2020
+# Process ID: 4508
+# Current directory: C:/Users/TanZh/Documents/cpu/HikariMIPS
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent13912 C:\Users\TanZh\Documents\cpu\HikariMIPS\HikariMIPS.xpr
+# Log file: C:/Users/TanZh/Documents/cpu/HikariMIPS/vivado.log
+# Journal file: C:/Users/TanZh/Documents/cpu/HikariMIPS\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/TanZh/Documents/cpu/HikariMIPS/HikariMIPS.xpr
+update_compile_order -fileset sources_1

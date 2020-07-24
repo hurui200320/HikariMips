@@ -204,6 +204,32 @@
 `define ALU_OP_TLT   8'b00100100
 `define ALU_OP_TLTU  8'b00100101
 
+//跳转指令
+`define ALU_OP_JR    8'b00100110
+`define ALU_OP_JALR  8'b00100111
+`define ALU_OP_BLTZ  8'b00101000
+`define ALU_OP_BLTZL 8'b00101001
+`define ALU_OP_BGEZ  8'b00101010
+`define ALU_OP_BGEZL 8'b00101011
+`define ALU_OP_BLTZAL 8'b00101100
+`define ALU_OP_BLTZALL 8'b00101101
+`define ALU_OP_BGEZAL 8'b00101110
+`define ALU_OP_BGEZALL 8'b00101111
+`define ALU_OP_J     8'b00110000
+`define ALU_OP_JAL  8'b00110001
+`define ALU_OP_BEQ   8'b00110010
+`define ALU_OP_BEQL  8'b00110011
+`define ALU_OP_BNE   8'b00110100
+`define ALU_OP_BNEL  8'b00110101
+`define ALU_OP_BGTZ  8'b00110110
+`define ALU_OP_BGTZL 8'b00110111
+`define ALU_OP_BLEZ  8'b00111000
+`define ALU_OP_BLEZL 8'b00111001
+
+`define ALU_OP_MOVN  8'b00111010
+`define ALU_OP_MOVZ  8'b00111011
+
+
 // ALU运算类型
 `define ALU_SEL_NOP 3'h000
 `define ALU_SEL_LOGIC 3'b001
@@ -246,3 +272,14 @@
 
 // 关闭隐式声明，防止变量名拼写错误时自动生成新变量
 `default_nettype none
+
+//cp0默认访问地址
+`define cp0AddrZero 8'h00
+
+//分支预测
+`define StronglyTaken 2'b11//饱和预测
+`define WeaklyTaken 2'b10//不饱和预测
+`define WeaklyNoTaken 2'b01//不饱和不跳转
+`define StronglyNoTaken 2'b00//饱和不跳转
+`define TAKEN 1'b1
+`define NOTAKEN 1'b0

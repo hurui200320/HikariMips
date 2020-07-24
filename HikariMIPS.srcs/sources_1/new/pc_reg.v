@@ -8,11 +8,14 @@ module pc_reg(
     input wire clk,
     input wire rst, 
 
-    input wire[5:0] stall,
+    input wire[6:0] stall,
 
     // 分支跳转信号
     input wire is_branch_i,
     input wire[`RegBus] branch_target_address_i,
+
+    input wire flush_pc,//pc清除信号，分支预测错误时触发
+    input wire correct_pc,//分支预测错误时回调的pc值
 
     // 异常
     input wire flush,
@@ -48,6 +51,9 @@ module pc_reg(
     always @ (posedge clk) begin
         if (ce == `ChipDisable) begin
             pc <= `ZeroWord;
+        end else if (flush_pc) begin
+            //分支预测失败，使用correct_pc
+            pc <= correct_pc;
         end else if (flush) begin
             // 出现异常，使用epc的值
             pc <= epc;

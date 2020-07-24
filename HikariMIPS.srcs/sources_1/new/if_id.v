@@ -9,8 +9,9 @@ module if_id(
     input wire rst,
 
     input wire flush,
+    input wire flush_pc,
 
-    input wire[5:0] stall,
+    input wire[6:0] stall,
     
     input wire[`RegBus] if_pc,
     input wire[`RegBus] if_inst,
@@ -23,6 +24,10 @@ module if_id(
     always @ (posedge clk) begin
         if (rst == `RstEnable || flush) begin
             // 复位或异常时往下传0和NOP
+            id_pc <= `ZeroWord;
+            id_inst <= `ZeroWord;
+            id_exceptions <= `ZeroWord;
+        end else if (flush_pc) begin//分支预测失败插入nop
             id_pc <= `ZeroWord;
             id_inst <= `ZeroWord;
             id_exceptions <= `ZeroWord;

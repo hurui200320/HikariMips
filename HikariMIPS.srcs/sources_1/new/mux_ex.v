@@ -3,27 +3,32 @@
 //////////////////////////////////////////////////////////////////////////////////
 `include "defines.v"
 
-module id_ex(
+module mux_ex(
     input wire clk,
     input wire rst,
     input wire flush,
 
-    input wire[5:0] stall,
+    input wire[6:0] stall,
     
     //从译码阶段传递的信息
-    input wire[`AluOpBus] id_aluop,
-    input wire[`AluSelBus] id_alusel,
-    input wire[`RegBus] id_reg1,
-    input wire[`RegBus] id_reg2,
-    input wire[`RegAddrBus] id_waddr,
-    input wire id_we,
-    input wire id_is_in_delayslot,
-    input wire[`RegBus] id_link_address,
+    input wire[`AluOpBus] mux_aluop,
+    input wire[`AluSelBus] mux_alusel,
+    input wire[`RegBus] mux_reg1,
+    input wire[`RegBus] mux_reg2,
+    input wire[`RegAddrBus] mux_waddr,
+    input wire mux_we,
+    input wire mux_is_in_delayslot,
+    input wire[`RegBus] mux_link_address,
     input wire next_inst_in_delayslot_i,
     input wire next_inst_is_nullified_i,
-    input wire[`RegBus] id_inst,
-    input wire[`RegBus] id_pc,
-    input wire[31:0] id_exceptions,
+    input wire[`RegBus] mux_inst,
+    input wire[`RegBus] mux_pc,
+    input wire[31:0] mux_exceptions,
+    //hilo
+    input wire[`RegBus] mux_hi,
+    input wire[`RegBus] mux_lo,
+    //cp0
+    input wire[`RegBus] mux_cp0_rdata,
     
     //传递到执行阶段的信息
     output reg[`AluOpBus] ex_aluop,
@@ -38,7 +43,12 @@ module id_ex(
     output reg is_nullified_o,
     output reg[`RegBus] ex_inst,
     output reg[`RegBus] ex_pc,
-    output reg[31:0] ex_exceptions
+    output reg[31:0] ex_exceptions,
+    //hilo和cp0
+    output reg[`RegBus] ex_hi,
+    output reg[`RegBus] ex_lo,
+    //cp0
+    output reg[`RegBus] ex_cp0_rdata
     );
 
     always @ (posedge clk) begin
@@ -56,7 +66,10 @@ module id_ex(
             ex_inst <= `ZeroWord;
             ex_pc <= `ZeroWord;
             ex_exceptions <= `ZeroWord;
-        end else if (stall[2] == `Stop && stall[3] == `NoStop) begin
+            ex_hi <= `ZeroWord;
+            ex_lo <= `ZeroWord;
+            ex_cp0_rdata <= `ZeroWord;
+        end else if (stall[3] == `Stop && stall[4] == `NoStop) begin
             // ID暂停而EX没有暂停，输出NOP状态
             ex_aluop <= `ALU_OP_NOP;
             ex_alusel <= `ALU_SEL_NOP;
@@ -69,21 +82,27 @@ module id_ex(
             ex_inst <= `ZeroWord;
             ex_pc <= `ZeroWord;
             ex_exceptions <= `ZeroWord;
+            ex_hi <= `ZeroWord;
+            ex_lo <= `ZeroWord;
+            ex_cp0_rdata <= `ZeroWord;
             // ID当前指令是否在延迟槽中状态不变
-        end else if (stall[2] == `NoStop) begin        
-            ex_aluop <= id_aluop;
-            ex_alusel <= id_alusel;
-            ex_reg1 <= id_reg1;
-            ex_reg2 <= id_reg2;
-            ex_waddr <= id_waddr;
-            ex_we <= id_we;
-            ex_is_in_delayslot <= id_is_in_delayslot;
-            ex_link_address <= id_link_address;
+        end else if (stall[3] == `NoStop) begin        
+            ex_aluop <= mux_aluop;
+            ex_alusel <= mux_alusel;
+            ex_reg1 <= mux_reg1;
+            ex_reg2 <= mux_reg2;
+            ex_waddr <= mux_waddr;
+            ex_we <= mux_we;
+            ex_is_in_delayslot <= mux_is_in_delayslot;
+            ex_link_address <= mux_link_address;
             is_in_delayslot_o <= next_inst_in_delayslot_i;
             is_nullified_o <= next_inst_is_nullified_i;
-            ex_inst <= id_inst;
-            ex_pc <= id_pc;
-            ex_exceptions <= id_exceptions;
+            ex_inst <= mux_inst;
+            ex_pc <= mux_pc;
+            ex_exceptions <= mux_exceptions;
+            ex_hi <= mux_hi;
+            ex_lo <= mux_lo;
+            ex_cp0_rdata <= mux_cp0_rdata;
         end else begin
         end
     end

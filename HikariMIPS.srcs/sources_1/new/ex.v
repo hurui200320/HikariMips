@@ -22,21 +22,19 @@ module ex(
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
     input wire[`RegBus] lo_i,
-    // 来自访存的反馈，同ID模块解决数据相关的思路    
-    input wire[`RegBus] mem_hi_i,
-    input wire[`RegBus] mem_lo_i,
-    input wire mem_we_hilo_i,
+
+    
+    // 延迟槽和跳转
+    input wire[`RegBus] link_address_i,
+    input wire is_in_delayslot_i,
 
     // CP0寄存器
     input wire[`RegBus] cp0_rdata_i,
-    output reg[7:0] cp0_raddr_o,
+
+
     output reg cp0_we_o,
     output reg[7:0] cp0_waddr_o,
     output reg[`RegBus] cp0_wdata_o,
-    // 来自MEM的反馈，解决数据相关
-    input wire mem_cp0_we_i,
-    input wire[7:0] mem_cp0_waddr_i,
-    input wire[`RegBus] mem_cp0_wdata_i,
 
     // 送到访存阶段的信息
     // 访存转给写回的数据
@@ -51,10 +49,6 @@ module ex(
     output wire[`RegBus] mem_addr_o,
     // rt寄存器内容，LWL这些命令修改寄存器的一部分
     output wire[`RegBus] reg2_o, 
-
-    // 延迟槽和跳转
-    input wire[`RegBus] link_address_i,
-    input wire is_in_delayslot_i,
 
     // 异常
     output wire[`RegBus] pc_o,
@@ -155,17 +149,6 @@ module ex(
         end
     end
 
-    // 排除HI/LO数据相关
-    always @ (*) begin
-        if(rst == `RstEnable) begin
-            {HI,LO} <= {`ZeroWord,`ZeroWord};
-        end else if(mem_we_hilo_i == `WriteEnable) begin
-            {HI,LO} <= {mem_hi_i,mem_lo_i};
-        end else begin
-            {HI,LO} <= {hi_i,lo_i};            
-        end
-    end
-
     // 数据移动，写Regfile部分，只涉及MFxx指令
     wire[7:0] cp0_addr = {inst_i[15:11], inst_i[2:0]};
     always @ (*) begin
@@ -175,23 +158,16 @@ module ex(
             move_result <= `ZeroWord;
             case (aluop_i)
                 `ALU_OP_MFHI: begin
-                    move_result <= HI;
+                    move_result <= hi_i;
                 end
                 `ALU_OP_MFLO: begin
-                    move_result <= LO;
+                    move_result <= lo_i;
                 end
                 `ALU_OP_MOV: begin
                     move_result <= reg1_i;
                 end
                 `ALU_OP_MFC0: begin
-                    cp0_raddr_o <= cp0_addr;
-                    // 处理数据相关
-                    if (mem_cp0_we_i && mem_cp0_waddr_i == cp0_addr) begin
-                        move_result <= mem_cp0_wdata_i;
-                    end else begin
-                        // 没有数据相关
-                        move_result <= cp0_rdata_i;
-                    end
+                    move_result <= cp0_rdata_i;
                 end
                 default : begin
                 end
@@ -231,74 +207,6 @@ module ex(
                 end
                 `ALU_OP_SUB, `ALU_OP_SUBU: begin
                     arithmetic_result <= result_sum; 
-                end
-                `ALU_OP_CLZ: begin
-                    arithmetic_result <= reg1_i[31] ? 0 : 
-                                         reg1_i[30] ? 1 : 
-                                         reg1_i[29] ? 2 :
-                                         reg1_i[28] ? 3 : 
-                                         reg1_i[27] ? 4 : 
-                                         reg1_i[26] ? 5 :
-                                         reg1_i[25] ? 6 : 
-                                         reg1_i[24] ? 7 : 
-                                         reg1_i[23] ? 8 : 
-                                         reg1_i[22] ? 9 : 
-                                         reg1_i[21] ? 10 : 
-                                         reg1_i[20] ? 11 :
-                                         reg1_i[19] ? 12 : 
-                                         reg1_i[18] ? 13 : 
-                                         reg1_i[17] ? 14 : 
-                                         reg1_i[16] ? 15 : 
-                                         reg1_i[15] ? 16 : 
-                                         reg1_i[14] ? 17 : 
-                                         reg1_i[13] ? 18 : 
-                                         reg1_i[12] ? 19 : 
-                                         reg1_i[11] ? 20 :
-                                         reg1_i[10] ? 21 : 
-                                         reg1_i[9] ? 22 : 
-                                         reg1_i[8] ? 23 : 
-                                         reg1_i[7] ? 24 : 
-                                         reg1_i[6] ? 25 : 
-                                         reg1_i[5] ? 26 : 
-                                         reg1_i[4] ? 27 : 
-                                         reg1_i[3] ? 28 : 
-                                         reg1_i[2] ? 29 : 
-                                         reg1_i[1] ? 30 : 
-                                         reg1_i[0] ? 31 : 32 ;
-                end
-                `ALU_OP_CLO: begin
-                    arithmetic_result <= reg1_not[31] ? 0 :
-                                         reg1_not[30] ? 1 :
-                                         reg1_not[29] ? 2 :
-                                         reg1_not[28] ? 3 :
-                                         reg1_not[27] ? 4 : 
-                                         reg1_not[26] ? 5 :
-                                         reg1_not[25] ? 6 :
-                                         reg1_not[24] ? 7 : 
-                                         reg1_not[23] ? 8 : 
-                                         reg1_not[22] ? 9 :
-                                         reg1_not[21] ? 10 : 
-                                         reg1_not[20] ? 11 :
-                                         reg1_not[19] ? 12 : 
-                                         reg1_not[18] ? 13 : 
-                                         reg1_not[17] ? 14 : 
-                                         reg1_not[16] ? 15 : 
-                                         reg1_not[15] ? 16 : 
-                                         reg1_not[14] ? 17 : 
-                                         reg1_not[13] ? 18 : 
-                                         reg1_not[12] ? 19 : 
-                                         reg1_not[11] ? 20 :
-                                         reg1_not[10] ? 21 : 
-                                         reg1_not[9] ? 22 : 
-                                         reg1_not[8] ? 23 : 
-                                         reg1_not[7] ? 24 : 
-                                         reg1_not[6] ? 25 : 
-                                         reg1_not[5] ? 26 : 
-                                         reg1_not[4] ? 27 : 
-                                         reg1_not[3] ? 28 : 
-                                         reg1_not[2] ? 29 : 
-                                         reg1_not[1] ? 30 : 
-                                         reg1_not[0] ? 31 : 32 ;
                 end
                 default: begin
                     arithmetic_result <= `ZeroWord;
@@ -411,7 +319,7 @@ module ex(
                     // 等待乘法结束
                     if (stallreq_for_mult != `Stop) begin
                         // 累加
-                        accu_temp <= mult_result_i + {HI, LO};
+                        accu_temp <= mult_result_i + {hi_i, lo_i};
                     end begin
                         // do nothing
                     end
@@ -420,7 +328,7 @@ module ex(
                 `ALU_OP_MSUB, `ALU_OP_MSUBU: begin
                     // 等待乘法结束
                     if (stallreq_for_mult != `Stop) begin
-                        accu_temp <= ~mult_result_i + 1 + {HI, LO}; // 累减
+                        accu_temp <= ~mult_result_i + 1 + {hi_i, lo_i}; // 累减
                     end begin
                         // do nothing
                     end
@@ -508,7 +416,6 @@ module ex(
         if(rst == `RstEnable) begin
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
-
             lo_o <= `ZeroWord;
         end else if(aluop_i == `ALU_OP_MULT || aluop_i == `ALU_OP_MULTU) begin
             // 是乘法，结果写入HILO，MUL指令除外
@@ -530,10 +437,10 @@ module ex(
         end else if(aluop_i == `ALU_OP_MTHI) begin
             we_hilo_o <= `WriteEnable;
             hi_o <= reg1_i;
-            lo_o <= LO;
+            lo_o <= lo_i;
         end else if(aluop_i == `ALU_OP_MTLO) begin
             we_hilo_o <= `WriteEnable;
-            hi_o <= HI;
+            hi_o <= hi_i;
             lo_o <= reg1_i;
         end else begin
             we_hilo_o <= `WriteDisable;

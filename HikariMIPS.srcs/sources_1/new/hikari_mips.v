@@ -28,31 +28,76 @@ module hikari_mips(
     // PC -> IF/ID
     wire[`RegBus] pc;
     wire[`RegBus] id_pc_i;
-    wire[`RegBus] id_pc_o;
     wire[`RegBus] id_inst_i;    
     wire[31:0] pc_exceptions_o;
     wire[31:0] id_exceptions_i;
     
-    // ID -> ID/EX
+    // ID -> MUX/EX
+    wire[`RegBus] id_pc_o;
+    wire[`RegBus] id_inst_o;
+    wire[`RegBus] id_link_address_o;
     wire[`AluOpBus] id_aluop_o;
     wire[`AluSelBus] id_alusel_o;
-    wire[`RegBus] id_reg1_o;
-    wire[`RegBus] id_reg2_o;
     wire[`RegAddrBus] id_waddr_o;
     wire id_we_o;
-    wire id_is_in_delayslot_o;
-    wire[`RegBus] id_link_address_o;
-    wire is_in_delayslot_i;
-    wire is_nullified_i;
-    wire next_inst_in_delayslot_o;
-    wire next_inst_is_nullified_o;
-    wire[`RegBus] id_inst_o;
+//    wire id_is_in_delayslot_o;
     wire[31:0] id_exceptions_o;
+    wire[31:0] id_imm_o;
+    // ID -> cp0
+    wire[7:0] id_cp0_raddr_o;
     // ID -> PC
     wire id_is_branch_o;
     wire[`RegBus] branch_target_address_o;
+
+    // ID/MUX -> MUX
+    wire[`RegBus] mux_pc_i;
+    wire[`RegBus] mux_inst_i;
+    wire[`AluOpBus] mux_aluop_i;
+    wire[`AluSelBus] mux_alusel_i;
+    wire[`RegAddrBus] mux_waddr_i;
+    wire mux_we_i;
+    wire[31:0] mux_imm_i;
+    wire[`RegBus] mux_link_address_i;
+    wire[31:0] mux_exceptions_i;
+    wire mux_taken_i;
+    wire[`RegBus] mux_branch_target_address_i;
+    wire mux_reg1_read_i;
+    wire mux_reg2_read_i;
+    wire[`RegBus] mux_reg1_data_i;
+    wire[`RegBus] mux_reg2_data_i;
+    wire[`RegAddrBus] mux_reg1_addr_i;
+    wire[`RegAddrBus] mux_reg2_addr_i;
+    wire[7:0] mux_cp0_raddr_i;
+    wire[`RegBus] mux_cp0_rdata_i;
+
+    // MUX -> MUX/EX
+    wire[`RegBus] mux_pc_o;
+    wire[`RegBus] mux_inst_o;
+    wire[`AluOpBus] mux_aluop_o;
+    wire[`AluSelBus] mux_alusel_o;
+    wire[`RegAddrBus] mux_waddr_o;
+    wire mux_we_o;
+    wire[`RegBus] mux_link_address_o;
+    wire[`RegBus] mux_exceptions_o;
+    wire[`RegBus] mux_reg1_o;
+    wire[`RegBus] mux_reg2_o;
+    wire mux_is_in_delayslot_o;
+    wire next_inst_in_delayslot_o;
+    wire next_inst_is_nullified_o;
+    wire[`RegBus] mux_hi_o;
+    wire[`RegBus] mux_lo_o;
+    wire[`RegBus] mux_cp0_rdata_o;
+    //MUX -> ID
+    wire mux_branch_ce_o;
+    wire mux_branch_taken_o;
+    wire mux_ras_pop_o;
+    wire mux_flush_pc_o;
+    // MUX -> PC
+    wire[`RegBus] mux_correct_pc_o;
+
+
     
-    // ID/EX -> EX
+    // MUX/EX -> EX
     wire[`AluOpBus] ex_aluop_i;
     wire[`AluSelBus] ex_alusel_i;
     wire[`RegBus] ex_reg1_i;
@@ -64,6 +109,9 @@ module hikari_mips(
     wire[`RegBus] ex_inst_i;
     wire[`RegBus] ex_pc_i;
     wire[31:0] ex_exceptions_i;
+    // MUX/EX -> MUX
+    wire is_in_delayslot_i;
+    wire is_nullified_i;
     
     // EX -> EX/MEM
     wire ex_we_o;
@@ -81,8 +129,9 @@ module hikari_mips(
     wire[`RegBus] ex_pc_o;
     wire[31:0] ex_exceptions_o;
     wire ex_is_in_delayslot_o;
-    // EX -> CP0
-    wire[7:0] ex_cp0_raddr_o;
+    wire[`RegBus] ex_hi_i;
+    wire[`RegBus] ex_lo_i;
+    wire[`RegBus] ex_cp0_rdata_i;
 
     // EX/MEM -> MEM
     wire mem_we_i;
@@ -136,11 +185,11 @@ module hikari_mips(
     wire[`RegAddrBus] reg1_addr;
     wire[`RegAddrBus] reg2_addr;
 
-    // HI/LO -> EX
+    // HI/LO -> MUX
     wire [`RegBus] hi;
     wire [`RegBus] lo;
 
-    // CP0 -> EX
+    // CP0 -> MUX
     wire[`RegBus] cp0_rdata_o;
     // CP0 <-> 各模块
     wire[`RegBus] cp0_status_o;
@@ -148,11 +197,12 @@ module hikari_mips(
     wire[`RegBus] cp0_epc_o;
 
     // CTRL <-> 各模块
-    wire[5:0] stall;
-    wire stallreq_from_id;    
+    wire[6:0] stall;
+    wire stallreq_from_mux;    
     wire stallreq_from_ex;
     wire[`RegBus] ctrl_epc_o;
     wire ctrl_flush_o;
+    wire ctrl_flush_pc_o;
 
     // EX <-> DIV
     wire[`DoubleRegBus] div_result;
@@ -181,6 +231,9 @@ module hikari_mips(
         .branch_target_address_i(branch_target_address_o),
         .pc(pc),
         .ce(rom_ce_o),
+        //从mux分支检查来
+        .flush_pc(ctrl_flush_pc_o),
+        .correct_pc(mux_correct_pc_o),
         .flush(ctrl_flush_o),
         .epc(ctrl_epc_o),
         .exceptions_o(pc_exceptions_o)
@@ -192,6 +245,7 @@ module hikari_mips(
         .clk(clk),
         .rst(rst),
         .flush(ctrl_flush_o),
+        .flush_pc(ctrl_flush_pc_o),
         .stall(stall),
         .if_pc(pc),
         .if_inst(rom_data_i),
@@ -207,53 +261,40 @@ module hikari_mips(
         .rst(rst),
 
         .pc_i(id_pc_i),
-        .pc_o(id_pc_o),
         .inst_i(id_inst_i),
+        //异常输入
+        .exceptions_i(id_exceptions_i),
+        .update_ce(mux_branch_ce_o),
+        .update_taken(mux_branch_taken_o),
+        .update_pc(mux_pc_o),
+        .update_ras(mux_ras_pop_o),
+        .pc_o(id_pc_o),
         .inst_o(id_inst_o),
 
         // 读regfile请求
         .re1_o(reg1_read),   
         .raddr1_o(reg1_addr),
-        .rdata1_i(reg1_data),
+
         .re2_o(reg2_read),    
         .raddr2_o(reg2_addr), 
-        .rdata2_i(reg2_data),
 
-        // EX反馈
-        .ex_we_i(ex_we_o),
-        .ex_wdata_i(ex_wdata_o),
-        .ex_waddr_i(ex_waddr_o),
-        // 解决Load相关，设置这个为`ALU_OP_NOP可以屏蔽相关处理
-  	    .ex_aluop_i(ex_aluop_o),
-
-        // MEM反馈
-        .mem_we_i(mem_we_o),
-        .mem_wdata_i(mem_wdata_o),
-        .mem_waddr_i(mem_waddr_o),
-
-        // 延迟槽
-        .is_in_delayslot_i(is_in_delayslot_i),
-        .is_nullified_i(is_nullified_i),
-        .next_inst_in_delayslot_o(next_inst_in_delayslot_o),    
-        .next_inst_is_nullified_o(next_inst_is_nullified_o),    
+        //分支信号
         .is_branch_o(id_is_branch_o),
         .branch_target_address_o(branch_target_address_o),       
         .link_addr_o(id_link_address_o),
-        .is_in_delayslot_o(id_is_in_delayslot_o),
 
         // 异常
-        .exceptions_i(id_exceptions_i),
         .exceptions_o(id_exceptions_o),
 
         //送到ID/EX模块的信息
         .aluop_o(id_aluop_o),
         .alusel_o(id_alusel_o),
-        .reg1_data_o(id_reg1_o),
-        .reg2_data_o(id_reg2_o),
         .waddr_o(id_waddr_o),
         .we_o(id_we_o),
 
-        .stallreq(stallreq_from_id)
+        .cp0_raddr_o(id_cp0_raddr_o),
+
+        .imm_o(id_imm_o)
     );
 
     // 通用寄存器Regfile例化
@@ -271,27 +312,180 @@ module hikari_mips(
         .rdata2 (reg2_data)
     );
 
-    // ID/EX模块
-    id_ex id_ex0(
+
+    // ID/MUX模块
+    id_mux id_mux0(
+        .clk(clk),
+        .rst(rst),
+        .stall(stall),
+
+
+        .id_pc(id_pc_o),
+        .id_inst(id_inst_o),
+        .id_aluop(id_aluop_o),
+        .id_alusel(id_alusel_o),
+        .id_waddr(id_waddr_o),
+        .id_we(id_we_o),
+        .id_imm(id_imm_o),
+        .id_link_addr(id_link_address_o),
+        .id_exceptions(id_exceptions_o),
+        .id_taken(id_is_branch_o),
+        .id_branch_target_address(branch_target_address_o),//间接跳转时用于地址比较
+
+        //regfile得到的数据和相关信号
+        .id_re1(reg1_read),
+        .id_raddr1(reg1_addr),
+        .rdata1_i(reg1_data),
+        .id_re2(reg2_read),
+        .id_raddr2(reg2_addr),
+        .rdata2_i(reg2_data),
+
+        //cp0寄存器访问
+        .id_cp0_raddr(id_cp0_raddr_o),
+        .id_cp0_rdata(cp0_rdata_o),
+
+        //输出信号
+        .mux_pc(mux_pc_i),
+        .mux_inst(mux_inst_i),
+        .mux_aluop(mux_aluop_i),
+        .mux_alusel(mux_alusel_i),
+        .mux_waddr(mux_waddr_i),
+        .mux_we(mux_we_i),
+        .mux_imm(mux_imm_i),
+        .mux_link_addr(mux_link_address_i),
+        .mux_exceptions(mux_exceptions_i),
+        .mux_taken(mux_taken_i),
+        .mux_branch_target_address(mux_branch_target_address_i),
+
+        .mux_re1(mux_reg1_read_i),
+        .mux_raddr1(mux_reg1_addr_i),
+        .mux_rdata1(mux_reg1_data_i),
+        .mux_re2(mux_reg2_read_i),
+        .mux_raddr2(mux_reg2_addr_i),
+        .mux_rdata2(mux_reg2_data_i),
+        //cp0寄存器输出
+        .mux_cp0_raddr(mux_cp0_raddr_i),
+        .mux_cp0_rdata(mux_cp0_rdata_i)
+    );
+    // MUX模块
+    mux mux0(
+        .rst(rst),
+        //输入信号
+        .pc_i(mux_pc_i),
+        .inst_i(mux_inst_i),
+        .aluop_i(mux_aluop_i),
+        .alusel_i(mux_alusel_i),
+        .waddr_i(mux_waddr_i),
+        .we_i(mux_we_i),
+        .imm_i(mux_imm_i),
+        .link_addr_i(mux_link_address_i),
+        .exceptions_i(mux_exceptions_i),
+        .taken_i(mux_taken_i),
+        .branch_target_address_i(mux_branch_target_address_i),
+
+        .re1_i(mux_reg1_read_i),
+        .raddr1_i(mux_reg1_addr_i),
+        .rdata1_i(mux_reg1_data_i),
+        .re2_i(mux_reg2_read_i),
+        .raddr2_i(mux_reg2_addr_i),
+        .rdata2_i(mux_reg2_data_i),
+
+        //ex阶段的aluop，用于判断load相关
+        .ex_aluop_i(ex_aluop_o),
+
+        // ID/EX反馈指示当前指令是否在延迟槽内
+        .is_in_delayslot_i(is_in_delayslot_i),
+        // branch likely指令是否无效化延迟槽
+        .is_nullified_i(is_nullified_i),
+
+        //regfile数据前推
+        .ex_we_i(ex_we_o),
+        .ex_wdata_i(ex_wdata_o),
+        .ex_waddr_i(ex_waddr_o),
+        .mem_we_i(mem_we_o),
+        .mem_wdata_i(mem_wdata_o),
+        .mem_waddr_i(mem_waddr_o),
+
+        // hi/LO寄存器
+        .hi_i(hi),
+        .lo_i(lo), 
+        //hilo数据前推
+        .ex_hi_i(ex_hi_o),
+        .ex_lo_i(ex_lo_o),
+        .ex_we_hilo_i(ex_we_hilo_o),
+        .mem_hi_i(mem_hi_o),
+        .mem_lo_i(mem_lo_o),
+        .mem_we_hilo_i(mem_we_hilo_o),
+
+        //cp0寄存器
+        .cp0_raddr_i(mux_cp0_raddr_i),
+        .cp0_rdata_i(mux_cp0_rdata_i),
+        //cp0数据前推
+        .mem_cp0_we_i(mem_cp0_we_o),
+        .mem_cp0_waddr_i(mem_cp0_waddr_o),
+        .mem_cp0_wdata_i(mem_cp0_wdata_o  ),
+        .ex_cp0_we_i(ex_cp0_we_o),
+        .ex_cp0_waddr_i(ex_cp0_waddr_o),
+        .ex_cp0_wdata_i(ex_cp0_wdata_o),
+
+        //数据输出
+        .pc_o(mux_pc_o),//
+        .inst_o(mux_inst_o),//
+        .aluop_o(mux_aluop_o),//
+        .alusel_o(mux_alusel_o),//
+        .waddr_o(mux_waddr_o),//
+        .we_o(mux_we_o),//
+        .link_addr_o(mux_link_address_o),//
+        .exceptions_o(mux_exceptions_o),//
+        .reg1_data_o(mux_reg1_o),//
+        .reg2_data_o(mux_reg2_o),//
+        // 告诉EX当前指令是否在延迟槽内
+        .is_in_delayslot_o(mux_is_in_delayslot_o),//
+        // 标识下一条指令是否在延迟槽内
+        .next_inst_in_delayslot_o(next_inst_in_delayslot_o),//
+        // 标识下一条指令被branch likely无效化
+        .next_inst_is_nullified_o(next_inst_is_nullified_o),//
+        //hilo寄存器
+        .hi_o(mux_hi_o),
+        .lo_o(mux_lo_o),
+        //cp0寄存器输出
+        .cp0_rdata_o(mux_cp0_rdata_o),
+
+        //分支预测器修正
+        .branch_ce(mux_branch_ce_o),
+        .branch_taken(mux_branch_taken_o),
+        .ras_pop(mux_ras_pop_o),
+        //对pc进行修改
+        .flush_pc(mux_flush_pc_o),
+        .correct_pc(mux_correct_pc_o),//当分支预测错误时向pc传输正确的值
+
+        .stallreq(stallreq_from_mux)
+    );
+
+    // MUX/EX模块
+    mux_ex mux_ex0(
         .clk(clk),
         .rst(rst),
         .flush(ctrl_flush_o),
         .stall(stall),
         
         //从译码阶段ID模块传递的信息
-        .id_aluop(id_aluop_o),
-        .id_alusel(id_alusel_o),
-        .id_reg1(id_reg1_o),
-        .id_reg2(id_reg2_o),
-        .id_waddr(id_waddr_o),
-        .id_we(id_we_o),
-        .id_link_address(id_link_address_o),
-        .id_is_in_delayslot(id_is_in_delayslot_o),
+        .mux_aluop(mux_aluop_o),
+        .mux_alusel(mux_alusel_o),
+        .mux_reg1(mux_reg1_o),
+        .mux_reg2(mux_reg2_o),
+        .mux_waddr(mux_waddr_o),
+        .mux_we(mux_we_o),
+        .mux_link_address(mux_link_address_o),
+        .mux_is_in_delayslot(mux_is_in_delayslot_o),
         .next_inst_in_delayslot_i(next_inst_in_delayslot_o),
         .next_inst_is_nullified_i(next_inst_is_nullified_o),
-        .id_inst(id_inst_o),
-        .id_pc(id_pc_o),
-        .id_exceptions(id_exceptions_o),
+        .mux_inst(mux_inst_o),
+        .mux_pc(mux_pc_o),
+        .mux_exceptions(mux_exceptions_o),
+        .mux_hi(mux_hi_o),
+        .mux_lo(mux_lo_o),
+        .mux_cp0_rdata(mux_cp0_rdata_o),
     
         //传递到执行阶段EX模块的信息
         .ex_aluop(ex_aluop_i),
@@ -306,32 +500,16 @@ module hikari_mips(
         .is_nullified_o(is_nullified_i),
         .ex_inst(ex_inst_i),
         .ex_pc(ex_pc_i),
-        .ex_exceptions(ex_exceptions_i)
+        .ex_exceptions(ex_exceptions_i),
+        .ex_hi(ex_hi_i),
+        .ex_lo(ex_lo_i),
+        .ex_cp0_rdata(ex_cp0_rdata_i)
     );        
     
     // EX模块
     ex ex0(
         .clk(clk),
         .rst(rst),
-    
-        // hi/LO寄存器
-        .hi_i(hi),
-        .lo_i(lo),
-        // 来自访存的反馈，同ID模块解决数据相关的思路
-        .mem_hi_i(mem_hi_o),
-        .mem_lo_i(mem_lo_o),
-        .mem_we_hilo_i(mem_we_hilo_o),
-
-        // CP0寄存器
-        .cp0_rdata_i(cp0_rdata_o),
-        .cp0_raddr_o(ex_cp0_raddr_o),
-        .cp0_we_o(ex_cp0_we_o),
-        .cp0_waddr_o(ex_cp0_waddr_o),
-        .cp0_wdata_o(ex_cp0_wdata_o),
-        // 来自MEM的反馈，解决数据相关
-        .mem_cp0_we_i(mem_cp0_we_o),
-        .mem_cp0_waddr_i(mem_cp0_waddr_o),
-        .mem_cp0_wdata_i(mem_cp0_wdata_o),
 
         // 送到执行阶段EX模块的信息
         .aluop_i(ex_aluop_i),
@@ -343,6 +521,21 @@ module hikari_mips(
         .inst_i(ex_inst_i),
         .pc_i(ex_pc_i),
         .exceptions_i(ex_exceptions_i),
+
+        // hi/LO寄存器
+        .hi_i(ex_hi_i),
+        .lo_i(ex_lo_i),
+
+        // 延迟槽和分支跳转
+        .link_address_i(ex_link_address_i),
+        .is_in_delayslot_i(ex_is_in_delayslot_i),
+
+        // CP0寄存器
+        .cp0_rdata_i(ex_cp0_rdata_i),
+
+        .cp0_we_o(ex_cp0_we_o),
+        .cp0_waddr_o(ex_cp0_waddr_o),
+        .cp0_wdata_o(ex_cp0_wdata_o),
       
         // EX模块的输出到EX/MEM模块信息
         .waddr_o(ex_waddr_o),
@@ -357,10 +550,6 @@ module hikari_mips(
         .aluop_o(ex_aluop_o),
         .mem_addr_o(ex_mem_addr_o),
         .reg2_o(ex_reg2_o),
-
-        // 延迟槽和分支跳转
-        .link_address_i(ex_link_address_i),
-        .is_in_delayslot_i(ex_is_in_delayslot_i),    
 
         // 异常
         .pc_o(ex_pc_o),
@@ -559,7 +748,7 @@ module hikari_mips(
         .waddr_i(wb_cp0_waddr_i),
         .wdata_i(wb_cp0_wdata_i),
 
-        .raddr_i(ex_cp0_raddr_o),
+        .raddr_i(id_cp0_raddr_o),
         .rdata_o(cp0_rdata_o),
 
         .init_i(init_i),
@@ -580,9 +769,11 @@ module hikari_mips(
         .clk(clk),
         .rst(rst),
 
-        .stallreq_from_id(stallreq_from_id),
+        .stallreq_from_mux(stallreq_from_mux),
         .stallreq_from_ex(stallreq_from_ex),
+        .flush_pc_i(mux_flush_pc_o),
         .stall(stall),
+        .flush_pc_o(ctrl_flush_pc_o),
 
         .cp0_epc_i(cp0_epc_o),
         .exception_occured_i(mem_exception_occured_o),
