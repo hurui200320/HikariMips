@@ -99,6 +99,10 @@ module cpu_axi_interface
     input  wire        bvalid       ,
     output wire        bready       
 );
+
+// TODO 加地址转换和Cache，然后上板看一下性能，不行的话就给IF加brust和小Cache
+//  取指先看小Cache有没有覆盖，有就直接给数据，没有再通过新的信号线高速IF进行常规请求
+
 //addr
 reg  do_req;
 reg  do_req_or; //req is inst or data;1:data,0:inst
@@ -124,6 +128,17 @@ begin
                   inst_req&&inst_addr_ok ? inst_strb : do_strb_r;
     do_addr_r  <= data_req&&data_addr_ok ? data_addr :
                   inst_req&&inst_addr_ok ? inst_addr : do_addr_r;
+    // handle addr map
+    case (do_addr_r[31:28])
+        4'b1000, 4'b1001: begin
+            do_addr_r[31] <= 1'b0;
+        end 
+        4'b1010, 4'b1011: begin
+            do_addr_r[31:29] <= 3'b000;
+        end
+        default: begin
+        end
+    endcase
     do_wdata_r <= data_req&&data_addr_ok ? data_wdata :
                   inst_req&&inst_addr_ok ? inst_wdata :do_wdata_r;
 end
@@ -166,7 +181,7 @@ assign rready  = 1'b1;
 assign awid    = 4'd0;
 assign awaddr  = do_addr_r;
 assign awlen   = 8'd0;
-assign awsize  = 2'd4; // 一次传输4字节，固定的，依靠下面strb筛选
+assign awsize  = 2'd4; // 一次传输4字节，固定的，依靠strb筛选
 assign awburst = 2'd0;
 assign awlock  = 2'd0;
 assign awcache = 4'd0;

@@ -37,7 +37,7 @@ module ctrl(
                 end 
                 default: begin
                     // 其他异常统一入口
-                    epc_o <= 32'h00000040; // TODO
+                    epc_o <= 32'hBFC00380; // TODO
                 end
             endcase
         end else if(stallreq_from_mem == `Stop) begin

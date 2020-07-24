@@ -1,9 +1,9 @@
 -- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2019.2 (win64) Build 2708876 Wed Nov  6 21:40:23 MST 2019
--- Date        : Thu Jul 23 11:46:58 2020
+-- Date        : Fri Jul 24 18:34:50 2020
 -- Host        : Blake-Belladonna running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub d:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/axi_ram/axi_ram_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub D:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/axi_ram/axi_ram_stub.vhdl
 -- Design      : axi_ram
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a200tfbg676-2

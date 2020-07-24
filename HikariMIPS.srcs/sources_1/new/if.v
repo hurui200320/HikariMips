@@ -30,8 +30,6 @@ module sram_if(
     );
     wire ce;
 
-    // TODO Ìø×ªµÈÒ»ÅÄ
-
     pc_reg pc_reg0(
         .clk(clk),
         .rst(rst), 

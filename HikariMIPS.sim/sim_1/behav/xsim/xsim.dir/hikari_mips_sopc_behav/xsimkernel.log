@@ -1,4 +1,7 @@
-Running: xsim.dir/hikari_mips_sopc_behav/xsimk.exe -simmode gui -wdb hikari_mips_sopc_behav.wdb -simrunnum 0 -socket 4821
+Running: xsim.dir/hikari_mips_sopc_behav/xsimk.exe -simmode gui -wdb hikari_mips_sopc_behav.wdb -simrunnum 0 -socket 10421
 Design successfully loaded
-Design Loading Memory Usage: 18024 KB (Peak: 18024 KB)
-Design Loading CPU Usage: 93 ms
+Design Loading Memory Usage: 18056 KB (Peak: 18056 KB)
+Design Loading CPU Usage: 62 ms
+Simulation completed
+Simulation Memory Usage: 21464 KB (Peak: 21464 KB)
+Simulation CPU Usage: 718 ms
