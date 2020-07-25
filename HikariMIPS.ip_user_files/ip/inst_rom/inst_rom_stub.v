@@ -1,7 +1,7 @@
 // Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2019.2 (win64) Build 2708876 Wed Nov  6 21:40:23 MST 2019
-// Date        : Fri Jul 24 15:20:06 2020
+// Date        : Sat Jul 25 10:02:31 2020
 // Host        : DESKTOP-30BHVTT running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               C:/Users/TanZh/Documents/cpu/HikariMIPS/HikariMIPS.srcs/sources_1/ip/inst_rom/inst_rom_stub.v

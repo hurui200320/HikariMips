@@ -267,7 +267,6 @@ module hikari_mips(
         .update_ce(mux_branch_ce_o),
         .update_taken(mux_branch_taken_o),
         .update_pc(mux_pc_o),
-        .update_ras(mux_ras_pop_o),
         .pc_o(id_pc_o),
         .inst_o(id_inst_o),
 
@@ -405,6 +404,9 @@ module hikari_mips(
         .mem_we_i(mem_we_o),
         .mem_wdata_i(mem_wdata_o),
         .mem_waddr_i(mem_waddr_o),
+        .wb_we_i(wb_we_i),
+        .wb_wdata_i(wb_wdata_i),
+        .wb_waddr_i(wb_waddr_i),
 
         // hi/LO寄存器
         .hi_i(hi),
@@ -454,7 +456,6 @@ module hikari_mips(
         //分支预测器修正
         .branch_ce(mux_branch_ce_o),
         .branch_taken(mux_branch_taken_o),
-        .ras_pop(mux_ras_pop_o),
         //对pc进行修改
         .flush_pc(mux_flush_pc_o),
         .correct_pc(mux_correct_pc_o),//当分支预测错误时向pc传输正确的值

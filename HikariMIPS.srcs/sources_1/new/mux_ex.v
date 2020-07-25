@@ -51,6 +51,8 @@ module mux_ex(
     output reg[`RegBus] ex_cp0_rdata
     );
 
+reg state;//状态机，用于保持暂停后pc的值一个周期
+
     always @ (posedge clk) begin
         if (rst == `RstEnable || flush) begin
             ex_aluop <= `ALU_OP_NOP;
@@ -69,6 +71,23 @@ module mux_ex(
             ex_hi <= `ZeroWord;
             ex_lo <= `ZeroWord;
             ex_cp0_rdata <= `ZeroWord;
+            state <= 1'b0;
+        end else if (stall[3] == `NoStop && state == 1'b1) begin
+            ex_aluop <= mux_aluop;
+            ex_alusel <= mux_alusel;
+            ex_waddr <= mux_waddr;
+            ex_we <= mux_we;
+            ex_is_in_delayslot <= mux_is_in_delayslot;
+            ex_link_address <= mux_link_address;
+            is_in_delayslot_o <= next_inst_in_delayslot_i;
+            is_nullified_o <= next_inst_is_nullified_i;
+            ex_inst <= mux_inst;
+            ex_pc <= mux_pc;
+            ex_exceptions <= mux_exceptions;
+            ex_hi <= mux_hi;
+            ex_lo <= mux_lo;
+            ex_cp0_rdata <= mux_cp0_rdata;
+            state <= 1'b0;
         end else if (stall[3] == `Stop && stall[4] == `NoStop) begin
             // ID暂停而EX没有暂停，输出NOP状态
             ex_aluop <= `ALU_OP_NOP;
@@ -85,6 +104,7 @@ module mux_ex(
             ex_hi <= `ZeroWord;
             ex_lo <= `ZeroWord;
             ex_cp0_rdata <= `ZeroWord;
+            state <= 1'b1;
             // ID当前指令是否在延迟槽中状态不变
         end else if (stall[3] == `NoStop) begin        
             ex_aluop <= mux_aluop;
@@ -104,6 +124,7 @@ module mux_ex(
             ex_lo <= mux_lo;
             ex_cp0_rdata <= mux_cp0_rdata;
         end else begin
+            state <= 1'b1;
         end
     end
 endmodule

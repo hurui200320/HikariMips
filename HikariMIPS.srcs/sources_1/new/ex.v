@@ -163,7 +163,10 @@ module ex(
                 `ALU_OP_MFLO: begin
                     move_result <= lo_i;
                 end
-                `ALU_OP_MOV: begin
+                `ALU_OP_MOVN: begin
+                    move_result <= reg1_i;
+                end
+                `ALU_OP_MOVZ: begin
                     move_result <= reg1_i;
                 end
                 `ALU_OP_MFC0: begin

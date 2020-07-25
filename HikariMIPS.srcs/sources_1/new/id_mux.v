@@ -116,6 +116,8 @@ module id_mux(
             mux_rdata2 <= rdata2_i;
             mux_cp0_raddr <= id_cp0_raddr;
             mux_cp0_rdata <= id_cp0_rdata;
+        end else begin
+            
         end
     end
 

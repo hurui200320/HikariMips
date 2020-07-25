@@ -35,6 +35,9 @@ module mux(
     input wire mem_we_i,
     input wire[`RegBus] mem_wdata_i,
     input wire[`RegAddrBus] mem_waddr_i,
+    input wire wb_we_i,
+    input wire[`RegBus] wb_wdata_i,
+    input wire[`RegAddrBus] wb_waddr_i,
 
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
@@ -84,7 +87,6 @@ module mux(
     //分支预测器修正
     output reg branch_ce,
     output reg branch_taken,
-    output reg ras_pop,
     //对pc进行修改
     output reg flush_pc,
     output reg[`RegBus] correct_pc,//当分支预测错误时向pc传输正确的值
@@ -117,14 +119,16 @@ module mux(
             reg1_data_o <= `ZeroWord;
         // 这里如果上一条是加载指令且加载的目标寄存器就是端口1读取的
         // 那么就申请暂停流水线以解决LOAD相关
-        end else if(pre_inst_is_load && ex_waddr_i == rdata1_i && re1_i == `ReadEnable ) begin
+        end else if(pre_inst_is_load && ex_waddr_i == raddr1_i && re1_i == `ReadEnable ) begin
             stallreq_for_reg1_loadrelated <= `Stop;
-        end else if(re1_i == `ReadEnable && ex_we_i == `WriteEnable && ex_waddr_i == rdata1_i) begin
+        end else if(re1_i == `ReadEnable && ex_we_i == `WriteEnable && ex_waddr_i == raddr1_i) begin
             // 端口1请求的数据正好是执行阶段（比访存阶段新）产生的将写入的数据
             reg1_data_o <= ex_wdata_i;
-        end else if(re1_i == `ReadEnable && mem_we_i == `WriteEnable && mem_waddr_i == rdata1_i) begin
+        end else if(re1_i == `ReadEnable && mem_we_i == `WriteEnable && mem_waddr_i == raddr1_i) begin
             // 端口1请求的数据正好是访存阶段（比寄存器堆新）产生的将写入数据
             reg1_data_o <= mem_wdata_i;
+        end else if(re1_i == `ReadEnable && wb_we_i == `WriteEnable && wb_waddr_i == raddr1_i) begin
+            reg1_data_o <= wb_wdata_i;
         end else if(re1_i == `ReadEnable) begin
             // 读端口1
             reg1_data_o <= rdata1_i;
@@ -147,14 +151,16 @@ module mux(
             reg2_data_o <= `ZeroWord;
         // 这里如果上一条是加载指令且加载的目标寄存器就是端口2读取的
         // 那么就申请暂停流水线以解决LOAD相关
-        end else if(pre_inst_is_load && ex_waddr_i == rdata2_i && re2_i == `ReadEnable ) begin
+        end else if(pre_inst_is_load && ex_waddr_i == raddr2_i && re2_i == `ReadEnable ) begin
             stallreq_for_reg2_loadrelated <= `Stop;
-        end else if(re2_i == `ReadEnable && ex_we_i == `WriteEnable && ex_waddr_i == rdata2_i) begin
+        end else if(re2_i == `ReadEnable && ex_we_i == `WriteEnable && ex_waddr_i == raddr2_i) begin
             // 端口2请求的数据正好是执行阶段（比访存阶段新）产生的将写入的数据
             reg2_data_o <= ex_wdata_i;
-        end else if(re2_i == `ReadEnable && mem_we_i == `WriteEnable && mem_waddr_i == rdata2_i) begin
+        end else if(re2_i == `ReadEnable && mem_we_i == `WriteEnable && mem_waddr_i == raddr2_i) begin
             // 端口2请求的数据正好是访存阶段（比寄存器堆新）产生的将写入数据
             reg2_data_o <= mem_wdata_i;
+        end else if(re2_i == `ReadEnable && wb_we_i == `WriteEnable && wb_waddr_i == raddr2_i) begin
+            reg2_data_o <= wb_wdata_i;
         end else if(re2_i == `ReadEnable) begin
             // 读端口2
             reg2_data_o <= rdata2_i;
@@ -202,33 +208,26 @@ module mux(
             correct_pc <= `ZeroWord;
             next_inst_in_delayslot_o <= 1'b0;
             next_inst_is_nullified_o <= 1'b0;
-            ras_pop <= 1'b0;
         end else begin
-            branch_ce <= 1'b0;
-            branch_taken <= 1'b0;
-            flush_pc <= 1'b0;
-            correct_pc <= imm_i;
             next_inst_in_delayslot_o <= 1'b1;
             next_inst_is_nullified_o <= 1'b0;
-            ras_pop <= 1'b0;
             case (aluop_i)
                 `ALU_OP_JR: begin
-                    if(branch_target_address_i == reg1_data_o) begin
-                        ras_pop <= 1'b1;
-                    end else begin
+                    if(branch_target_address_i != reg1_data_o) begin
                         flush_pc <= 1'b1;
                         correct_pc <= reg1_data_o;
+                    end else begin
                     end
                 end
                 `ALU_OP_JALR: begin
-                    if(branch_target_address_i == reg1_data_o) begin
-                        ras_pop <= 1'b1;
-                    end else begin
+                    if(branch_target_address_i != reg1_data_o) begin
                         flush_pc <= 1'b1;
                         correct_pc <= reg1_data_o;
+                    end else begin
                     end
                 end
                 `ALU_OP_BLTZ: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (reg1_data_o[31]) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -237,6 +236,7 @@ module mux(
                     
                 end
                 `ALU_OP_BGEZ: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (!reg1_data_o[31]) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -245,6 +245,7 @@ module mux(
                     
                 end
                 `ALU_OP_BLTZAL: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (reg1_data_o[31]) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -253,6 +254,7 @@ module mux(
                     
                 end
                 `ALU_OP_BGEZAL: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (!reg1_data_o[31]) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -260,14 +262,11 @@ module mux(
                 `ALU_OP_BGEZALL: begin
                     
                 end
-                //`ALU_OP_J: begin
-               //     
-                //end
-                //`ALU_OP_JAL: begin
-                //    
-                //end
                 `ALU_OP_BEQ: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
+                    //branch_taken <= 1'b1;
+                    //flush_pc <= 1'b0;
                     branch_taken <= (reg1_data_o == reg2_data_o) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
                 end
@@ -275,6 +274,7 @@ module mux(
                     
                 end
                 `ALU_OP_BNE: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (reg1_data_o != reg2_data_o) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -283,6 +283,7 @@ module mux(
                     
                 end
                 `ALU_OP_BGTZ: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (!reg1_data_o[31] && reg1_data_o != `ZeroWord) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -291,6 +292,7 @@ module mux(
                     
                 end
                 `ALU_OP_BLEZ: begin
+                    correct_pc <= imm_i;
                     branch_ce <= 1'b1;
                     branch_taken <= (reg1_data_o[31] || reg1_data_o == `ZeroWord) ? `TAKEN : `NOTAKEN;
                     flush_pc <= (branch_taken == taken_i) ? 1'b0 : 1'b1;//若预测与实际不符则清空pc
@@ -299,6 +301,9 @@ module mux(
                     
                 end
                 default: begin
+                    branch_ce <= 1'b0;
+                    branch_taken <= 1'b0;
+                    flush_pc <= 1'b0;
                 end
             endcase
         end

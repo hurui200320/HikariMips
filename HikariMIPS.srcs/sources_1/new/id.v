@@ -17,7 +17,6 @@ module id(
     input wire update_ce,
     input wire update_taken,
     input wire[`RegBus] update_pc,
-    input wire update_ras,
 
     output wire[`RegBus] pc_o,
     
@@ -94,15 +93,17 @@ module id(
 
 wire taken;
 wire[`RegBus] prediction_pc;
+reg branch_ce;
     //∑÷÷ß‘§≤‚
     branch branch0(
         .clk(clk),
         .rst(rst),
         .pc_i(pc_i),
+        .aluop_i(aluop_o),
+        .branch_ce(branch_ce),
         .update_ce(update_ce),
         .update_taken(update_taken),
         .update_pc(update_pc),
-        .update_ras(update_ras),
         .prediction_pc(prediction_pc),
         .taken(taken)
     );
@@ -124,6 +125,7 @@ wire[`RegBus] prediction_pc;
         exception_is_syscall <= `False_v;
         exception_is_eret <= `False_v;
         cp0_raddr_o <= `cp0AddrZero;
+        branch_ce <= 1'b0;
         if (rst == `RstEnable) begin
             // ∏¥Œª
             waddr_o <= `NOPRegAddr;
@@ -535,6 +537,7 @@ wire[`RegBus] prediction_pc;
                             alusel_o <= `ALU_SEL_JUMP_BRANCH;
                             re1_o <= `ReadEnable;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -549,6 +552,7 @@ wire[`RegBus] prediction_pc;
                             alusel_o <= `ALU_SEL_JUMP_BRANCH;
                             re1_o <= `ReadEnable;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -563,6 +567,7 @@ wire[`RegBus] prediction_pc;
                             alusel_o <= `ALU_SEL_JUMP_BRANCH;
                             re1_o <= `ReadEnable;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -577,6 +582,7 @@ wire[`RegBus] prediction_pc;
                             alusel_o <= `ALU_SEL_JUMP_BRANCH;
                             re1_o <= `ReadEnable;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -594,6 +600,7 @@ wire[`RegBus] prediction_pc;
                             re1_o <= `ReadEnable;
                             link_addr_o <= pc_next_2;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -611,6 +618,7 @@ wire[`RegBus] prediction_pc;
                             re1_o <= `ReadEnable;
                             link_addr_o <= pc_next_2;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -628,6 +636,7 @@ wire[`RegBus] prediction_pc;
                             re1_o <= `ReadEnable;
                             link_addr_o <= pc_next_2;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -645,6 +654,7 @@ wire[`RegBus] prediction_pc;
                             re1_o <= `ReadEnable;
                             link_addr_o <= pc_next_2;
                             inst_valid <= `InstValid;
+                            branch_ce <= 1'b1;
                             if(taken) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
@@ -850,6 +860,7 @@ wire[`RegBus] prediction_pc;
                     re1_o <= `ReadEnable;
                     re2_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -865,6 +876,7 @@ wire[`RegBus] prediction_pc;
                     re1_o <= `ReadEnable;
                     re2_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -880,6 +892,7 @@ wire[`RegBus] prediction_pc;
                     re1_o <= `ReadEnable;
                     re2_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -895,6 +908,7 @@ wire[`RegBus] prediction_pc;
                     re1_o <= `ReadEnable;
                     re2_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -909,6 +923,7 @@ wire[`RegBus] prediction_pc;
                     alusel_o <= `ALU_SEL_JUMP_BRANCH;
                     re1_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -923,6 +938,7 @@ wire[`RegBus] prediction_pc;
                     alusel_o <= `ALU_SEL_JUMP_BRANCH;
                     re1_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -937,6 +953,7 @@ wire[`RegBus] prediction_pc;
                     alusel_o <= `ALU_SEL_JUMP_BRANCH;
                     re1_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
@@ -951,6 +968,7 @@ wire[`RegBus] prediction_pc;
                     alusel_o <= `ALU_SEL_JUMP_BRANCH;
                     re1_o <= `ReadEnable;
                     inst_valid <= `InstValid;
+                    branch_ce <= 1'b1;
                     if(taken) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
