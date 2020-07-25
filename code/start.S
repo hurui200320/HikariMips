@@ -1,4 +1,3 @@
-	.org 0x0
 	.globl	_start
 	.set noat
     .set noreorder

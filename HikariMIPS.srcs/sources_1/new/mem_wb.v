@@ -20,6 +20,7 @@ module mem_wb(
     input wire mem_cp0_we,
     input wire[7:0] mem_cp0_waddr,
     input wire[`RegBus] mem_cp0_wdata,
+    input wire[`RegBus] mem_pc,
 
     //送到回写阶段的信息
     output reg[`RegAddrBus] wb_waddr,
@@ -30,7 +31,8 @@ module mem_wb(
     output reg[`RegBus] wb_lo,
     output reg wb_cp0_we,
     output reg[7:0] wb_cp0_waddr,
-    output reg[`RegBus] wb_cp0_wdata   
+    output reg[`RegBus] wb_cp0_wdata,
+    output reg[`RegBus] wb_pc
     );
 
     always @ (posedge clk) begin
@@ -44,6 +46,7 @@ module mem_wb(
             wb_cp0_we <= `WriteDisable;
             wb_cp0_waddr <= 8'b00000000;
             wb_cp0_wdata <= `ZeroWord;
+            wb_pc <= `ZeroWord;
         end else if (stall[4] == `Stop && stall[5] == `NoStop) begin
             wb_waddr <= `NOPRegAddr;
             wb_we <= `WriteDisable;
@@ -54,6 +57,7 @@ module mem_wb(
             wb_cp0_we <= `WriteDisable;
             wb_cp0_waddr <= 8'b00000000;
             wb_cp0_wdata <= `ZeroWord;
+            wb_pc <= `ZeroWord;
         end else if (stall[4] == `NoStop) begin
             wb_waddr <= mem_waddr;
             wb_we <= mem_we;
@@ -64,6 +68,7 @@ module mem_wb(
             wb_cp0_we <= mem_cp0_we;
             wb_cp0_waddr <= mem_cp0_waddr;
             wb_cp0_wdata <= mem_cp0_wdata;
+            wb_pc <= mem_pc;
         end else begin
         end
     end 

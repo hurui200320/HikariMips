@@ -29,7 +29,14 @@ module hikari_mips(
     input wire data_addr_ok,
     input wire data_data_ok,
 
-    input wire[4:0] init_i
+    input wire[4:0] init_i,
+
+    // DEBUG
+    output wire[`RegBus] debug_wb_pc,
+    output wire[3:0] debug_wb_rf_wen,
+    output wire[4:0] debug_wb_rf_wnum,
+    output wire[31:0] debug_wb_rf_wdata
+
     );
 
     // pc -> inst rom
@@ -288,6 +295,12 @@ module hikari_mips(
         .rdata2 (reg2_data)
     );
 
+    
+    // DEBUG
+    assign debug_wb_rf_wen = (wb_we_i) ? 4'b1111 : 4'b0000;
+    assign debug_wb_rf_wnum = wb_waddr_i;
+    assign debug_wb_rf_wdata = wb_wdata_i;
+
     // ID/EX模块
     id_ex id_ex0(
         .clk(clk),
@@ -545,6 +558,7 @@ module hikari_mips(
         .mem_cp0_we(mem_cp0_we_o),
         .mem_cp0_waddr(mem_cp0_waddr_o),
         .mem_cp0_wdata(mem_cp0_wdata_o),
+        .mem_pc(mem_pc_o),
     
         //送到回写阶段的信息
         .wb_waddr(wb_waddr_i),
@@ -555,7 +569,8 @@ module hikari_mips(
         .wb_we_hilo(wb_we_hilo_i),
         .wb_cp0_we(wb_cp0_we_i),
         .wb_cp0_waddr(wb_cp0_waddr_i),
-        .wb_cp0_wdata(wb_cp0_wdata_i)
+        .wb_cp0_wdata(wb_cp0_wdata_i),
+        .wb_pc(debug_wb_pc)
     );
 
     // HI/LO寄存器

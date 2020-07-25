@@ -44,7 +44,7 @@ module pc_reg(
     // 修改PC
     always @ (posedge clk) begin
         if (ce == `ChipDisable) begin
-            pc <= `ZeroWord;
+            pc <= 32'hbfc00000;
         end else if (flush) begin
             // 出现异常，使用epc的值
             pc <= epc;
