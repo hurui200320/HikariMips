@@ -29,14 +29,12 @@ module pc_reg(
             ce <= `ChipDisable;
             exceptions_o <= `ZeroWord;
         end else begin
-            if (pc[1:0] == 2'b00) begin
-                // 地址对齐
-                ce <= `ChipEnable;
-                exceptions_o[0] <= 1'b0;
+            if (is_branch_i) begin
+                ce <= (branch_target_address_i[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
+                exceptions_o[0] <= (branch_target_address_i[1:0] != 2'b00) ? 1'b1 : 1'b0;
             end else begin
-                // 地址未对齐
-                ce <= `ChipDisable;
-                exceptions_o[0] <= 1'b1;
+                ce <= (pc[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
+                exceptions_o[0] <= (pc[1:0] != 2'b00) ? 1'b1 : 1'b0;
             end
         end
     end
@@ -44,10 +42,15 @@ module pc_reg(
     // 修改PC
     always @ (posedge clk) begin
         if (ce == `ChipDisable) begin
-            pc <= 32'hbfc00000;
+            // pc <= 32'hbfc00000;
+            pc <= `ZeroWord;
         end else if (flush) begin
             // 出现异常，使用epc的值
-            pc <= epc;
+            if (stall[0] == `Stop) begin
+                pc <= epc - 4'h4;
+            end else begin
+                pc <= epc;
+            end
         end else if (stall[0] == `NoStop) begin
             // IF未暂停
             if(is_branch_i) begin

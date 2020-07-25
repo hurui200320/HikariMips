@@ -48,7 +48,24 @@ module sram_if(
     reg req_en;
     assign req = ce & req_en;
 
+    reg cancled;
+
     reg[1:0] status;
+
+    // 处理flush信号导致的返回数据无效
+    always @ (posedge clk) begin
+        if (rst == `RstEnable) begin
+            cancled <= 1'b0;
+        end else begin
+            if (status != 2'b00 && flush) begin
+                // 已经开始握手且此时有flush信号
+                cancled <= 1'b1;
+            end else if (status == 2'b00) begin
+                // 等待握手阶段清零
+                cancled <= 1'b0;
+            end
+        end
+    end
 
     // 握手状态机
     always @ (posedge clk) begin
@@ -119,9 +136,10 @@ module sram_if(
                         // 数据握手不成功，原地等待
                         stallreq <= `True_v;
                     end else begin
-                        // 数据握手成功，立刻撤销流水线暂停
+                        // 数据握手成功
+                        // 无Cancle则立刻撤销流水线暂停
                         // 转入空闲阶段
-                        stallreq <= `False_v;
+                        stallreq <= cancled ? `True_v : `False_v;
                     end
                 end
                 default: begin

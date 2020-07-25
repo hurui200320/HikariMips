@@ -80,7 +80,7 @@ module cp0_reg(
         if (rst == `RstEnable) begin
             // 复位，按照指令集赋值
             // 只有需要清零的才有，如果reset后为undefined则不需要清零
-            status <= 32'b0001_0000_0100_0000_0000_0000_0000_0100;
+            status <= 32'b0000_0000_0100_0000_0000_0000_0000_0100;
             cause <= `ZeroWord;
             // TODO TLB cache things...
             config0 <= 32'b1000_0000_0000_0000_0000_0000_0000_0000;
