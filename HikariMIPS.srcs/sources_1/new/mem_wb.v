@@ -36,7 +36,7 @@ module mem_wb(
     );
 
     always @ (posedge clk) begin
-        if(rst == `RstEnable) begin
+        if(rst == `RstEnable || flush) begin
             wb_waddr <= `NOPRegAddr;
             wb_we <= `WriteDisable;
             wb_wdata <= `ZeroWord;  
@@ -68,7 +68,7 @@ module mem_wb(
             wb_cp0_we <= mem_cp0_we;
             wb_cp0_waddr <= mem_cp0_waddr;
             wb_cp0_wdata <= mem_cp0_wdata;
-            wb_pc <= flush ? `ZeroWord : mem_pc;
+            wb_pc <= mem_pc;
         end else begin
         end
     end 

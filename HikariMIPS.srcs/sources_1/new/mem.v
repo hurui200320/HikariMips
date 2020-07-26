@@ -58,7 +58,7 @@ module mem(
     
     // 送到回写阶段的信息
     output reg[`RegAddrBus] waddr_o,
-    output reg we_o,
+    output wire we_o,
     output reg[`RegBus] wdata_o,
     output reg we_hilo_o,
     output reg[`RegBus] hi_o,
@@ -85,6 +85,7 @@ module mem(
     reg req_en;    
     reg mem_ce;
 
+    assign we_o = exception_occured_o ? `WriteDisable : we_i;
 
     reg[1:0] status;
 
@@ -236,7 +237,6 @@ module mem(
         mem_ce <= `ChipDisable;
         if(rst == `RstEnable) begin
             waddr_o <= `NOPRegAddr;
-            we_o <= `WriteDisable;
             wdata_o <= `ZeroWord;
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
@@ -248,7 +248,6 @@ module mem(
             cp0_wdata_o <= `ZeroWord;
         end else begin
             waddr_o <= waddr_i;
-            we_o <= we_i;
             wdata_o <= wdata_i;
             we_hilo_o <= we_hilo_i;
             hi_o <= hi_i;
@@ -302,6 +301,7 @@ module mem(
                             // 此时一定是最低没有对齐，应当抛地址异常
                             read_exception <= `True_v;
                             wdata_o <= `ZeroWord;
+                            mem_ce <= `ChipDisable;
                         end
                     endcase
                 end
@@ -336,6 +336,7 @@ module mem(
                     mem_ce <= `ChipEnable;
                     if (mem_addr_i[1:0] != 2'b00) begin 
                         read_exception <= `True_v;
+                        mem_ce <= `ChipDisable;
                     end
                 end
                 // LBU
@@ -380,6 +381,7 @@ module mem(
                         default: begin
                             read_exception <= `True_v;
                             wdata_o <= `ZeroWord;
+                            mem_ce <= `ChipDisable;
                         end
                     endcase
                 end
@@ -447,6 +449,7 @@ module mem(
                         default: begin
                             write_exception <= `True_v;
                             mem_strb_o <= 4'b0000;
+                            mem_ce <= `ChipDisable;
                         end
                     endcase
                 end
@@ -487,6 +490,7 @@ module mem(
                     mem_ce <= `ChipEnable;
                     if (mem_addr_i[1:0] != 2'b00) begin
                         write_exception <= `True_v;
+                        mem_ce <= `ChipDisable;
                     end
                 end
                 // SWR

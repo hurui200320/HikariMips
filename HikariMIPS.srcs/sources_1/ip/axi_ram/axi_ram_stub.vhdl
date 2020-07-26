@@ -1,7 +1,7 @@
 -- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2019.2 (win64) Build 2708876 Wed Nov  6 21:40:23 MST 2019
--- Date        : Sat Jul 25 23:03:06 2020
+-- Date        : Sun Jul 26 15:14:04 2020
 -- Host        : Blake-Belladonna running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub D:/HikariMIPS/HikariMIPS.srcs/sources_1/ip/axi_ram/axi_ram_stub.vhdl
 -- Design      : axi_ram

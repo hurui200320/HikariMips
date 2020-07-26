@@ -34,7 +34,8 @@ module if_id(
         end else if (stall[1] == `NoStop) begin
             // 正常时传出IF的数据
             id_pc <= if_pc;
-            id_inst <= if_inst;
+            // 若IF阶段有异常，则直接往下传NOP
+            id_inst <= (if_exceptions != `ZeroWord || if_pc == `ZeroWord) ? `ZeroWord : if_inst;
             id_exceptions <= if_exceptions;
         end else begin
             // 其余情况（不在被暂停的交界处）则原封不动，其他交界寄存器类似

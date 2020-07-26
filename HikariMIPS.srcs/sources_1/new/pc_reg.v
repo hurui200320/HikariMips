@@ -24,26 +24,25 @@ module pc_reg(
     );
     
     // 产生访存请求信号ce
-    always @ (posedge clk) begin
+    always @ (*) begin
         if (rst == `RstEnable) begin
             ce <= `ChipDisable;
             exceptions_o <= `ZeroWord;
         end else begin
-            if (is_branch_i) begin
-                ce <= (branch_target_address_i[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
-                exceptions_o[0] <= (branch_target_address_i[1:0] != 2'b00) ? 1'b1 : 1'b0;
-            end else begin
-                ce <= (pc[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
-                exceptions_o[0] <= (pc[1:0] != 2'b00) ? 1'b1 : 1'b0;
-            end
+            // 这里先让branch写入，然后对pc判断。这样对于JR 0x1233这样的异常
+            // 将会在取0x1233这里置为异常，MEM阶段可以直接读取PC=0x1233作为BadVAddr
+            // 也可以通过额外设置exceptions位来表示跳转异常，并通过新的信号量传递该地址
+            // 运行功能测试出于代码复用性的考虑，先修复问题，后期优化时再说
+            ce <= (pc[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
+            exceptions_o[0] <= (pc[1:0] != 2'b00) ? 1'b1 : 1'b0;
         end
     end
     
     // 修改PC
     always @ (posedge clk) begin
-        if (ce == `ChipDisable) begin
-            // pc <= 32'hbfc00000;
-            pc <= `ZeroWord;
+        if (ce == `ChipDisable && stall[0] == `NoStop) begin
+            // 没暂停才复位
+            pc <= 32'hbfc00000;
         end else if (flush) begin
             // 出现异常，使用epc的值
             if (stall[0] == `Stop) begin
