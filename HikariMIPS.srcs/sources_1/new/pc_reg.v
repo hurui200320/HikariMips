@@ -40,8 +40,7 @@ module pc_reg(
     
     // 修改PC
     always @ (posedge clk) begin
-        if (ce == `ChipDisable && stall[0] == `NoStop) begin
-            // 没暂停才复位
+        if (rst == `RstEnable) begin
             pc <= 32'hbfc00000;
         end else if (flush) begin
             // 出现异常，使用epc的值

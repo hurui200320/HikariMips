@@ -181,7 +181,6 @@ module mem(
     always @ (*) begin
         if (rst == `RstEnable) begin
             exception_occured_o <= `False_v;
-            stallreq <= `False_v;
         end else begin
             // 等待cpu复位或清空流水线
             if (pc_i != `ZeroWord) begin

@@ -52,10 +52,10 @@ module my_cpu(
     output wire        bready,
 
     //debug interface
-    output wire[31:0] debug_wb_pc,
-    output wire[3:0] debug_wb_rf_wen,
-    output wire[4:0] debug_wb_rf_wnum,
-    output wire[31:0] debug_wb_rf_wdata
+    (*mark_debug = "true"*)output wire[31:0] debug_wb_pc,
+    (*mark_debug = "true"*)output wire[3:0] debug_wb_rf_wen,
+    (*mark_debug = "true"*)output wire[4:0] debug_wb_rf_wnum,
+    (*mark_debug = "true"*)output wire[31:0] debug_wb_rf_wdata
     );
 
     wire[`RegBus] inst_addr;
