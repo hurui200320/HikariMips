@@ -499,7 +499,7 @@ module ex(
     // 处理暂停请求
     always @ (*) begin
         // 各可能的暂停请求之或
-        stallreq = stallreq_for_div || stallreq_for_mult;
+        stallreq <= stallreq_for_div || stallreq_for_mult;
     end
 
     // 数据移动，写HI/LO部分，只涉及MTHI/LO指令
