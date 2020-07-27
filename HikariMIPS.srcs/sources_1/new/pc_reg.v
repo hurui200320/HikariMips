@@ -12,7 +12,7 @@ module pc_reg(
 
     // 分支跳转信号
     (*mark_debug = "true"*)input wire is_branch_i,
-    (*mark_debug = "true"*)input wire[`RegBus] branch_target_address_i,
+    input wire[`RegBus] branch_target_address_i,
 
     // 异常
     (*mark_debug = "true"*)input wire flush,
@@ -20,11 +20,11 @@ module pc_reg(
     (*mark_debug = "true"*)output wire[31:0] exceptions_o,
 
     (*mark_debug = "true"*)output reg[`RegBus] pc,
-    (*mark_debug = "true"*)output wire ce
+    output wire ce
     );
 
     assign ce = (pc[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
-    assign exceptions_o = (pc[1:0] != 2'b00) ? 1'b1 : 1'b0;
+    assign exceptions_o = {31'h00000000, (pc[1:0] != 2'b00) ? 1'b1 : 1'b0};
     
     // 修改PC
     always @ (posedge clk) begin
