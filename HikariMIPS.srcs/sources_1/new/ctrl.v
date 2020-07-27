@@ -7,8 +7,10 @@ module ctrl(
     input wire clk,
     input wire rst,
 
+    input wire stallreq_from_if,
     input wire stallreq_from_id,
     input wire stallreq_from_ex,
+    input wire stallreq_from_mem,
     // stall <= {WB, MEM, EX, ID, IF, PC}
     output reg[5:0] stall,
 
@@ -35,13 +37,18 @@ module ctrl(
                 end 
                 default: begin
                     // 其他异常统一入口
-                    epc_o <= 32'h00000040; // TODO
+                    epc_o <= 32'hBFC00380;
                 end
             endcase
+        end else if(stallreq_from_mem == `Stop) begin
+            stall <= 6'b011111;
         end else if(stallreq_from_ex == `Stop) begin
             stall <= 6'b001111;
         end else if(stallreq_from_id == `Stop) begin
             stall <= 6'b000111;            
+        end else if(stallreq_from_if == `Stop) begin
+            stall <= 6'b000111; // ID跟着暂停，应该可以解决跳转的问题
+            // TODO 与MEM竞争被仲裁等待时，ID是否应该额外暂停？         
         end else begin
             stall <= 6'b000000;
         end

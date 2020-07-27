@@ -209,7 +209,7 @@ module ex(
     // 计算加减和，如果是加法，则这里是求和，如果是减法或比较，则这里就是差
     wire[`RegBus] result_sum = reg1_i + reg2_i_mux;
     // 检查溢出：两数为正和为负，及两数为负和为正
-    wire sum_overflow = (!reg1_i[31] && !reg2_i_mux && result_sum[31]) || ( reg1_i[31] && reg2_i_mux[31] && !result_sum[31]);
+    wire sum_overflow = ((!reg1_i[31] && !reg2_i_mux[31]) && result_sum[31]) || ((reg1_i[31] && reg2_i_mux[31]) && (!result_sum[31])); 
     // reg1是否小于reg2，情况有两种
     // 有符号数看reg1 2的符号和result_sum的符号，其中一负一正则必然小于
     // 无符号数直接比较两者符号
@@ -227,10 +227,10 @@ module ex(
                     arithmetic_result <= reg1_lt_reg2 ;
                 end
                 `ALU_OP_ADD, `ALU_OP_ADDU: begin
-                    arithmetic_result <= result_sum; 
+                    arithmetic_result <= result_sum[31:0]; 
                 end
                 `ALU_OP_SUB, `ALU_OP_SUBU: begin
-                    arithmetic_result <= result_sum; 
+                    arithmetic_result <= result_sum[31:0]; 
                 end
                 `ALU_OP_CLZ: begin
                     arithmetic_result <= reg1_i[31] ? 0 : 

@@ -4,7 +4,7 @@ SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   . = 0xbfc00000;
-  .text : 
+  .text      : 
   {
     _ftext = . ;
     *(.text)
@@ -18,9 +18,9 @@ SECTIONS
   } =0
   _etext = .;
   PROVIDE (etext = .);
-  .fini : { *(.fini)    } =0
+  .fini      : { *(.fini)    } =0
   . = MEMSTART;
-  .data : AT(rodata_end)
+  .data    : AT(rodata_end)
   {
     _fdata = . ;
     _stack = _fdata + MEMSIZE -32;

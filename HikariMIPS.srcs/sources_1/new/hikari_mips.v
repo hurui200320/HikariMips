@@ -10,20 +10,39 @@ module hikari_mips(
     input wire rst,
 
     // 指令ROM类SRAM接口
-    input wire[`RegBus] rom_data_i,
-    output wire[`RegBus] rom_addr_o,
-    output wire rom_ce_o,
+    output wire inst_req,
+    output wire inst_wr,
+    output wire[3:0] inst_strb,
+    output wire[31:0] inst_addr,
+    output wire[31:0] inst_wdata,
+    input wire[31:0] inst_rdata,
+    input wire inst_addr_ok,
+    input wire inst_data_ok,
 
     // 数据RAM类SRAM接口
-    input wire[`RegBus] ram_data_i,
-    output wire[`RegBus] ram_data_o,
-    output wire[`RegBus] ram_addr_o,
-    output wire ram_ce_o,
-    output wire ram_we_o,
-    output wire[3:0] ram_sel_o,
+    output wire data_req,
+    output wire data_wr,
+    output wire[3:0] data_strb,
+    output wire[31:0] data_addr,
+    output wire[31:0] data_wdata,
+    input wire[31:0] data_rdata,
+    input wire data_addr_ok,
+    input wire data_data_ok,
 
-    input wire[4:0] init_i
+    input wire[4:0] init_i,
+
+    // DEBUG
+    output wire[`RegBus] debug_wb_pc,
+    output wire[3:0] debug_wb_rf_wen,
+    output wire[4:0] debug_wb_rf_wnum,
+    output wire[31:0] debug_wb_rf_wdata
+
     );
+
+    // pc -> inst rom
+    assign inst_wr = 1'b0; // no need to write
+    assign inst_wdata = `ZeroWord; // always write zero
+    assign inst_strb = 4'b1111; // always wr 4bytes
 
     // PC -> IF/ID
     wire[`RegBus] pc;
@@ -32,6 +51,7 @@ module hikari_mips(
     wire[`RegBus] id_inst_i;    
     wire[31:0] pc_exceptions_o;
     wire[31:0] id_exceptions_i;
+    wire stallreq_from_if;
     
     // ID -> ID/EX
     wire[`AluOpBus] id_aluop_o;
@@ -116,6 +136,7 @@ module hikari_mips(
     wire mem_exception_occured_o;
     wire[4:0] mem_exc_code_o;
     wire[`RegBus] mem_bad_addr_o;
+    wire stallreq_from_mem;
     
     // MEM/WB -> WB   
     wire wb_we_i;
@@ -173,19 +194,22 @@ module hikari_mips(
     wire signed_mul;
   
     // PC -> ROM
-    pc_reg pc_reg0(
+    sram_if if0(
         .clk(clk),
         .rst(rst),
         .stall(stall),
         .is_branch_i(id_is_branch_o),
         .branch_target_address_i(branch_target_address_o),
         .pc(pc),
-        .ce(rom_ce_o),
         .flush(ctrl_flush_o),
         .epc(ctrl_epc_o),
-        .exceptions_o(pc_exceptions_o)
+        .exceptions_o(pc_exceptions_o),
+        .req(inst_req),
+        .addr_ok(inst_addr_ok),
+        .data_ok(inst_data_ok),
+        .stallreq(stallreq_from_if)
     );
-    assign rom_addr_o = pc;
+    assign inst_addr = pc;
 
     //  ROM -> IF/ID -> ID
     if_id if_id0(
@@ -194,7 +218,7 @@ module hikari_mips(
         .flush(ctrl_flush_o),
         .stall(stall),
         .if_pc(pc),
-        .if_inst(rom_data_i),
+        .if_inst(inst_rdata),
         .if_exceptions(pc_exceptions_o),
         .id_pc(id_pc_i),
         .id_inst(id_inst_i),
@@ -270,6 +294,12 @@ module hikari_mips(
         .raddr2 (reg2_addr),
         .rdata2 (reg2_data)
     );
+
+    
+    // DEBUG
+    assign debug_wb_rf_wen = (wb_we_i) ? 4'b1111 : 4'b0000;
+    assign debug_wb_rf_wnum = wb_waddr_i;
+    assign debug_wb_rf_wdata = wb_wdata_i;
 
     // ID/EX模块
     id_ex id_ex0(
@@ -500,12 +530,15 @@ module hikari_mips(
         .cp0_wdata_o(mem_cp0_wdata_o),
 
         // 数据RAM
-        .mem_data_i(ram_data_i),
-        .mem_addr_o(ram_addr_o),
-        .mem_we_o(ram_we_o),
-        .mem_sel_o(ram_sel_o),
-        .mem_data_o(ram_data_o),
-        .mem_ce_o(ram_ce_o)
+        .mem_data_i(data_rdata),
+        .mem_addr_ok(data_addr_ok),
+        .mem_data_ok(data_data_ok),
+        .mem_addr_o(data_addr),
+        .mem_wr_o(data_wr),
+        .mem_strb_o(data_strb),
+        .mem_data_o(data_wdata),
+        .mem_req_o(data_req),
+        .stallreq(stallreq_from_mem)
     );
 
     // MEM/WB模块
@@ -525,6 +558,7 @@ module hikari_mips(
         .mem_cp0_we(mem_cp0_we_o),
         .mem_cp0_waddr(mem_cp0_waddr_o),
         .mem_cp0_wdata(mem_cp0_wdata_o),
+        .mem_pc(mem_pc_o),
     
         //送到回写阶段的信息
         .wb_waddr(wb_waddr_i),
@@ -535,7 +569,8 @@ module hikari_mips(
         .wb_we_hilo(wb_we_hilo_i),
         .wb_cp0_we(wb_cp0_we_i),
         .wb_cp0_waddr(wb_cp0_waddr_i),
-        .wb_cp0_wdata(wb_cp0_wdata_i)
+        .wb_cp0_wdata(wb_cp0_wdata_i),
+        .wb_pc(debug_wb_pc)
     );
 
     // HI/LO寄存器
@@ -580,8 +615,10 @@ module hikari_mips(
         .clk(clk),
         .rst(rst),
 
+        .stallreq_from_if(stallreq_from_if),
         .stallreq_from_id(stallreq_from_id),
         .stallreq_from_ex(stallreq_from_ex),
+        .stallreq_from_mem(stallreq_from_mem),
         .stall(stall),
 
         .cp0_epc_i(cp0_epc_o),

@@ -560,8 +560,8 @@ module id(
                             if(reg1_data_o[31]) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
-                                next_inst_in_delayslot_o <= `True_v;
                            end
+                            next_inst_in_delayslot_o <= `True_v;
                         end
                         // BLTZL
                         `RT_BLTZL: begin
@@ -584,20 +584,23 @@ module id(
                             if(!reg1_data_o[31]) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
-                                next_inst_in_delayslot_o <= `True_v;
                             end
+                            next_inst_in_delayslot_o <= `True_v;
                         end
                         // BGEZL
                         `RT_BGEZL: begin
-                            alusel_o <= `ALU_SEL_JUMP_BRANCH;
-                            re1_o <= `ReadEnable;
-                            inst_valid <= `InstValid;
-                            if(!reg1_data_o[31]) begin
-                                branch_target_address_o <= pc_next + addr_offset_imm;
-                                is_branch_o <= `True_v;
-                                next_inst_in_delayslot_o <= `True_v;
+                            if (rt == 5'b00000) begin
+                                alusel_o <= `ALU_SEL_JUMP_BRANCH;
+                                re1_o <= `ReadEnable;
+                                inst_valid <= `InstValid;
+                                if(!reg1_data_o[31]) begin
+                                    branch_target_address_o <= pc_next + addr_offset_imm;
+                                    is_branch_o <= `True_v;
+                                    next_inst_in_delayslot_o <= `True_v;
+                                end else begin
+                                    next_inst_is_nullified_o <= `True_v;
+                                end
                             end else begin
-                                next_inst_is_nullified_o <= `True_v;
                             end
                         end
                         // BLTZAL
@@ -608,10 +611,10 @@ module id(
                             re1_o <= `ReadEnable;
                             link_addr_o <= pc_next_2;
                             inst_valid <= `InstValid;
+                            next_inst_in_delayslot_o <= `True_v;    
                             if(reg1_data_o[31]) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
-                                next_inst_in_delayslot_o <= `True_v;
                             end
                         end
                         // BLTZALL
@@ -638,10 +641,10 @@ module id(
                             re1_o <= `ReadEnable;
                             link_addr_o <= pc_next_2;
                             inst_valid <= `InstValid;
+                            next_inst_in_delayslot_o <= `True_v;
                             if(!reg1_data_o[31]) begin
                                 branch_target_address_o <= pc_next + addr_offset_imm;
                                 is_branch_o <= `True_v;
-                                next_inst_in_delayslot_o <= `True_v;
                             end
                         end
                         // BGEZALL
@@ -858,8 +861,8 @@ module id(
                     if(reg1_data_o == reg2_data_o) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
-                        next_inst_in_delayslot_o <= `True_v;
                     end
+                    next_inst_in_delayslot_o <= `True_v;
                 end
                 // BEQL
                 `OP_BEQL: begin
@@ -885,8 +888,8 @@ module id(
                     if(reg1_data_o != reg2_data_o) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
-                        next_inst_in_delayslot_o <= `True_v;
                     end
+                    next_inst_in_delayslot_o <= `True_v;
                 end
                 // BNEL
                 `OP_BNEL: begin
@@ -910,8 +913,8 @@ module id(
                     if(!reg1_data_o[31] && reg1_data_o != `ZeroWord) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
-                        next_inst_in_delayslot_o <= `True_v;
                     end
+                    next_inst_in_delayslot_o <= `True_v;
                 end
                 // BGTZL
                 `OP_BGTZL: begin
@@ -934,20 +937,23 @@ module id(
                     if(reg1_data_o[31] || reg1_data_o == `ZeroWord) begin
                         branch_target_address_o <= pc_next + addr_offset_imm;
                         is_branch_o <= `True_v;
-                        next_inst_in_delayslot_o <= `True_v;
                     end
+                    next_inst_in_delayslot_o <= `True_v;
                 end
                 // BLEZL
                 `OP_BLEZL: begin
-                    alusel_o <= `ALU_SEL_JUMP_BRANCH;
-                    re1_o <= `ReadEnable;
-                    inst_valid <= `InstValid;
-                    if(reg1_data_o[31] || reg1_data_o == `ZeroWord) begin
-                        branch_target_address_o <= pc_next + addr_offset_imm;
-                        is_branch_o <= `True_v;
-                        next_inst_in_delayslot_o <= `True_v;
+                    if (rt == 5'b00000) begin
+                        alusel_o <= `ALU_SEL_JUMP_BRANCH;
+                        re1_o <= `ReadEnable;
+                        inst_valid <= `InstValid;
+                        if(reg1_data_o[31] || reg1_data_o == `ZeroWord) begin
+                            branch_target_address_o <= pc_next + addr_offset_imm;
+                            is_branch_o <= `True_v;
+                            next_inst_in_delayslot_o <= `True_v;
+                        end else begin
+                            next_inst_is_nullified_o <= `True_v;
+                        end
                     end else begin
-                        next_inst_is_nullified_o <= `True_v;
                     end
                 end
                 // LB

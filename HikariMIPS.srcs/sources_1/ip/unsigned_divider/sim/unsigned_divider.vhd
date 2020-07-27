@@ -58,6 +58,7 @@ USE div_gen_v5_1_16.div_gen_v5_1_16;
 
 ENTITY unsigned_divider IS
   PORT (
+    aclk : IN STD_LOGIC;
     s_axis_divisor_tvalid : IN STD_LOGIC;
     s_axis_divisor_tdata : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
     s_axis_dividend_tvalid : IN STD_LOGIC;
@@ -129,13 +130,15 @@ ARCHITECTURE unsigned_divider_arch OF unsigned_divider IS
   ATTRIBUTE X_INTERFACE_INFO OF s_axis_divisor_tdata: SIGNAL IS "xilinx.com:interface:axis:1.0 S_AXIS_DIVISOR TDATA";
   ATTRIBUTE X_INTERFACE_PARAMETER OF s_axis_divisor_tvalid: SIGNAL IS "XIL_INTERFACENAME S_AXIS_DIVISOR, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 0, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.000, LAYERED_METADATA undef, INSERT_VIP 0";
   ATTRIBUTE X_INTERFACE_INFO OF s_axis_divisor_tvalid: SIGNAL IS "xilinx.com:interface:axis:1.0 S_AXIS_DIVISOR TVALID";
+  ATTRIBUTE X_INTERFACE_PARAMETER OF aclk: SIGNAL IS "XIL_INTERFACENAME aclk_intf, ASSOCIATED_BUSIF S_AXIS_DIVIDEND:S_AXIS_DIVISOR:M_AXIS_DOUT, ASSOCIATED_RESET aresetn, ASSOCIATED_CLKEN aclken, FREQ_HZ 1000000, PHASE 0.000, INSERT_VIP 0";
+  ATTRIBUTE X_INTERFACE_INFO OF aclk: SIGNAL IS "xilinx.com:signal:clock:1.0 aclk_intf CLK";
 BEGIN
   U0 : div_gen_v5_1_16
     GENERIC MAP (
       C_XDEVICEFAMILY => "artix7",
       C_HAS_ARESETN => 0,
       C_HAS_ACLKEN => 0,
-      C_LATENCY => 0,
+      C_LATENCY => 24,
       ALGORITHM_TYPE => 1,
       DIVISOR_WIDTH => 32,
       DIVIDEND_WIDTH => 32,
@@ -158,7 +161,7 @@ BEGIN
       C_M_AXIS_DOUT_TUSER_WIDTH => 1
     )
     PORT MAP (
-      aclk => '1',
+      aclk => aclk,
       aclken => '1',
       aresetn => '1',
       s_axis_divisor_tvalid => s_axis_divisor_tvalid,

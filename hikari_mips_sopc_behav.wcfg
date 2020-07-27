@@ -11,13 +11,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="5025290410fs"></ZoomStartTime>
-      <ZoomEndTime time="5051050411fs"></ZoomEndTime>
-      <Cursor1Time time="1023189449fs"></Cursor1Time>
+      <ZoomStartTime time="479666fs"></ZoomStartTime>
+      <ZoomEndTime time="612067fs"></ZoomEndTime>
+      <Cursor1Time time="510466fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="191"></NameColumnWidth>
-      <ValueColumnWidth column_width="58"></ValueColumnWidth>
+      <NameColumnWidth column_width="205"></NameColumnWidth>
+      <ValueColumnWidth column_width="102"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="14" />
    <wvobject fp_name="/hikari_mips_sopc/rst" type="logic">
@@ -35,19 +35,36 @@
    <wvobject fp_name="group84" type="group">
       <obj_property name="label">PC</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/pc_reg0/is_branch_i" type="logic">
-         <obj_property name="ElementShortName">is_branch_i</obj_property>
-         <obj_property name="ObjectShortName">is_branch_i</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/pc_reg0/branch_target_address_i" type="array">
-         <obj_property name="ElementShortName">branch_target_address_i[31:0]</obj_property>
-         <obj_property name="ObjectShortName">branch_target_address_i[31:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/pc_reg0/pc" type="array">
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/pc" type="array">
          <obj_property name="ElementShortName">pc[31:0]</obj_property>
          <obj_property name="ObjectShortName">pc[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/pc_reg0/ce" type="logic">
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/is_branch_i" type="logic">
+         <obj_property name="ElementShortName">is_branch_i</obj_property>
+         <obj_property name="ObjectShortName">is_branch_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/branch_target_address_i" type="array">
+         <obj_property name="ElementShortName">branch_target_address_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">branch_target_address_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/flush" type="logic">
+         <obj_property name="ElementShortName">flush</obj_property>
+         <obj_property name="ObjectShortName">flush</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/epc" type="array">
+         <obj_property name="ElementShortName">epc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">epc[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/stall" type="array">
+         <obj_property name="ElementShortName">stall[5:0]</obj_property>
+         <obj_property name="ObjectShortName">stall[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/exceptions_o" type="array">
+         <obj_property name="ElementShortName">exceptions_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">exceptions_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc_reg0/ce" type="logic">
          <obj_property name="ElementShortName">ce</obj_property>
          <obj_property name="ObjectShortName">ce</obj_property>
       </wvobject>
@@ -55,13 +72,65 @@
    <wvobject fp_name="group67" type="group">
       <obj_property name="label">IF</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if_id0/if_pc" type="array">
-         <obj_property name="ElementShortName">if_pc[31:0]</obj_property>
-         <obj_property name="ObjectShortName">if_pc[31:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/pc" type="array">
+         <obj_property name="ElementShortName">pc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">pc[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if_id0/if_inst" type="array">
-         <obj_property name="ElementShortName">if_inst[31:0]</obj_property>
-         <obj_property name="ObjectShortName">if_inst[31:0]</obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/exceptions_o" type="array">
+         <obj_property name="ElementShortName">exceptions_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">exceptions_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/req" type="logic">
+         <obj_property name="ElementShortName">req</obj_property>
+         <obj_property name="ObjectShortName">req</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/ce" type="logic">
+         <obj_property name="ElementShortName">ce</obj_property>
+         <obj_property name="ObjectShortName">ce</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/req_en" type="logic">
+         <obj_property name="ElementShortName">req_en</obj_property>
+         <obj_property name="ObjectShortName">req_en</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/addr_ok" type="logic">
+         <obj_property name="ElementShortName">addr_ok</obj_property>
+         <obj_property name="ObjectShortName">addr_ok</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/data_ok" type="logic">
+         <obj_property name="ElementShortName">data_ok</obj_property>
+         <obj_property name="ObjectShortName">data_ok</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/stallreq" type="logic">
+         <obj_property name="ElementShortName">stallreq</obj_property>
+         <obj_property name="ObjectShortName">stallreq</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/status" type="array">
+         <obj_property name="ElementShortName">status[1:0]</obj_property>
+         <obj_property name="ObjectShortName">status[1:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/flush" type="logic">
+         <obj_property name="ElementShortName">flush</obj_property>
+         <obj_property name="ObjectShortName">flush</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/if0/stall" type="array">
+         <obj_property name="ElementShortName">stall[5:0]</obj_property>
+         <obj_property name="ObjectShortName">stall[5:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group66" type="group">
@@ -167,6 +236,14 @@
          <obj_property name="ObjectShortName">is_in_delayslot_o</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/exceptions_i" type="array">
+         <obj_property name="ElementShortName">exceptions_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">exceptions_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/exceptions_o" type="array">
+         <obj_property name="ElementShortName">exceptions_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">exceptions_o[31:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id0/aluop_o" type="array">
          <obj_property name="ElementShortName">aluop_o[7:0]</obj_property>
@@ -277,6 +354,10 @@
    <wvobject fp_name="group69" type="group">
       <obj_property name="label">EX</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/pc_i" type="array">
+         <obj_property name="ElementShortName">pc_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">pc_i[31:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/id_ex0/next_inst_in_delayslot_i" type="logic">
          <obj_property name="ElementShortName">next_inst_in_delayslot_i</obj_property>
          <obj_property name="ObjectShortName">next_inst_in_delayslot_i</obj_property>
@@ -312,12 +393,14 @@
          <obj_property name="ObjectShortName">aluop_i[7:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/alusel_i" type="array">
          <obj_property name="ElementShortName">alusel_i[2:0]</obj_property>
          <obj_property name="ObjectShortName">alusel_i[2:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/reg1_i" type="array">
          <obj_property name="ElementShortName">reg1_i[31:0]</obj_property>
@@ -330,6 +413,10 @@
          <obj_property name="ObjectShortName">reg2_i[31:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/reg2_i_mux" type="array">
+         <obj_property name="ElementShortName">reg2_i_mux[31:0]</obj_property>
+         <obj_property name="ObjectShortName">reg2_i_mux[31:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/waddr_i" type="array">
          <obj_property name="ElementShortName">waddr_i[4:0]</obj_property>
@@ -384,6 +471,7 @@
          <obj_property name="ObjectShortName">cp0_raddr_o[7:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/cp0_we_o" type="logic">
          <obj_property name="ElementShortName">cp0_we_o</obj_property>
@@ -433,11 +521,27 @@
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/overflow_occured" type="logic">
+         <obj_property name="ElementShortName">overflow_occured</obj_property>
+         <obj_property name="ObjectShortName">overflow_occured</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/sum_overflow" type="logic">
+         <obj_property name="ElementShortName">sum_overflow</obj_property>
+         <obj_property name="ObjectShortName">sum_overflow</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/result_sum" type="array">
+         <obj_property name="ElementShortName">result_sum[31:0]</obj_property>
+         <obj_property name="ObjectShortName">result_sum[31:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/wdata_o" type="array">
          <obj_property name="ElementShortName">wdata_o[31:0]</obj_property>
          <obj_property name="ObjectShortName">wdata_o[31:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/exceptions_o" type="array">
+         <obj_property name="ElementShortName">exceptions_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">exceptions_o[31:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ex0/we_hilo_o" type="logic">
          <obj_property name="ElementShortName">we_hilo_o</obj_property>
@@ -629,6 +733,7 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/stall" type="array">
          <obj_property name="ElementShortName">stall[5:0]</obj_property>
          <obj_property name="ObjectShortName">stall[5:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/ctrl0/cp0_epc_i" type="array">
          <obj_property name="ElementShortName">cp0_epc_i[31:0]</obj_property>
@@ -655,6 +760,10 @@
       <obj_property name="label">MEM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/pc_i" type="array">
+         <obj_property name="ElementShortName">pc_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">pc_i[31:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/waddr_o" type="array">
          <obj_property name="ElementShortName">waddr_o[4:0]</obj_property>
          <obj_property name="ObjectShortName">waddr_o[4:0]</obj_property>
@@ -704,53 +813,6 @@
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_addr_o" type="array">
-         <obj_property name="ElementShortName">mem_addr_o[31:0]</obj_property>
-         <obj_property name="ObjectShortName">mem_addr_o[31:0]</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_we_o" type="logic">
-         <obj_property name="ElementShortName">mem_we_o</obj_property>
-         <obj_property name="ObjectShortName">mem_we_o</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/reg2_i" type="array">
-         <obj_property name="ElementShortName">reg2_i[31:0]</obj_property>
-         <obj_property name="ObjectShortName">reg2_i[31:0]</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_data_o" type="array">
-         <obj_property name="ElementShortName">mem_data_o[31:0]</obj_property>
-         <obj_property name="ObjectShortName">mem_data_o[31:0]</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_sel_o" type="array">
-         <obj_property name="ElementShortName">mem_sel_o[3:0]</obj_property>
-         <obj_property name="ObjectShortName">mem_sel_o[3:0]</obj_property>
-         <obj_property name="Radix">BINARYRADIX</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_data_i" type="array">
-         <obj_property name="ElementShortName">mem_data_i[31:0]</obj_property>
-         <obj_property name="ObjectShortName">mem_data_i[31:0]</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_ce_o" type="logic">
-         <obj_property name="ElementShortName">mem_ce_o</obj_property>
-         <obj_property name="ObjectShortName">mem_ce_o</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_is_in_delayslot_o" type="logic">
-         <obj_property name="ElementShortName">mem_is_in_delayslot_o</obj_property>
-         <obj_property name="ObjectShortName">mem_is_in_delayslot_o</obj_property>
-      </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_status_i" type="array">
          <obj_property name="ElementShortName">cp0_status_i[31:0]</obj_property>
          <obj_property name="ObjectShortName">cp0_status_i[31:0]</obj_property>
@@ -758,6 +820,11 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_cause_i" type="array">
          <obj_property name="ElementShortName">cp0_cause_i[31:0]</obj_property>
          <obj_property name="ObjectShortName">cp0_cause_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/exceptions_i" type="array">
+         <obj_property name="ElementShortName">exceptions_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">exceptions_i[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_exception_occured_o" type="logic">
          <obj_property name="ElementShortName">mem_exception_occured_o</obj_property>
@@ -775,25 +842,112 @@
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_we_o" type="logic">
          <obj_property name="ElementShortName">cp0_we_o</obj_property>
          <obj_property name="ObjectShortName">cp0_we_o</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_waddr_o" type="array">
          <obj_property name="ElementShortName">cp0_waddr_o[7:0]</obj_property>
          <obj_property name="ObjectShortName">cp0_waddr_o[7:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/cp0_wdata_o" type="array">
          <obj_property name="ElementShortName">cp0_wdata_o[31:0]</obj_property>
          <obj_property name="ObjectShortName">cp0_wdata_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_req_o" type="logic">
+         <obj_property name="ElementShortName">mem_req_o</obj_property>
+         <obj_property name="ObjectShortName">mem_req_o</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/req_en" type="logic">
+         <obj_property name="ElementShortName">req_en</obj_property>
+         <obj_property name="ObjectShortName">req_en</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_ce" type="logic">
+         <obj_property name="ElementShortName">mem_ce</obj_property>
+         <obj_property name="ObjectShortName">mem_ce</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_addr_o" type="array">
+         <obj_property name="ElementShortName">mem_addr_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_addr_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_wr_o" type="logic">
+         <obj_property name="ElementShortName">mem_wr_o</obj_property>
+         <obj_property name="ObjectShortName">mem_wr_o</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_strb_o" type="array">
+         <obj_property name="ElementShortName">mem_strb_o[3:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_strb_o[3:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_data_o" type="array">
+         <obj_property name="ElementShortName">mem_data_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_data_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_addr_ok" type="logic">
+         <obj_property name="ElementShortName">mem_addr_ok</obj_property>
+         <obj_property name="ObjectShortName">mem_addr_ok</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_data_ok" type="logic">
+         <obj_property name="ElementShortName">mem_data_ok</obj_property>
+         <obj_property name="ObjectShortName">mem_data_ok</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/mem_data_i" type="array">
+         <obj_property name="ElementShortName">mem_data_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_data_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/status" type="array">
+         <obj_property name="ElementShortName">status[1:0]</obj_property>
+         <obj_property name="ObjectShortName">status[1:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/stallreq" type="logic">
+         <obj_property name="ElementShortName">stallreq</obj_property>
+         <obj_property name="ObjectShortName">stallreq</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem0/reg2_i" type="array">
+         <obj_property name="ElementShortName">reg2_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">reg2_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_is_in_delayslot_o" type="logic">
+         <obj_property name="ElementShortName">mem_is_in_delayslot_o</obj_property>
+         <obj_property name="ObjectShortName">mem_is_in_delayslot_o</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group82" type="group">
       <obj_property name="label">WB</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
-      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_waddr" type="array">
-         <obj_property name="ElementShortName">wb_waddr[4:0]</obj_property>
-         <obj_property name="ObjectShortName">wb_waddr[4:0]</obj_property>
-         <obj_property name="CustomSignalColor">#00FF00</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/debug_wb_pc" type="array">
+         <obj_property name="ElementShortName">debug_wb_pc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_pc[31:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_we" type="logic">
          <obj_property name="ElementShortName">wb_we</obj_property>
@@ -801,11 +955,29 @@
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/debug_wb_rf_wen" type="array">
+         <obj_property name="ElementShortName">debug_wb_rf_wen[3:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_rf_wen[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_waddr" type="array">
+         <obj_property name="ElementShortName">wb_waddr[4:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_waddr[4:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/debug_wb_rf_wnum" type="array">
+         <obj_property name="ElementShortName">debug_wb_rf_wnum[4:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_rf_wnum[4:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_wdata" type="array">
          <obj_property name="ElementShortName">wb_wdata[31:0]</obj_property>
          <obj_property name="ObjectShortName">wb_wdata[31:0]</obj_property>
          <obj_property name="CustomSignalColor">#00FF00</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/hiraki0/debug_wb_rf_wdata" type="array">
+         <obj_property name="ElementShortName">debug_wb_rf_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_rf_wdata[31:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/hikari_mips_sopc/hiraki0/mem_wb0/wb_we_hilo" type="logic">
          <obj_property name="ElementShortName">wb_we_hilo</obj_property>

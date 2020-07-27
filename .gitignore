@@ -4,3 +4,5 @@ code/bin.lds
 code/convert
 HikariMIPS.cache/
 HikariMIPS.runs/
+HikariMIPS.sim/
+HikariMIPS.ip_user_files/

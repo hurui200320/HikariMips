@@ -32,6 +32,7 @@ module div(
     wire signed_dout_valid;
 
     signed_divider signed_divider(
+	    .aclk(clk),
         .s_axis_dividend_tdata(opdata1_i),
         .s_axis_dividend_tvalid(signed_start),
         .s_axis_divisor_tdata(opdata2_i),
@@ -45,6 +46,7 @@ module div(
     wire unsigned_dout_valid;
 
     unsigned_divider unsigned_divider(
+	    .aclk(clk),
         .s_axis_dividend_tdata(opdata1_i),
         .s_axis_dividend_tvalid(unsigned_start),
         .s_axis_divisor_tdata(opdata2_i),
