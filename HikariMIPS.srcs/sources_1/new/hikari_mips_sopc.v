@@ -19,50 +19,6 @@ module hikari_mips_sopc();
         // #5000 $stop;
     end
 
-    wire[`RegBus] inst_addr;
-    wire[`RegBus] inst_wdata;
-    wire[`RegBus] inst_rdata;
-    wire inst_req;
-    wire inst_wr;
-    wire inst_addr_ok;
-    wire inst_data_ok;
-    wire[3:0] inst_strb;
-
-    wire[`RegBus] data_addr;
-    wire[`RegBus] data_wdata;
-    wire[`RegBus] data_rdata;
-    wire data_req;
-    wire data_wr;
-    wire data_addr_ok;
-    wire data_data_ok;
-    wire[3:0] data_strb;
-
-    hikari_mips hiraki0(
-    .clk(clk),
-    .rst(rst),
-
-    // 指令ROM类SRAM接口
-    .inst_req(inst_req),
-    .inst_wr(inst_wr),
-    .inst_strb(inst_strb),
-    .inst_addr(inst_addr),
-    .inst_wdata(inst_wdata),
-    .inst_rdata(inst_rdata),
-    .inst_addr_ok(inst_addr_ok),
-    .inst_data_ok(inst_data_ok),
-
-    // 数据RAM类SRAM接口
-    .data_req(data_req),
-    .data_wr(data_wr),
-    .data_strb(data_strb),
-    .data_addr(data_addr),
-    .data_wdata(data_wdata),
-    .data_rdata(data_rdata),
-    .data_addr_ok(data_addr_ok),
-    .data_data_ok(data_data_ok),
-    
-    .init_i(5'b00000)
-    );
 
     wire[3:0] arid;
     wire[31:0] araddr;
@@ -105,27 +61,10 @@ module hikari_mips_sopc();
     wire bvalid;
     wire bready;
 
-    cpu_axi_interface cpu_axi_interface0(
-    .clk(clk),
-    .resetn(~rst), 
-
-    .inst_req(inst_req),
-    .inst_wr(inst_wr),
-    .inst_strb(inst_strb),
-    .inst_addr(inst_addr),
-    .inst_wdata(inst_wdata),
-    .inst_rdata(inst_rdata),
-    .inst_addr_ok(inst_addr_ok),
-    .inst_data_ok(inst_data_ok),
-
-    .data_req(data_req),
-    .data_wr(data_wr),
-    .data_strb(data_strb),
-    .data_addr(data_addr),
-    .data_wdata(data_wdata),
-    .data_rdata(data_rdata),
-    .data_addr_ok(data_addr_ok),
-    .data_data_ok(data_data_ok),
+    mycpu_top mycpu(
+    .aclk(clk),
+    .aresetn(~rst), 
+    .ext_int(5'b00000),
 
     .arid(arid),
     .araddr(araddr),

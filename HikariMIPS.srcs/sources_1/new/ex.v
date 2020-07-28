@@ -17,7 +17,7 @@ module ex(
     input wire we_i,
     input wire[`RegBus] inst_i,
     input wire[`RegBus] pc_i,
-    input wire[`RegBus] exceptions_i,
+    input wire[31:0] exceptions_i,
 
     // hi/LO¼Ä´æÆ÷
     input wire[`RegBus] hi_i,
@@ -58,7 +58,7 @@ module ex(
 
     // Òì³£
     output wire[`RegBus] pc_o,
-    output wire[`RegBus] exceptions_o,
+    output wire[31:0] exceptions_o,
     output wire is_in_delayslot_o,
 
     // ³ý·¨Ä£¿é

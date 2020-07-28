@@ -171,7 +171,7 @@ assign arlen   = 8'd0;
 assign arsize  = 2'd4; // 一次固定读四字节，MEM模块内筛选
 assign arburst = 2'd0;
 assign arlock  = 2'd0;
-assign arcache = 4'd0;
+assign arcache = 4'b1111;
 assign arprot  = 3'd0;
 assign arvalid = do_req&&!do_wr_r&&!addr_rcv;
 //r
@@ -184,7 +184,7 @@ assign awlen   = 8'd0;
 assign awsize  = 2'd4; // 一次传输4字节，固定的，依靠strb筛选
 assign awburst = 2'd0;
 assign awlock  = 2'd0;
-assign awcache = 4'd0;
+assign awcache = 4'b1111;
 assign awprot  = 3'd0;
 assign awvalid = do_req&&do_wr_r&&!addr_rcv;
 //w

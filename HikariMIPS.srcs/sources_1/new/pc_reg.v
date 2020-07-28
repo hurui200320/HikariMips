@@ -8,18 +8,18 @@ module pc_reg(
     input wire clk,
     input wire rst, 
 
-    (*mark_debug = "true"*)input wire[5:0] stall,
+    input wire[5:0] stall,
 
     // 分支跳转信号
-    (*mark_debug = "true"*)input wire is_branch_i,
+    input wire is_branch_i,
     input wire[`RegBus] branch_target_address_i,
 
     // 异常
-    (*mark_debug = "true"*)input wire flush,
-    (*mark_debug = "true"*)input wire[`RegBus] epc,
-    (*mark_debug = "true"*)output wire[31:0] exceptions_o,
+    input wire flush,
+    input wire[`RegBus] epc,
+    output wire[31:0] exceptions_o,
 
-    (*mark_debug = "true"*)output reg[`RegBus] pc,
+    output reg[`RegBus] pc,
     output wire ce
     );
 
