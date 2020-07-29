@@ -13,15 +13,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="20873000fs"></ZoomStartTime>
-      <ZoomEndTime time="21208001fs"></ZoomEndTime>
-      <Cursor1Time time="21023000fs"></Cursor1Time>
+      <ZoomStartTime time="12053000fs"></ZoomStartTime>
+      <ZoomEndTime time="13401001fs"></ZoomEndTime>
+      <Cursor1Time time="12575000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="205"></NameColumnWidth>
-      <ValueColumnWidth column_width="94"></ValueColumnWidth>
+      <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="14" />
+   <WVObjectSize size="16" />
    <wvobject fp_name="/hikari_mips_sopc/mycpu/hiraki0/rst" type="logic">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -31,6 +31,378 @@
       <obj_property name="ObjectShortName">clk</obj_property>
       <obj_property name="CustomSignalColor">#00FF00</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="group292" type="group">
+      <obj_property name="label">AXI</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/ext_int" type="array">
+         <obj_property name="ElementShortName">ext_int[5:0]</obj_property>
+         <obj_property name="ObjectShortName">ext_int[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/aclk" type="logic">
+         <obj_property name="ElementShortName">aclk</obj_property>
+         <obj_property name="ObjectShortName">aclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/aresetn" type="logic">
+         <obj_property name="ElementShortName">aresetn</obj_property>
+         <obj_property name="ObjectShortName">aresetn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arid" type="array">
+         <obj_property name="ElementShortName">arid[3:0]</obj_property>
+         <obj_property name="ObjectShortName">arid[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/araddr" type="array">
+         <obj_property name="ElementShortName">araddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">araddr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arlen" type="array">
+         <obj_property name="ElementShortName">arlen[7:0]</obj_property>
+         <obj_property name="ObjectShortName">arlen[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arsize" type="array">
+         <obj_property name="ElementShortName">arsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">arsize[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arburst" type="array">
+         <obj_property name="ElementShortName">arburst[1:0]</obj_property>
+         <obj_property name="ObjectShortName">arburst[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arlock" type="array">
+         <obj_property name="ElementShortName">arlock[1:0]</obj_property>
+         <obj_property name="ObjectShortName">arlock[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arcache" type="array">
+         <obj_property name="ElementShortName">arcache[3:0]</obj_property>
+         <obj_property name="ObjectShortName">arcache[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arprot" type="array">
+         <obj_property name="ElementShortName">arprot[2:0]</obj_property>
+         <obj_property name="ObjectShortName">arprot[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arvalid" type="logic">
+         <obj_property name="ElementShortName">arvalid</obj_property>
+         <obj_property name="ObjectShortName">arvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/arready" type="logic">
+         <obj_property name="ElementShortName">arready</obj_property>
+         <obj_property name="ObjectShortName">arready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/rid" type="array">
+         <obj_property name="ElementShortName">rid[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rid[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/rdata" type="array">
+         <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/rresp" type="array">
+         <obj_property name="ElementShortName">rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">rresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/rlast" type="logic">
+         <obj_property name="ElementShortName">rlast</obj_property>
+         <obj_property name="ObjectShortName">rlast</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/rvalid" type="logic">
+         <obj_property name="ElementShortName">rvalid</obj_property>
+         <obj_property name="ObjectShortName">rvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/rready" type="logic">
+         <obj_property name="ElementShortName">rready</obj_property>
+         <obj_property name="ObjectShortName">rready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awid" type="array">
+         <obj_property name="ElementShortName">awid[3:0]</obj_property>
+         <obj_property name="ObjectShortName">awid[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awaddr" type="array">
+         <obj_property name="ElementShortName">awaddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">awaddr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awlen" type="array">
+         <obj_property name="ElementShortName">awlen[7:0]</obj_property>
+         <obj_property name="ObjectShortName">awlen[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awsize" type="array">
+         <obj_property name="ElementShortName">awsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">awsize[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awburst" type="array">
+         <obj_property name="ElementShortName">awburst[1:0]</obj_property>
+         <obj_property name="ObjectShortName">awburst[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awlock" type="array">
+         <obj_property name="ElementShortName">awlock[1:0]</obj_property>
+         <obj_property name="ObjectShortName">awlock[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awcache" type="array">
+         <obj_property name="ElementShortName">awcache[3:0]</obj_property>
+         <obj_property name="ObjectShortName">awcache[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awprot" type="array">
+         <obj_property name="ElementShortName">awprot[2:0]</obj_property>
+         <obj_property name="ObjectShortName">awprot[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awvalid" type="logic">
+         <obj_property name="ElementShortName">awvalid</obj_property>
+         <obj_property name="ObjectShortName">awvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/awready" type="logic">
+         <obj_property name="ElementShortName">awready</obj_property>
+         <obj_property name="ObjectShortName">awready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/wid" type="array">
+         <obj_property name="ElementShortName">wid[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wid[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/wdata" type="array">
+         <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/wstrb" type="array">
+         <obj_property name="ElementShortName">wstrb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wstrb[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/wlast" type="logic">
+         <obj_property name="ElementShortName">wlast</obj_property>
+         <obj_property name="ObjectShortName">wlast</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/wvalid" type="logic">
+         <obj_property name="ElementShortName">wvalid</obj_property>
+         <obj_property name="ObjectShortName">wvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/wready" type="logic">
+         <obj_property name="ElementShortName">wready</obj_property>
+         <obj_property name="ObjectShortName">wready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/bid" type="array">
+         <obj_property name="ElementShortName">bid[3:0]</obj_property>
+         <obj_property name="ObjectShortName">bid[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/bresp" type="array">
+         <obj_property name="ElementShortName">bresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">bresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/bvalid" type="logic">
+         <obj_property name="ElementShortName">bvalid</obj_property>
+         <obj_property name="ObjectShortName">bvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/bready" type="logic">
+         <obj_property name="ElementShortName">bready</obj_property>
+         <obj_property name="ObjectShortName">bready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/debug_wb_pc" type="array">
+         <obj_property name="ElementShortName">debug_wb_pc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_pc[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/debug_wb_rf_wen" type="array">
+         <obj_property name="ElementShortName">debug_wb_rf_wen[3:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_rf_wen[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/debug_wb_rf_wnum" type="array">
+         <obj_property name="ElementShortName">debug_wb_rf_wnum[4:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_rf_wnum[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/debug_wb_rf_wdata" type="array">
+         <obj_property name="ElementShortName">debug_wb_rf_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_wb_rf_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_addr" type="array">
+         <obj_property name="ElementShortName">inst_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">inst_addr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_wdata" type="array">
+         <obj_property name="ElementShortName">inst_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">inst_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_rdata" type="array">
+         <obj_property name="ElementShortName">inst_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">inst_rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_req" type="logic">
+         <obj_property name="ElementShortName">inst_req</obj_property>
+         <obj_property name="ObjectShortName">inst_req</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_wr" type="logic">
+         <obj_property name="ElementShortName">inst_wr</obj_property>
+         <obj_property name="ObjectShortName">inst_wr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_addr_ok" type="logic">
+         <obj_property name="ElementShortName">inst_addr_ok</obj_property>
+         <obj_property name="ObjectShortName">inst_addr_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_data_ok" type="logic">
+         <obj_property name="ElementShortName">inst_data_ok</obj_property>
+         <obj_property name="ObjectShortName">inst_data_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/inst_strb" type="array">
+         <obj_property name="ElementShortName">inst_strb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">inst_strb[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_addr" type="array">
+         <obj_property name="ElementShortName">data_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_addr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_wdata" type="array">
+         <obj_property name="ElementShortName">data_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_rdata" type="array">
+         <obj_property name="ElementShortName">data_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_req" type="logic">
+         <obj_property name="ElementShortName">data_req</obj_property>
+         <obj_property name="ObjectShortName">data_req</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_wr" type="logic">
+         <obj_property name="ElementShortName">data_wr</obj_property>
+         <obj_property name="ObjectShortName">data_wr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_addr_ok" type="logic">
+         <obj_property name="ElementShortName">data_addr_ok</obj_property>
+         <obj_property name="ObjectShortName">data_addr_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_data_ok" type="logic">
+         <obj_property name="ElementShortName">data_data_ok</obj_property>
+         <obj_property name="ObjectShortName">data_data_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/data_strb" type="array">
+         <obj_property name="ElementShortName">data_strb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">data_strb[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_initializing" type="logic">
+         <obj_property name="ElementShortName">cache_initializing</obj_property>
+         <obj_property name="ObjectShortName">cache_initializing</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_araddr" type="array">
+         <obj_property name="ElementShortName">cache_araddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_araddr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_arlen" type="array">
+         <obj_property name="ElementShortName">cache_arlen[7:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_arlen[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_arsize" type="array">
+         <obj_property name="ElementShortName">cache_arsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_arsize[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_arburst" type="array">
+         <obj_property name="ElementShortName">cache_arburst[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_arburst[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_arcache" type="array">
+         <obj_property name="ElementShortName">cache_arcache[3:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_arcache[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_arvalid" type="logic">
+         <obj_property name="ElementShortName">cache_arvalid</obj_property>
+         <obj_property name="ObjectShortName">cache_arvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_arready" type="logic">
+         <obj_property name="ElementShortName">cache_arready</obj_property>
+         <obj_property name="ObjectShortName">cache_arready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_rdata" type="array">
+         <obj_property name="ElementShortName">cache_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_rresp" type="array">
+         <obj_property name="ElementShortName">cache_rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_rresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_rlast" type="logic">
+         <obj_property name="ElementShortName">cache_rlast</obj_property>
+         <obj_property name="ObjectShortName">cache_rlast</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_rvalid" type="logic">
+         <obj_property name="ElementShortName">cache_rvalid</obj_property>
+         <obj_property name="ObjectShortName">cache_rvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_rready" type="logic">
+         <obj_property name="ElementShortName">cache_rready</obj_property>
+         <obj_property name="ObjectShortName">cache_rready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awaddr" type="array">
+         <obj_property name="ElementShortName">cache_awaddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_awaddr[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awlen" type="array">
+         <obj_property name="ElementShortName">cache_awlen[7:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_awlen[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awsize" type="array">
+         <obj_property name="ElementShortName">cache_awsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_awsize[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awburst" type="array">
+         <obj_property name="ElementShortName">cache_awburst[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_awburst[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awcache" type="array">
+         <obj_property name="ElementShortName">cache_awcache[3:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_awcache[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awvalid" type="logic">
+         <obj_property name="ElementShortName">cache_awvalid</obj_property>
+         <obj_property name="ObjectShortName">cache_awvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_awready" type="logic">
+         <obj_property name="ElementShortName">cache_awready</obj_property>
+         <obj_property name="ObjectShortName">cache_awready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_wdata" type="array">
+         <obj_property name="ElementShortName">cache_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_wstrb" type="array">
+         <obj_property name="ElementShortName">cache_wstrb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_wstrb[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_wlast" type="logic">
+         <obj_property name="ElementShortName">cache_wlast</obj_property>
+         <obj_property name="ObjectShortName">cache_wlast</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_wvalid" type="logic">
+         <obj_property name="ElementShortName">cache_wvalid</obj_property>
+         <obj_property name="ObjectShortName">cache_wvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_wready" type="logic">
+         <obj_property name="ElementShortName">cache_wready</obj_property>
+         <obj_property name="ObjectShortName">cache_wready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_bresp" type="array">
+         <obj_property name="ElementShortName">cache_bresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_bresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_bvalid" type="logic">
+         <obj_property name="ElementShortName">cache_bvalid</obj_property>
+         <obj_property name="ObjectShortName">cache_bvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/cache_bready" type="logic">
+         <obj_property name="ElementShortName">cache_bready</obj_property>
+         <obj_property name="ObjectShortName">cache_bready</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group287" type="group">
+      <obj_property name="label">Cache</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/l2/ACLK" type="logic">
+         <obj_property name="ElementShortName">ACLK</obj_property>
+         <obj_property name="ObjectShortName">ACLK</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/l2/ARESETN" type="logic">
+         <obj_property name="ElementShortName">ARESETN</obj_property>
+         <obj_property name="ObjectShortName">ARESETN</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/l2/Initializing" type="logic">
+         <obj_property name="ElementShortName">Initializing</obj_property>
+         <obj_property name="ObjectShortName">Initializing</obj_property>
+      </wvobject>
+      <wvobject fp_name="/hikari_mips_sopc/mycpu/l2/U0/Interrupt" type="logic">
+         <obj_property name="ElementShortName">Interrupt</obj_property>
+         <obj_property name="ObjectShortName">Interrupt</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="group84" type="group">
       <obj_property name="label">PC</obj_property>
@@ -71,7 +443,6 @@
    <wvobject fp_name="group67" type="group">
       <obj_property name="label">IF</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/mycpu/hiraki0/if0/pc" type="array">
          <obj_property name="ElementShortName">pc[31:0]</obj_property>
          <obj_property name="ObjectShortName">pc[31:0]</obj_property>
@@ -797,7 +1168,6 @@
    <wvobject fp_name="group225" type="group">
       <obj_property name="label">CTRL</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/mycpu/hiraki0/ctrl0/stallreq_from_if" type="logic">
          <obj_property name="ElementShortName">stallreq_from_if</obj_property>
          <obj_property name="ObjectShortName">stallreq_from_if</obj_property>
@@ -842,7 +1212,6 @@
    <wvobject fp_name="group78" type="group">
       <obj_property name="label">MEM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/mycpu/hiraki0/mem0/waddr_i" type="array">
          <obj_property name="ElementShortName">waddr_i[4:0]</obj_property>
          <obj_property name="ObjectShortName">waddr_i[4:0]</obj_property>
@@ -1031,7 +1400,6 @@
    <wvobject fp_name="group82" type="group">
       <obj_property name="label">WB</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/mycpu/hiraki0/mem_wb0/wb_waddr" type="array">
          <obj_property name="ElementShortName">wb_waddr[4:0]</obj_property>
          <obj_property name="ObjectShortName">wb_waddr[4:0]</obj_property>
@@ -1076,7 +1444,6 @@
    <wvobject fp_name="group747" type="group">
       <obj_property name="label">cp0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/hikari_mips_sopc/mycpu/hiraki0/cp0_reg0/we_i" type="logic">
          <obj_property name="ElementShortName">we_i</obj_property>
          <obj_property name="ObjectShortName">we_i</obj_property>

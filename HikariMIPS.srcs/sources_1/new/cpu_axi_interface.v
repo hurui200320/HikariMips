@@ -58,43 +58,34 @@ module cpu_axi_interface
 
     //axi
     //ar
-    output wire[3 :0]  arid         ,
     output wire[31:0]  araddr       ,
     output wire[7 :0]  arlen        ,
     output wire[2 :0]  arsize       ,
     output wire[1 :0]  arburst      ,
-    output wire[1 :0]  arlock       ,
     output wire[3 :0]  arcache      ,
-    output wire[2 :0]  arprot       ,
     output wire        arvalid      ,
     input  wire        arready      ,
     //r           
-    input  wire[3 :0]  rid          ,
     input  wire[31:0]  rdata        ,
     input  wire[1 :0]  rresp        ,
     input  wire        rlast        ,
     input  wire        rvalid       ,
     output wire        rready       ,
     //aw          
-    output wire[3 :0]  awid         ,
     output wire[31:0]  awaddr       ,
     output wire[7 :0]  awlen        ,
     output wire[2 :0]  awsize       ,
     output wire[1 :0]  awburst      ,
-    output wire[1 :0]  awlock       ,
     output wire[3 :0]  awcache      ,
-    output wire[2 :0]  awprot       ,
     output wire        awvalid      ,
     input  wire        awready      ,
     //w          
-    output wire[3 :0]  wid          ,
     output wire[31:0]  wdata        ,
     output wire[3 :0]  wstrb        ,
     output wire        wlast        ,
     output wire        wvalid       ,
     input  wire        wready       ,
     //b           
-    input  wire[3 :0]  bid          ,
     input  wire[1 :0]  bresp        ,
     input  wire        bvalid       ,
     output wire        bready       
@@ -165,30 +156,23 @@ begin
                  data_back      ? 1'b0 : wdata_rcv;
 end
 //ar
-assign arid    = 4'd0;
 assign araddr  = do_addr_r;
 assign arlen   = 8'd0;
 assign arsize  = 2'd4; // 一次固定读四字节，MEM模块内筛选
 assign arburst = 2'd0;
-assign arlock  = 2'd0;
 assign arcache = 4'b1111;
-assign arprot  = 3'd0;
 assign arvalid = do_req&&!do_wr_r&&!addr_rcv;
 //r
 assign rready  = 1'b1;
 
 //aw
-assign awid    = 4'd0;
 assign awaddr  = do_addr_r;
 assign awlen   = 8'd0;
 assign awsize  = 2'd4; // 一次传输4字节，固定的，依靠strb筛选
 assign awburst = 2'd0;
-assign awlock  = 2'd0;
 assign awcache = 4'b1111;
-assign awprot  = 3'd0;
 assign awvalid = do_req&&do_wr_r&&!addr_rcv;
 //w
-assign wid    = 4'd0;
 assign wdata  = do_wdata_r;
 assign wstrb  = do_strb_r;
 assign wlast  = 1'd1;

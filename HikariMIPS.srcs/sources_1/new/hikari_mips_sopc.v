@@ -10,12 +10,12 @@ module hikari_mips_sopc();
 
     initial begin
         clk = 1'b0;
-        forever #10 clk = ~clk;
+        forever #5 clk = ~clk;
     end
         
     initial begin
         rst = `RstEnable;
-        #200 rst= `RstDisable;
+        #2000 rst= `RstDisable;
         // #5000 $stop;
     end
 
