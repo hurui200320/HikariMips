@@ -60,7 +60,7 @@ module id(
     output reg is_in_delayslot_o,
 
     // 异常
-    output wire[31:0] exceptions_i,
+    input wire[31:0] exceptions_i,
     output wire[31:0] exceptions_o,
 
     // 执行阶段所需信号

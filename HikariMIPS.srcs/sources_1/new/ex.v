@@ -17,7 +17,7 @@ module ex(
     input wire we_i,
     input wire[`RegBus] inst_i,
     input wire[`RegBus] pc_i,
-    input wire[`RegBus] exceptions_i,
+    input wire[31:0] exceptions_i,
 
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
@@ -58,7 +58,7 @@ module ex(
 
     // 异常
     output wire[`RegBus] pc_o,
-    output wire[`RegBus] exceptions_o,
+    output wire[31:0] exceptions_o,
     output wire is_in_delayslot_o,
 
     // 除法模块
@@ -499,7 +499,7 @@ module ex(
     // 处理暂停请求
     always @ (*) begin
         // 各可能的暂停请求之或
-        stallreq = stallreq_for_div || stallreq_for_mult;
+        stallreq <= stallreq_for_div || stallreq_for_mult;
     end
 
     // 数据移动，写HI/LO部分，只涉及MTHI/LO指令

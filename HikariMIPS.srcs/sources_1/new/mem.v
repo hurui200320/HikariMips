@@ -52,9 +52,9 @@ module mem(
     // 异常
     output wire[`RegBus] pc_o,
     output wire is_in_delayslot_o,
-    (*mark_debug = "true"*)output reg exception_occured_o, // 发生异常时下面的字段才有效
-    (*mark_debug = "true"*)output reg[4:0] exc_code_o,
-    (*mark_debug = "true"*)output reg[`RegBus] bad_addr_o,
+    output reg exception_occured_o, // 发生异常时下面的字段才有效
+    output reg[4:0] exc_code_o,
+    output reg[`RegBus] bad_addr_o,
     
     // 送到回写阶段的信息
     output reg[`RegAddrBus] waddr_o,

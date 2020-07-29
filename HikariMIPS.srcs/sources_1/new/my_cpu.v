@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 `include "defines.v"
 
-module my_cpu(
+module mycpu_top(
     input wire[5:0] ext_int,   //high active
 
     input wire aclk,
