@@ -119,17 +119,6 @@ begin
                   inst_req&&inst_addr_ok ? inst_strb : do_strb_r;
     do_addr_r  <= data_req&&data_addr_ok ? data_addr :
                   inst_req&&inst_addr_ok ? inst_addr : do_addr_r;
-    // handle addr map
-    case (do_addr_r[31:28])
-        4'b1000, 4'b1001: begin
-            do_addr_r[31] <= 1'b0;
-        end 
-        4'b1010, 4'b1011: begin
-            do_addr_r[31:29] <= 3'b000;
-        end
-        default: begin
-        end
-    endcase
     do_wdata_r <= data_req&&data_addr_ok ? data_wdata :
                   inst_req&&inst_addr_ok ? inst_wdata :do_wdata_r;
 end
@@ -156,21 +145,21 @@ begin
                  data_back      ? 1'b0 : wdata_rcv;
 end
 //ar
-assign araddr  = do_addr_r;
+assign araddr  = {3'b000, do_addr_r[28:0]};
 assign arlen   = 8'd0;
 assign arsize  = 2'd4; // 一次固定读四字节，MEM模块内筛选
 assign arburst = 2'd0;
-assign arcache = 4'b1111;
+assign arcache = (araddr[31:16] == 16'h1faf) ? 4'b0000 : 4'b1111;
 assign arvalid = do_req&&!do_wr_r&&!addr_rcv;
 //r
 assign rready  = 1'b1;
 
 //aw
-assign awaddr  = do_addr_r;
+assign awaddr  = {3'b000, do_addr_r[28:0]};
 assign awlen   = 8'd0;
 assign awsize  = 2'd4; // 一次传输4字节，固定的，依靠strb筛选
 assign awburst = 2'd0;
-assign awcache = 4'b1111;
+assign awcache = (awaddr[31:16] == 16'h1faf) ? 4'b0000 : 4'b1111;
 assign awvalid = do_req&&do_wr_r&&!addr_rcv;
 //w
 assign wdata  = do_wdata_r;

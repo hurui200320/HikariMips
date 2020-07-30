@@ -244,5 +244,3 @@
 `define Config1Addr 8'b10000001
 `define ErrorEPCAddr 8'b11110000
 
-// 关闭隐式声明，防止变量名拼写错误时自动生成新变量
-`default_nettype none

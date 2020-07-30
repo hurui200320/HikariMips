@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 `include "defines.v"
 
-module my_cpu(
+module mycpu_top(
     input wire[5:0] ext_int,   //high active
 
     input wire aclk,
@@ -198,6 +198,10 @@ module my_cpu(
     );
 
     assign wid = 4'b0000; // AIX4 has no wid
+    assign arid = 4'b0000;
+    assign arlock = 2'b00;
+    assign awid = 4'b0000;
+    assign awlock = 2'b00;
 
     system_cache_0 cache0(
         .ACLK(aclk),
@@ -230,13 +234,13 @@ module my_cpu(
         .S0_AXI_AWUSER(1'b0),
         .S0_AXI_AWVALID(cache_awvalid),
 
-        .S0_AXI_BID(1'b0),
+        .S0_AXI_BID(),
         .S0_AXI_BREADY(cache_bready),
         .S0_AXI_BRESP(cache_bresp),
         .S0_AXI_BVALID(cache_bvalid),
 
         .S0_AXI_RDATA(cache_rdata),
-        .S0_AXI_RID(1'b0),
+        .S0_AXI_RID(),
         .S0_AXI_RLAST(cache_rlast),
         .S0_AXI_RREADY(cache_rready),
         .S0_AXI_RRESP(cache_rresp),
@@ -248,24 +252,24 @@ module my_cpu(
         .S0_AXI_WSTRB(cache_wstrb),
         .S0_AXI_WVALID(cache_wvalid),
 
-        .M0_AXI_ARID(arid),
+        .M0_AXI_ARID(),
         .M0_AXI_ARADDR(araddr),
         .M0_AXI_ARBURST(arburst),
         .M0_AXI_ARCACHE(arcache),
         .M0_AXI_ARLEN(arlen),
-        .M0_AXI_ARLOCK(arlock),
+        .M0_AXI_ARLOCK(),
         .M0_AXI_ARPROT(arprot),
         .M0_AXI_ARREADY(arready),
         .M0_AXI_ARSIZE(arsize),
         .M0_AXI_ARVALID(arvalid),
         .M0_AXI_ARQOS(),
         
-        .M0_AXI_AWID(awid),
+        .M0_AXI_AWID(),
         .M0_AXI_AWADDR(awaddr),
         .M0_AXI_AWBURST(awburst),
         .M0_AXI_AWCACHE(awcache),
         .M0_AXI_AWLEN(awlen),
-        .M0_AXI_AWLOCK(awlock),
+        .M0_AXI_AWLOCK(),
         .M0_AXI_AWPROT(awprot),
         .M0_AXI_AWREADY(awready),
         .M0_AXI_AWSIZE(awsize),
