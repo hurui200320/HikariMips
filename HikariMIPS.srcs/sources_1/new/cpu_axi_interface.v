@@ -149,7 +149,7 @@ assign araddr  = {3'b000, do_addr_r[28:0]};
 assign arlen   = 8'd0;
 assign arsize  = 2'd4; // 一次固定读四字节，MEM模块内筛选
 assign arburst = 2'd0;
-assign arcache = (araddr[31:16] == 16'h1faf) ? 4'b0000 : 4'b1111;
+assign arcache = (do_addr_r[31:29] == 3'b100) ? 4'b0000 : 4'b1111;
 assign arvalid = do_req&&!do_wr_r&&!addr_rcv;
 //r
 assign rready  = 1'b1;
@@ -159,7 +159,7 @@ assign awaddr  = {3'b000, do_addr_r[28:0]};
 assign awlen   = 8'd0;
 assign awsize  = 2'd4; // 一次传输4字节，固定的，依靠strb筛选
 assign awburst = 2'd0;
-assign awcache = (awaddr[31:16] == 16'h1faf) ? 4'b0000 : 4'b1111;
+assign awcache = (do_addr_r[31:29] == 3'b100) ? 4'b0000 : 4'b1111;
 assign awvalid = do_req&&do_wr_r&&!addr_rcv;
 //w
 assign wdata  = do_wdata_r;
