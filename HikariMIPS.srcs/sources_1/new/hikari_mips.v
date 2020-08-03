@@ -11,21 +11,20 @@ module hikari_mips(
 
     // 指令ROM类SRAM接口
     output wire inst_req,
-    output wire inst_wr,
-    output wire[3:0] inst_strb,
+    output wire[3:0] inst_burst,
     output wire[31:0] inst_addr,
-    output wire[31:0] inst_wdata,
-    input wire[31:0] inst_rdata,
+    input wire[511:0] inst_rdata,
     input wire inst_addr_ok,
     input wire inst_data_ok,
 
     // 数据RAM类SRAM接口
     output wire data_req,
+    output wire[3:0] data_burst,
     output wire data_wr,
-    output wire[3:0] data_strb,
+    output wire[63:0] data_strb,
     output wire[31:0] data_addr,
-    output wire[31:0] data_wdata,
-    input wire[31:0] data_rdata,
+    output wire[511:0] data_wdata,
+    input wire[511:0] data_rdata,
     input wire data_addr_ok,
     input wire data_data_ok,
 
@@ -39,16 +38,12 @@ module hikari_mips(
 
     );
 
-    // pc -> inst rom
-    assign inst_wr = 1'b0; // no need to write
-    assign inst_wdata = `ZeroWord; // always write zero
-    assign inst_strb = 4'b1111; // always wr 4bytes
-
     // PC -> IF/ID
     wire[`RegBus] pc;
     wire[`RegBus] id_pc_i;
     wire[`RegBus] id_pc_o;
     wire[`RegBus] id_inst_i;    
+    wire[`RegBus] if_inst_rdata_o;    
     wire[31:0] pc_exceptions_o;
     wire[31:0] id_exceptions_i;
     wire stallreq_from_if;
@@ -205,11 +200,14 @@ module hikari_mips(
         .epc(ctrl_epc_o),
         .exceptions_o(pc_exceptions_o),
         .req(inst_req),
+        .burst(inst_burst),
+        .addr(inst_addr),
         .addr_ok(inst_addr_ok),
         .data_ok(inst_data_ok),
+        .inst_rdata_i(inst_rdata),
+        .inst_rdata_o(if_inst_rdata_o),
         .stallreq(stallreq_from_if)
     );
-    assign inst_addr = pc;
 
     //  ROM -> IF/ID -> ID
     if_id if_id0(
@@ -218,7 +216,7 @@ module hikari_mips(
         .flush(ctrl_flush_o),
         .stall(stall),
         .if_pc(pc),
-        .if_inst(inst_rdata),
+        .if_inst(if_inst_rdata_o),
         .if_exceptions(pc_exceptions_o),
         .id_pc(id_pc_i),
         .id_inst(id_inst_i),
@@ -531,6 +529,7 @@ module hikari_mips(
 
         // 数据RAM
         .mem_data_i(data_rdata),
+        .mem_data_burst(data_burst),
         .mem_addr_ok(data_addr_ok),
         .mem_data_ok(data_data_ok),
         .mem_addr_o(data_addr),

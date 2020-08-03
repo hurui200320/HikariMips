@@ -25,10 +25,19 @@ module sram_if(
     output wire req,
     input wire addr_ok,
     input wire data_ok,
+    output wire[3:0] burst,
+    output wire[`RegBus] addr,
+    input wire[511:0] inst_rdata_i,
+    output wire[`RegBus] inst_rdata_o,
 
     output reg stallreq
     );
     wire ce;
+
+    // TODO
+    assign addr = pc;
+    assign burst = 4'b0000;
+    assign inst_rdata_o = inst_rdata_i[31:0];
 
     pc_reg pc_reg0(
         .clk(clk),

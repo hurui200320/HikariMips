@@ -59,39 +59,39 @@ module mycpu_top(
     );
 
     wire[`RegBus] inst_addr;
-    wire[`RegBus] inst_wdata;
-    wire[`RegBus] inst_rdata;
+    wire[511:0] inst_rdata;
+    wire[3:0] inst_burst;
     wire inst_req;
-    wire inst_wr;
     wire inst_addr_ok;
     wire inst_data_ok;
-    wire[3:0] inst_strb;
 
     wire[`RegBus] data_addr;
-    wire[`RegBus] data_wdata;
-    wire[`RegBus] data_rdata;
+    wire[511:0] data_wdata;
+    wire[511:0] data_rdata;
+    wire[63:0] data_strb;
+    wire[3:0] data_burst;
     wire data_req;
     wire data_wr;
     wire data_addr_ok;
     wire data_data_ok;
-    wire[3:0] data_strb;
 
     hikari_mips hiraki0(
     .clk(aclk),
     .rst(~aresetn),
 
+    // TODO
+
     // 指令ROM类SRAM接口
     .inst_req(inst_req),
-    .inst_wr(inst_wr),
-    .inst_strb(inst_strb),
+    .inst_burst(inst_burst),
     .inst_addr(inst_addr),
-    .inst_wdata(inst_wdata),
     .inst_rdata(inst_rdata),
     .inst_addr_ok(inst_addr_ok),
     .inst_data_ok(inst_data_ok),
 
     // 数据RAM类SRAM接口
     .data_req(data_req),
+    .data_burst(data_burst),
     .data_wr(data_wr),
     .data_strb(data_strb),
     .data_addr(data_addr),
@@ -107,65 +107,63 @@ module mycpu_top(
     .debug_wb_rf_wdata(debug_wb_rf_wdata)
     );
 
+    assign arid = 4'b0000;
+    assign awid = 4'b0000;
+    assign wid = 4'b0000;
+    assign awprot = 3'b000;
+    assign arprot = 3'b000;
+    assign awlock = 2'b00;
+    assign arlock = 2'b00;
+
     cpu_axi_interface cpu_axi_interface0(
     .clk(aclk),
     .resetn(aresetn), 
 
     .inst_req(inst_req),
-    .inst_wr(inst_wr),
-    .inst_strb(inst_strb),
+    .inst_burst(inst_burst),
     .inst_addr(inst_addr),
-    .inst_wdata(inst_wdata),
     .inst_rdata(inst_rdata),
     .inst_addr_ok(inst_addr_ok),
     .inst_data_ok(inst_data_ok),
 
     .data_req(data_req),
+    .data_burst(data_burst),
     .data_wr(data_wr),
     .data_strb(data_strb),
-    .data_addr({3'b000, data_addr[28:0]}), // 学去年，数据直接高三位抹0
+    .data_addr(data_addr),
     .data_wdata(data_wdata),
     .data_rdata(data_rdata),
     .data_addr_ok(data_addr_ok),
     .data_data_ok(data_data_ok),
 
-    .arid(arid),
     .araddr(araddr),
     .arlen(arlen),
     .arsize(arsize),
     .arburst(arburst),
-    .arlock(arlock),
     .arcache(arcache),
-    .arprot(arprot),
     .arvalid(arvalid),
     .arready(arready),
     
-    .rid(rid),
     .rdata(rdata),
     .rresp(rresp),
     .rlast(rlast),
     .rvalid(rvalid),
     .rready(rready),
     
-    .awid(awid),
     .awaddr(awaddr),
     .awlen(awlen),
     .awsize(awsize),
     .awburst(awburst),
-    .awlock(awlock),
     .awcache(awcache),
-    .awprot(awprot),
     .awvalid(awvalid),
     .awready(awready),
     
-    .wid(wid),
     .wdata(wdata),
     .wstrb(wstrb),
     .wlast(wlast),
     .wvalid(wvalid),
     .wready(wready),
     
-    .bid(bid),
     .bresp(bresp),
     .bvalid(bvalid),
     .bready(bready)
