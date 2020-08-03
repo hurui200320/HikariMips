@@ -8,7 +8,7 @@ module cpu_axi_interface
     input  wire        inst_req     ,
     input  wire[3:0]   inst_burst   , // 0000 -> 1 word, 1111 -> 16 words
     input  wire[31:0]  inst_addr    ,
-    output wire[511:0] inst_rdata   ,
+    output reg [511:0] inst_rdata   ,
     output wire        inst_addr_ok ,
     output reg         inst_data_ok ,
     
@@ -19,7 +19,7 @@ module cpu_axi_interface
     input  wire[63:0]  data_strb    ,
     input  wire[31:0]  data_addr    ,
     input  wire[511:0] data_wdata   ,
-    output wire[511:0] data_rdata   ,
+    output reg [511:0] data_rdata   ,
     output wire        data_addr_ok ,
     output reg         data_data_ok ,
 
@@ -78,9 +78,6 @@ assign data_addr_ok = data_wr ? !write_en : !read_en;
 wire data_read_req = data_req && !data_wr;
 // inst地址握手：读状态机没有使能，且data没有发起请求
 assign inst_addr_ok = !read_en && !data_read_req;
-// 两个data都可以一直绑定在读结果上，因为最终只有数据握手时保证有效。
-assign inst_rdata = read_result;
-assign data_rdata = read_result;
 
 // SRAM握手
 always @ (posedge clk) begin
@@ -97,6 +94,10 @@ always @ (posedge clk) begin
         // 正常逻辑
         if (!write_en) begin
             // 当前没有写操作
+            if (data_wr) begin
+                // 如果上一个是写
+                data_data_ok <= 1'b0; // 清除数据握手
+            end
             if (data_req && data_wr) begin
                 // data要写
                 // 记录写信息
@@ -105,7 +106,6 @@ always @ (posedge clk) begin
                 write_strb <= data_strb;
                 write_burst <= data_burst;
 
-                data_data_ok <= 1'b0; // 清除数据握手
                 write_en <= 1'b1; // 启动写状态机
             end else begin
                 // 不写则保证写状态机关闭
@@ -126,6 +126,11 @@ always @ (posedge clk) begin
 
         if (!read_en) begin
             // 当前没有读操作
+            if (!data_wr) begin
+                // 如果上一个是读
+                data_data_ok <= 1'b0; // 清除数据握手
+            end
+            inst_data_ok <= 1'b0; // 清除数据握手
             if (data_req && !data_wr) begin
                 // data要读
                 // 记录读信息
@@ -133,7 +138,6 @@ always @ (posedge clk) begin
                 read_burst <= data_burst;
                 read_if_or_mem[1] <= 1'b1; // 记录当前读data
 
-                data_data_ok <= 1'b0; // 清除数据握手
                 read_en <= 1'b1; // 启动读状态机
             end else if (inst_req) begin
                 // inst要读
@@ -141,7 +145,6 @@ always @ (posedge clk) begin
                 read_burst <= inst_burst;
                 read_if_or_mem[1] <= 1'b0; // 记录当前读inst
 
-                inst_data_ok <= 1'b0; // 清除数据握手
                 read_en <= 1'b1; // 启动读状态机
             end else begin
                 // 不写则保证读状态机关闭
@@ -153,6 +156,7 @@ always @ (posedge clk) begin
                 // 读data
                 if (read_if_or_mem[0]) begin
                     // 读完了
+                    data_rdata <= read_result;
                     data_data_ok <= 1'b1; // 进行数据握手
                     read_en <= 1'b0; // 关闭读状态机
                 end else begin
@@ -164,6 +168,7 @@ always @ (posedge clk) begin
                 // 读inst
                 if (read_if_or_mem[0]) begin
                     // 读完了
+                    inst_rdata <= read_result;
                     inst_data_ok <= 1'b1; // 进行数据握手
                     read_en <= 1'b0; // 关闭读状态机
                 end else begin
