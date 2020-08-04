@@ -47,9 +47,9 @@ module cpu_axi_interface
     output reg         awvalid      ,
     input  wire        awready      ,
     //w          
-    output reg [31:0]  wdata        ,
-    output reg [3 :0]  wstrb        ,
-    output reg         wlast        ,
+    output wire[31:0]  wdata        ,
+    output wire[3 :0]  wstrb        ,
+    output wire        wlast        ,
     output reg         wvalid       ,
     input  wire        wready       ,
     //b           
@@ -60,15 +60,15 @@ module cpu_axi_interface
 
 reg[31:0] read_addr;
 reg[3:0] read_burst;
-reg[511:0] read_result;
+reg[31:0] read_result[15:0];
 // [1]: 0 inst, 1 data; [0]: 0 reading, 1 done.
 reg[1:0] read_if_or_mem;
 reg read_en; // 使能读状态机，为1时读状态机开始启动
 
 reg[31:0] write_addr;
 reg[3:0] write_burst;
-reg[511:0] write_data;
-reg[63:0] write_strb;
+reg[31:0] write_data[15:0];
+reg[3:0] write_strb[15:0];
 reg write_done; // 0 writing, 1 done
 reg write_en; // 使能写状态机，为1时写状态机开始启动
 
@@ -102,8 +102,40 @@ always @ (posedge clk) begin
                 // data要写
                 // 记录写信息
                 write_addr <= data_addr;
-                write_data <= data_wdata;
-                write_strb <= data_strb;
+                write_data[0] <= data_wdata[511:480];
+                write_data[1] <= data_wdata[479:448];
+                write_data[2] <= data_wdata[447:416];
+                write_data[3] <= data_wdata[415:384];
+                write_data[4] <= data_wdata[383:352];
+                write_data[5] <= data_wdata[351:320];
+                write_data[6] <= data_wdata[319:288];
+                write_data[7] <= data_wdata[287:256];
+                write_data[8] <= data_wdata[255:224];
+                write_data[9] <= data_wdata[223:192];
+                write_data[10] <= data_wdata[191:160];
+                write_data[11] <= data_wdata[159:128];
+                write_data[12] <= data_wdata[127:96];
+                write_data[13] <= data_wdata[95:64];
+                write_data[14] <= data_wdata[63:32];
+                write_data[15] <= data_wdata[31:0];
+                
+                write_strb[0] <= data_strb[63:60];
+                write_strb[1] <= data_strb[59:56];
+                write_strb[2] <= data_strb[55:52];
+                write_strb[3] <= data_strb[51:48];
+                write_strb[4] <= data_strb[47:44];
+                write_strb[5] <= data_strb[43:40];
+                write_strb[6] <= data_strb[39:36];
+                write_strb[7] <= data_strb[35:32];
+                write_strb[8] <= data_strb[31:28];
+                write_strb[9] <= data_strb[27:24];
+                write_strb[10] <= data_strb[23:20];
+                write_strb[11] <= data_strb[19:16];
+                write_strb[12] <= data_strb[15:12];
+                write_strb[13] <= data_strb[11:8];
+                write_strb[14] <= data_strb[7:4];
+                write_strb[15] <= data_strb[3:0];
+
                 write_burst <= data_burst;
 
                 write_en <= 1'b1; // 启动写状态机
@@ -156,7 +188,23 @@ always @ (posedge clk) begin
                 // 读data
                 if (read_if_or_mem[0]) begin
                     // 读完了
-                    data_rdata <= read_result;
+                    data_rdata[511:480] <= read_result[0];
+                    data_rdata[479:448] <= read_result[1];
+                    data_rdata[447:416] <= read_result[2];
+                    data_rdata[415:384] <= read_result[3];
+                    data_rdata[383:352] <= read_result[4];
+                    data_rdata[351:320] <= read_result[5];
+                    data_rdata[319:288] <= read_result[6];
+                    data_rdata[287:256] <= read_result[7];
+                    data_rdata[255:224] <= read_result[8];
+                    data_rdata[223:192] <= read_result[9];
+                    data_rdata[191:160] <= read_result[10];
+                    data_rdata[159:128] <= read_result[11];
+                    data_rdata[127:96] <= read_result[12];
+                    data_rdata[95:64] <= read_result[13];
+                    data_rdata[63:32] <= read_result[14];
+                    data_rdata[31:0] <= read_result[15];
+                    
                     data_data_ok <= 1'b1; // 进行数据握手
                     read_en <= 1'b0; // 关闭读状态机
                 end else begin
@@ -168,7 +216,23 @@ always @ (posedge clk) begin
                 // 读inst
                 if (read_if_or_mem[0]) begin
                     // 读完了
-                    inst_rdata <= read_result;
+                    inst_rdata[511:480] <= read_result[0];
+                    inst_rdata[479:448] <= read_result[1];
+                    inst_rdata[447:416] <= read_result[2];
+                    inst_rdata[415:384] <= read_result[3];
+                    inst_rdata[383:352] <= read_result[4];
+                    inst_rdata[351:320] <= read_result[5];
+                    inst_rdata[319:288] <= read_result[6];
+                    inst_rdata[287:256] <= read_result[7];
+                    inst_rdata[255:224] <= read_result[8];
+                    inst_rdata[223:192] <= read_result[9];
+                    inst_rdata[191:160] <= read_result[10];
+                    inst_rdata[159:128] <= read_result[11];
+                    inst_rdata[127:96] <= read_result[12];
+                    inst_rdata[95:64] <= read_result[13];
+                    inst_rdata[63:32] <= read_result[14];
+                    inst_rdata[31:0] <= read_result[15];
+
                     inst_data_ok <= 1'b1; // 进行数据握手
                     read_en <= 1'b0; // 关闭读状态机
                 end else begin
@@ -211,7 +275,6 @@ always @ (posedge clk) begin
                 if (arready && arvalid) begin
                     // AR握手成功
                     read_counter <= (4'b1111 - arlen[3:0]); // 清零counter  
-                    read_result <= 512'd0;
                     // 如果arlen是burst传输，则低位是f，减去后counter正好为0
                     // 如果不是burst传输，保证最后一次传输一定写在31:0处
                     arvalid <= 1'b0; // 撤销握手信号
@@ -227,59 +290,7 @@ always @ (posedge clk) begin
                 // 等待R通道的数据握手
                 if (rready && rvalid) begin
                     // 本次握手成功
-                    case (read_counter)
-                        4'b0000: begin
-                            read_result[511:480] <= rdata;
-                        end 
-                        4'b0001: begin
-                            read_result[479:448] <= rdata;
-                        end 
-                        4'b0010: begin
-                            read_result[447:416] <= rdata;
-                        end 
-                        4'b0011: begin
-                            read_result[415:384] <= rdata;
-                        end 
-                        4'b0100: begin
-                            read_result[383:352] <= rdata;
-                        end 
-                        4'b0101: begin
-                            read_result[351:320] <= rdata;
-                        end 
-                        4'b0110: begin
-                            read_result[319:288] <= rdata;
-                        end 
-                        4'b0111: begin
-                            read_result[287:256] <= rdata;
-                        end 
-                        4'b1000: begin
-                            read_result[255:224] <= rdata;
-                        end 
-                        4'b1001: begin
-                            read_result[223:192] <= rdata;
-                        end 
-                        4'b1010: begin
-                            read_result[191:160] <= rdata;
-                        end 
-                        4'b1011: begin
-                            read_result[159:128] <= rdata;
-                        end 
-                        4'b1100: begin
-                            read_result[127:96] <= rdata;
-                        end 
-                        4'b1101: begin
-                            read_result[95:64] <= rdata;
-                        end 
-                        4'b1110: begin
-                            read_result[63:32] <= rdata;
-                        end 
-                        4'b1111: begin
-                            read_result[31:0] <= rdata;
-                        end 
-                        default: begin
-                            // do nothing
-                        end
-                    endcase
+                    read_result[read_counter] <= rdata;
                     read_counter <= read_counter + 1;
                     
                     // 最后一个则结束传输
@@ -380,108 +391,10 @@ always @ (posedge clk) begin
 end
 
 // 生成wdata、wstrb和wlast
-always @ (*) begin
-    if (!write_en) begin
-        wdata <= 32'd0;
-        wstrb <= 4'b0000;
-        wlast <= 1'b0;
-    end else begin
-        if (wvalid) begin
-            // 根据状态生成要写入的数据
-            case (write_counter)
-                4'b0000: begin
-                    wdata <= data_wdata[511:480];
-                    wstrb <= data_strb[63:60];
-                    wlast <= 1'b0;
-                end 
-                4'b0001: begin
-                    wdata <= data_wdata[479:448];
-                    wstrb <= data_strb[59:56];
-                    wlast <= 1'b0;
-                end 
-                4'b0010: begin
-                    wdata <= data_wdata[447:416];
-                    wstrb <= data_strb[55:52];
-                    wlast <= 1'b0;
-                end 
-                4'b0011: begin
-                    wdata <= data_wdata[415:384];
-                    wstrb <= data_strb[51:48];
-                    wlast <= 1'b0;
-                end 
-                4'b0100: begin
-                    wdata <= data_wdata[383:352];
-                    wstrb <= data_strb[47:44];
-                    wlast <= 1'b0;
-                end 
-                4'b0101: begin
-                    wdata <= data_wdata[351:320];
-                    wstrb <= data_strb[43:40];
-                    wlast <= 1'b0;
-                end 
-                4'b0110: begin
-                    wdata <= data_wdata[319:288];
-                    wstrb <= data_strb[39:36];
-                    wlast <= 1'b0;
-                end 
-                4'b0111: begin
-                    wdata <= data_wdata[287:256];
-                    wstrb <= data_strb[35:32];
-                    wlast <= 1'b0;
-                end 
-                4'b1000: begin
-                    wdata <= data_wdata[255:224];
-                    wstrb <= data_strb[31:28];
-                    wlast <= 1'b0;
-                end 
-                4'b1001: begin
-                    wdata <= data_wdata[223:192];
-                    wstrb <= data_strb[27:24];
-                    wlast <= 1'b0;
-                end 
-                4'b1010: begin
-                    wdata <= data_wdata[191:160];
-                    wstrb <= data_strb[23:20];
-                    wlast <= 1'b0;
-                end 
-                4'b1011: begin
-                    wdata <= data_wdata[159:128];
-                    wstrb <= data_strb[19:16];
-                    wlast <= 1'b0;
-                end 
-                4'b1100: begin
-                    wdata <= data_wdata[127:96];
-                    wstrb <= data_strb[15:12];
-                    wlast <= 1'b0;
-                end 
-                4'b1101: begin
-                    wdata <= data_wdata[95:64];
-                    wstrb <= data_strb[11:8];
-                    wlast <= 1'b0;
-                end 
-                4'b1110: begin
-                    wdata <= data_wdata[63:32];
-                    wstrb <= data_strb[7:4];
-                    wlast <= 1'b0;
-                end 
-                4'b1111: begin
-                    wdata <= data_wdata[31:0];
-                    wstrb <= data_strb[3:0];
-                    wlast <= 1'b1;
-                end 
-                default: begin
-                    wdata <= 32'd0;
-                    wstrb <= 4'b0000;
-                    wlast <= 1'b0;
-                end
-            endcase
-        end else begin
-            wdata <= 32'd0;
-            wstrb <= 4'b0000;
-            wlast <= 1'b0;
-        end
-    end
-end
+assign wdata = wvalid ? write_data[write_counter] : 32'd0;
+assign wstrb = wvalid ? write_strb[write_counter] : 4'd0;
+wire is_last = (write_counter == 4'b1111) ? 1'b1 : 1'b0;
+assign wlast = wvalid ? is_last : 1'b0;
 
 endmodule
 
