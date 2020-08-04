@@ -2,7 +2,7 @@ code/obj/
 *.o
 code/bin.lds
 code/convert
-HikariMIPS.cache/
-HikariMIPS.runs/
-HikariMIPS.sim/
-HikariMIPS.ip_user_files/
+HikariMIPS.*/
+!HikariMIPS.srcs/
+HikariMIPS.srcs/sources_1/ip/*/*
+!*.xci

@@ -38,11 +38,6 @@ module cp0_reg(
     reg[`RegBus] config1;
     reg[`RegBus] errorEPC;
 
-    // 仿真用
-    initial begin
-        count <= `ZeroWord;
-    end
-
     // 排除status、cause和epc的数据相关
     always @ (*) begin
         status_o <= status;
@@ -91,6 +86,14 @@ module cp0_reg(
             // 写外部硬件中断至casue
             cause[14:10] <= init_i;
         end 
+
+        if (count == compare) begin
+            // 引发定时器中断
+            cause[15] <= 1'b1;
+            // MIPS32R1中将定时器和性能计数器中断与IP7合并
+            // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
+        end
+            
         if (we_i == `WriteEnable) begin
             // 根据Addr写数据
             case (waddr_i)
@@ -130,12 +133,6 @@ module cp0_reg(
         end
 
         if (rst == `RstDisable) begin
-            if (count == compare) begin
-                // 引发定时器中断
-                cause[15] <= 1'b1;
-                // MIPS32R1中将定时器和性能计数器中断与IP7合并
-                // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
-            end
 
             // 处理异常产生的寄存器变动，ERET不能更新EPC
             if (exception_occured_i && exc_code_i != 5'h10) begin
