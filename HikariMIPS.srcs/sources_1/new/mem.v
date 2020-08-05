@@ -68,7 +68,6 @@ module mem(
     output reg[`RegBus] cp0_wdata_o,
     
     // 数据RAM
-    input wire[`RegBus] mem_data_i,
     input wire mem_addr_ok,
     input wire mem_data_ok,
     // 送往数据RAM的信号
@@ -76,11 +75,16 @@ module mem(
     output reg mem_wr_o,
     // 寄存器： 31:24   23:16   15:8   7:0
     // strb     1000    0100   0010   0001
-    output reg[3:0] mem_strb_o,
-    output reg[`RegBus] mem_data_o,
+    output reg[63:0] mem_strb_o,
+    input wire[511:0] mem_data_i,
+    output reg[511:0] mem_data_o,
     output wire mem_req_o,
+    output wire[3:0] mem_data_burst,
     output reg stallreq
     );
+
+    // TODO
+    assign mem_data_burst = 4'b0000;
 
     reg req_en;    
     reg mem_ce;
@@ -240,8 +244,8 @@ module mem(
             we_hilo_o <= `WriteDisable;
             hi_o <= `ZeroWord;
             lo_o <= `ZeroWord;
-            mem_strb_o <= 4'b0000;
-            mem_data_o <= `ZeroWord;
+            mem_strb_o[3:0] <= 4'b0000;
+            mem_data_o[31:0] <= `ZeroWord;
             cp0_we_o <= `WriteDisable;
             cp0_waddr_o <= 8'b00000000;
             cp0_wdata_o <= `ZeroWord;
@@ -251,7 +255,7 @@ module mem(
             we_hilo_o <= we_hilo_i;
             hi_o <= hi_i;
             lo_o <= lo_i;
-            mem_strb_o <= 4'b1111;
+            mem_strb_o[3:0] <= 4'b1111;
             cp0_we_o <= cp0_we_i;
             cp0_waddr_o <= cp0_waddr_i;
             cp0_wdata_o <= cp0_wdata_i;
@@ -264,19 +268,19 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{24{mem_data_i[7]}},mem_data_i[7:0]};
-                            mem_strb_o <= 4'b0001;
+                            mem_strb_o[3:0] <= 4'b0001;
                         end
                         2'b01: begin
                             wdata_o <= {{24{mem_data_i[15]}},mem_data_i[15:8]};
-                            mem_strb_o <= 4'b0010;
+                            mem_strb_o[3:0] <= 4'b0010;
                         end
                         2'b10: begin
                             wdata_o <= {{24{mem_data_i[23]}},mem_data_i[23:16]};
-                            mem_strb_o <= 4'b0100;
+                            mem_strb_o[3:0] <= 4'b0100;
                         end
                         2'b11: begin
                             wdata_o <= {{24{mem_data_i[31]}},mem_data_i[31:24]};
-                            mem_strb_o <= 4'b1000;
+                            mem_strb_o[3:0] <= 4'b1000;
                         end
                         default: begin
                             wdata_o <= `ZeroWord;
@@ -290,11 +294,11 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{16{mem_data_i[15]}}, mem_data_i[15:0]};
-                            mem_strb_o <= 4'b0011;
+                            mem_strb_o[3:0] <= 4'b0011;
                         end
                         2'b10: begin
                             wdata_o <= {{16{mem_data_i[31]}}, mem_data_i[31:16]};
-                            mem_strb_o <= 4'b1100;
+                            mem_strb_o[3:0] <= 4'b1100;
                         end
                         default: begin
                             // 此时一定是最低没有对齐，应当抛地址异常
@@ -307,7 +311,7 @@ module mem(
                 // LWL
                 `MEM_OP_LWL: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
-                    mem_strb_o <= 4'b1111;
+                    mem_strb_o[3:0] <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
@@ -330,8 +334,8 @@ module mem(
                 // LW
                 `MEM_OP_LW: begin
                     mem_addr_o <= mem_addr_i;
-                    wdata_o <= mem_data_i;
-                    mem_strb_o <= 4'b1111;
+                    wdata_o <= mem_data_i[31:0];
+                    mem_strb_o[3:0] <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     if (mem_addr_i[1:0] != 2'b00) begin 
                         read_exception <= `True_v;
@@ -345,19 +349,19 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[7:0]};
-                            mem_strb_o <= 4'b0001;
+                            mem_strb_o[3:0] <= 4'b0001;
                         end
                         2'b01: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[15:8]};
-                            mem_strb_o <= 4'b0010;
+                            mem_strb_o[3:0] <= 4'b0010;
                         end
                         2'b10: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[23:16]};
-                            mem_strb_o <= 4'b0100;
+                            mem_strb_o[3:0] <= 4'b0100;
                         end
                         2'b11: begin
                             wdata_o <= {{24{1'b0}},mem_data_i[31:24]};
-                            mem_strb_o <= 4'b1000;
+                            mem_strb_o[3:0] <= 4'b1000;
                         end
                         default: begin
                             wdata_o <= `ZeroWord;
@@ -371,11 +375,11 @@ module mem(
                     case (mem_addr_i[1:0])
                         2'b00: begin
                             wdata_o <= {{16{1'b0}}, mem_data_i[15:0]};
-                            mem_strb_o <= 4'b0011;
+                            mem_strb_o[3:0] <= 4'b0011;
                         end
                         2'b10: begin
                             wdata_o <= {{16{1'b0}}, mem_data_i[31:16]};
-                            mem_strb_o <= 4'b1100;
+                            mem_strb_o[3:0] <= 4'b1100;
                         end
                         default: begin
                             read_exception <= `True_v;
@@ -387,11 +391,11 @@ module mem(
                 // LWR
                 `MEM_OP_LWR: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
-                    mem_strb_o <= 4'b1111;
+                    mem_strb_o[3:0] <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            wdata_o <= mem_data_i;
+                            wdata_o <= mem_data_i[31:0];
                         end
                         2'b01: begin
                             wdata_o <= {reg2_i[31:24],mem_data_i[31:8]};
@@ -412,23 +416,23 @@ module mem(
                     mem_addr_o <= mem_addr_i;
                     mem_wr_o <= `WriteEnable;
                     // 因为只写入1byte，因此全部复制最低位要写入的数据
-                    mem_data_o <= {reg2_i[7:0],reg2_i[7:0],reg2_i[7:0],reg2_i[7:0]};
+                    mem_data_o[31:0] <= {reg2_i[7:0],reg2_i[7:0],reg2_i[7:0],reg2_i[7:0]};
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_strb_o <= 4'b0001;
+                            mem_strb_o[3:0] <= 4'b0001;
                         end
                         2'b01: begin
-                            mem_strb_o <= 4'b0010;
+                            mem_strb_o[3:0] <= 4'b0010;
                         end
                         2'b10: begin
-                            mem_strb_o <= 4'b0100;
+                            mem_strb_o[3:0] <= 4'b0100;
                         end
                         2'b11: begin
-                            mem_strb_o <= 4'b1000;
+                            mem_strb_o[3:0] <= 4'b1000;
                         end
                         default: begin
-                            mem_strb_o <= 4'b0000;
+                            mem_strb_o[3:0] <= 4'b0000;
                         end
                     endcase
                 end
@@ -436,18 +440,18 @@ module mem(
                 `MEM_OP_SH: begin
                     mem_addr_o <= mem_addr_i;
                     mem_wr_o <= `WriteEnable;
-                    mem_data_o <= {reg2_i[15:0], reg2_i[15:0]};
+                    mem_data_o[31:0] <= {reg2_i[15:0], reg2_i[15:0]};
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_strb_o <= 4'b0011;
+                            mem_strb_o[3:0] <= 4'b0011;
                         end
                         2'b10: begin
-                            mem_strb_o <= 4'b1100;
+                            mem_strb_o[3:0] <= 4'b1100;
                         end
                         default: begin
                             write_exception <= `True_v;
-                            mem_strb_o <= 4'b0000;
+                            mem_strb_o[3:0] <= 4'b0000;
                             mem_ce <= `ChipDisable;
                         end
                     endcase
@@ -456,27 +460,27 @@ module mem(
                 `MEM_OP_SWL: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
                     mem_wr_o <= `WriteEnable;
-                    mem_data_o <= reg2_i;
+                    mem_data_o[31:0] <= reg2_i;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_strb_o <= 4'b0001;
-                            mem_data_o <= {zero32[23:0],reg2_i[31:24]};
+                            mem_strb_o[3:0] <= 4'b0001;
+                            mem_data_o[31:0] <= {zero32[23:0],reg2_i[31:24]};
                         end
                         2'b01: begin
-                            mem_strb_o <= 4'b0011;
-                            mem_data_o <= {zero32[15:0],reg2_i[31:16]};
+                            mem_strb_o[3:0] <= 4'b0011;
+                            mem_data_o[31:0] <= {zero32[15:0],reg2_i[31:16]};
                         end
                         2'b10: begin
-                            mem_strb_o <= 4'b0111;
-                            mem_data_o <= {zero32[7:0],reg2_i[31:8]};
+                            mem_strb_o[3:0] <= 4'b0111;
+                            mem_data_o[31:0] <= {zero32[7:0],reg2_i[31:8]};
                         end
                         2'b11: begin
-                            mem_strb_o <= 4'b1111;
-                            mem_data_o <= reg2_i;
+                            mem_strb_o[3:0] <= 4'b1111;
+                            mem_data_o[31:0] <= reg2_i;
                         end
                         default: begin
-                            mem_strb_o <= 4'b0000;
+                            mem_strb_o[3:0] <= 4'b0000;
                         end
                     endcase
                 end
@@ -484,8 +488,8 @@ module mem(
                 `MEM_OP_SW: begin
                     mem_addr_o <= mem_addr_i;
                     mem_wr_o <= `WriteEnable;
-                    mem_data_o <= reg2_i;
-                    mem_strb_o <= 4'b1111;
+                    mem_data_o[31:0] <= reg2_i;
+                    mem_strb_o[3:0] <= 4'b1111;
                     mem_ce <= `ChipEnable;
                     if (mem_addr_i[1:0] != 2'b00) begin
                         write_exception <= `True_v;
@@ -496,27 +500,27 @@ module mem(
                 `MEM_OP_SWR: begin
                     mem_addr_o <= {mem_addr_i[31:2], 2'b00};
                     mem_wr_o <= `WriteEnable;
-                    mem_data_o <= reg2_i;
+                    mem_data_o[31:0] <= reg2_i;
                     mem_ce <= `ChipEnable;
                     case (mem_addr_i[1:0])
                         2'b00: begin
-                            mem_strb_o <= 4'b1111;
-                            mem_data_o <= reg2_i[31:0];
+                            mem_strb_o[3:0] <= 4'b1111;
+                            mem_data_o[31:0] <= reg2_i[31:0];
                         end
                         2'b01: begin
-                            mem_strb_o <= 4'b1110;
-                            mem_data_o <= {reg2_i[23:0],zero32[7:0]};
+                            mem_strb_o[3:0] <= 4'b1110;
+                            mem_data_o[31:0] <= {reg2_i[23:0],zero32[7:0]};
                         end
                         2'b10: begin
-                            mem_strb_o <= 4'b1100;
-                            mem_data_o <= {reg2_i[15:0],zero32[15:0]};
+                            mem_strb_o[3:0] <= 4'b1100;
+                            mem_data_o[31:0] <= {reg2_i[15:0],zero32[15:0]};
                         end
                         2'b11: begin
-                            mem_strb_o <= 4'b1000;
-                            mem_data_o <= {reg2_i[7:0],zero32[23:0]};
+                            mem_strb_o[3:0] <= 4'b1000;
+                            mem_data_o[31:0] <= {reg2_i[7:0],zero32[23:0]};
                         end
                         default: begin
-                            mem_strb_o <= 4'b0000;
+                            mem_strb_o[3:0] <= 4'b0000;
                         end
                     endcase
                 end

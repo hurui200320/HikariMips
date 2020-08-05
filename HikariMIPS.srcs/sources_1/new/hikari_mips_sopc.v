@@ -110,7 +110,7 @@ module hikari_mips_sopc();
 
     axi_ram flash(
         .s_aclk(clk),
-        .s_aresetn(~rst), // 反转时钟：上升沿CPU给地址，下降沿ROM给数据，下一个上升沿CPU取数据
+        .s_aresetn(~rst), 
         .s_axi_arid(arid),
         .s_axi_araddr(araddr),
         .s_axi_arlen(arlen),

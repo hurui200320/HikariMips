@@ -22,12 +22,17 @@ module sram_if(
     output wire[`RegBus] pc,
     
     // 指令存储器使能信号
-    output wire req,
+    output reg req,
     input wire addr_ok,
     input wire data_ok,
+    output wire[3:0] burst,
+    output wire[`RegBus] addr,
+    input wire[511:0] inst_rdata_i,
+    output wire[`RegBus] inst_rdata_o,
 
-    output reg stallreq
+    output wire stallreq
     );
+
     wire ce;
 
     pc_reg pc_reg0(
@@ -44,109 +49,223 @@ module sram_if(
         .pc(pc),
         .ce(ce)
     );
-    
-    reg req_en;
-    assign req = ce & req_en;
 
-    reg cancled;
+    //--------------- icache部分 ---------------
+    // icache代替原来的if握手
+    assign addr = {pc[31:6],6'b000000};
+    assign burst = 4'b1111;
 
-    reg[1:0] status;
+    reg[2:0] state;
+    wire[17:0] tag = pc[31:14];
+    wire[9:0] index = pc[13:6];
+    wire[3:0] offset = pc[5:2];
 
-    // 处理flush信号导致的返回数据无效
+    wire[31:0] block[0:15];//临时存储取到的块
+    wire[17:0] tag_out;
+    wire valid_out;
+    wire hit = valid_out & (tag_out == tag);//判断是否hit
+
+    assign inst_rdata_o = (hit == 1'b1) ? block[offset] : 32'h00000000;
+    assign stallreq = ce && (~hit || state == 2'b01 || state == 2'b10);
+
+    reg flush_wait;
+
+    wire cache_we = flush_wait ? 1'b0 : data_ok;
+    `define IDLE 3'b000
+    `define WAITADDROK 3'b001
+    `define ADDROK 3'b010
+    `define DATAOK 3'b011
+    `define FLUSHWAIT 3'b100
+
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
-            cancled <= 1'b0;
-        end else begin
-            if (status != 2'b00 && flush) begin
-                // 已经开始握手且此时有flush信号
-                cancled <= 1'b1;
-            end else if (status == 2'b00) begin
-                // 等待握手阶段清零
-                cancled <= 1'b0;
-            end
-        end
-    end
-
-    // 握手状态机
-    always @ (posedge clk) begin
-        if (rst == `RstEnable) begin
-            req_en <= `False_v;
-            status <= 2'b00;
-        end else begin
-            case (status)
-                2'b00: begin // 空闲阶段
-                    if (ce && !flush) begin
-                        // 如果CE启用（要访问）且无flush信号
-                        // 进入等待地址握手阶段
-                        req_en <= `True_v;
-                        status <= 2'b01;
+            state <= `IDLE;
+            req <= 1'b0;
+            flush_wait <= 1'b0;
+        end else if (flush) begin
+            if(state != `IDLE && state != `DATAOK) begin
+                state <= `FLUSHWAIT;
+                flush_wait <= 1'b1;
+            end 
+        end else if (ce == 1'b1) begin
+            case (state)
+                `IDLE: begin
+                    if(pc[1:0] != 2'b00) begin
+                        req <= 1'b0;
+                    end else if(!hit) begin//cache读缺失
+                        state <= `WAITADDROK;//进入等待地址确认状态
+                        req <= 1'b1;
                     end else begin
-                        // 原地等待
-                        req_en <= `False_v;
+                        req <= 1'b0;
                     end
                 end
-                2'b01: begin // 等待地址握手
-                    if (!addr_ok) begin
-                        // 地址握手不成功，原地等待
-                    end else begin
-                        // 地址握手成功，撤销req请求并转入地址握手
-                        req_en <= `False_v;
-                        status <= 2'b10;
+                `WAITADDROK: begin
+                    if(addr_ok == 1'b1) begin
+                        req <= 1'b0;
+                        state <= `ADDROK;
                     end
                 end
-                2'b10: begin // 等待数据握手
-                    if (!data_ok) begin
-                        // 数据握手不成功，原地等待
-                    end else begin
-                        // 数据握手成功，撤销流水线暂停
-                        // 转入空闲阶段
-                        status <= 2'b00;
-                    end
+                `ADDROK: begin
+                    if(data_ok == 1'b1) begin
+                        state <= `DATAOK;
+                    end 
                 end
-                default: begin
-                    req_en <= `True_v;
-                    status <= 2'b00;
+                `DATAOK: begin
+                    state <= `IDLE;
+                end
+                `FLUSHWAIT: begin
+                    if(data_ok) begin
+                        state <= `IDLE;
+                        flush_wait <= 1'b0;
+                    end
                 end
             endcase
         end
     end
 
-    // 产生流水线暂停信号
-    always @ (*) begin
-        if (rst == `RstEnable) begin
-            stallreq <= `False_v;
-        end else begin
-            case (status)
-                2'b00: begin // 空闲阶段
-                    if (ce && !flush) begin
-                        // 如果CE启用（要访问）且无flush信号
-                        // 立刻暂停流水线，随后进入等待地址握手阶段
-                        stallreq <= `True_v;
-                    end else begin
-                        // 原地等待
-                        stallreq <= `False_v;
-                    end
-                end
-                2'b01: begin // 等待地址握手
-                    // 地址握手期间始终保持流水线暂停
-                    stallreq <= `True_v;
-                end
-                2'b10: begin // 等待数据握手
-                    if (!data_ok) begin
-                        // 数据握手不成功，原地等待
-                        stallreq <= `True_v;
-                    end else begin
-                        // 数据握手成功
-                        // 无Cancle则立刻撤销流水线暂停
-                        // 转入空闲阶段
-                        stallreq <= cancled ? `True_v : `False_v;
-                    end
-                end
-                default: begin
-                    stallreq <= `False_v;
-                end
-            endcase
-        end
-    end
+    valid_ram valid(//给index获得vaild
+        .a(index),
+        .d(1'b1),
+        .clk(clk),
+        .we(cache_we),
+        .spo(valid_out)
+    );
+
+    tag_ram tag0(
+        .a(index),
+        .d(tag),
+        .clk(clk),
+        .we(cache_we),
+        .spo(tag_out)
+    );
+    //数据寄存器
+    block_ram data0(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[511:480]),
+        .douta(block[0]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data1(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[479:448]),
+        .douta(block[1]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data2(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[447:416]),
+        .douta(block[2]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data3(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[415:384]),
+        .douta(block[3]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data4(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[383:352]),
+        .douta(block[4]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data5(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[351:320]),
+        .douta(block[5]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data6(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[319:288]),
+        .douta(block[6]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data7(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[287:256]),
+        .douta(block[7]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data8(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[255:224]),
+        .douta(block[8]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data9(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[223:192]),
+        .douta(block[9]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data10(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[191:160]),
+        .douta(block[10]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data11(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[159:128]),
+        .douta(block[11]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data12(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[127:96]),
+        .douta(block[12]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data13(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[95:64]),
+        .douta(block[13]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data14(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[63:32]),
+        .douta(block[14]),
+        .ena(ce),
+        .wea(cache_we)
+    );
+    block_ram data15(
+        .addra(index),
+        .clka(~clk),
+        .dina(inst_rdata_i[31:0]),
+        .douta(block[15]),
+        .ena(ce),
+        .wea(cache_we)
+    );
 
 endmodule
