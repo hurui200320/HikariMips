@@ -32,7 +32,11 @@ module pc_reg(
             pc <= 32'hbfc00000;
         end else if (flush) begin
             // 出现异常，使用epc的值
-            pc <= epc;
+            if (stall[0] == `Stop) begin
+                pc <= epc - 4;
+            end else begin
+                pc <= epc;
+            end
         end else if (stall[0] == `NoStop) begin
             // IF未暂停
             if(is_branch_i) begin
