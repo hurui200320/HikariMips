@@ -32,6 +32,7 @@ module div(
     wire signed_dout_valid;
 
     signed_divider signed_divider(
+	    .aclk(clk),
         .s_axis_dividend_tdata(opdata1_i),
         .s_axis_dividend_tvalid(signed_start),
         .s_axis_divisor_tdata(opdata2_i),
@@ -45,6 +46,7 @@ module div(
     wire unsigned_dout_valid;
 
     unsigned_divider unsigned_divider(
+	    .aclk(clk),
         .s_axis_dividend_tdata(opdata1_i),
         .s_axis_dividend_tvalid(unsigned_start),
         .s_axis_divisor_tdata(opdata2_i),
@@ -85,6 +87,8 @@ module div(
                     end
                 end
                 2'b01: begin // 正在计算
+                    signed_start <= 1'b0;
+                    unsigned_start <= 1'b0;
                     if(annul_i == 1'b0) begin
                         // 没有被取消，等待dout tvalid信号
                         if(signed_div_i && signed_dout_valid) begin
@@ -101,8 +105,6 @@ module div(
                         end
                     end else begin
                         // 被取消
-                        signed_start <= 1'b0;
-                        unsigned_start <= 1'b0;
                         state <= 2'b00;
                         ready_o <= 1'b0;
                         result_o <= 64'd0;
@@ -112,8 +114,6 @@ module div(
 					ready_o <= 1'b1;
                     if(start_i == 1'b0) begin
                         // 运算结束
-                        signed_start <= 1'b0;
-                        unsigned_start <= 1'b0;
                         state <= 2'b00; // 恢复等待
                         ready_o <= 1'b0;
                         result_o <= 64'd0;

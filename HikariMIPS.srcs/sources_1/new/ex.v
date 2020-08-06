@@ -17,7 +17,7 @@ module ex(
     input wire we_i,
     input wire[`RegBus] inst_i,
     input wire[`RegBus] pc_i,
-    input wire[`RegBus] exceptions_i,
+    input wire[31:0] exceptions_i,
 
     // hi/LO寄存器
     input wire[`RegBus] hi_i,
@@ -58,7 +58,7 @@ module ex(
 
     // 异常
     output wire[`RegBus] pc_o,
-    output wire[`RegBus] exceptions_o,
+    output wire[31:0] exceptions_o,
     output wire is_in_delayslot_o,
 
     // 除法模块
@@ -209,7 +209,7 @@ module ex(
     // 计算加减和，如果是加法，则这里是求和，如果是减法或比较，则这里就是差
     wire[`RegBus] result_sum = reg1_i + reg2_i_mux;
     // 检查溢出：两数为正和为负，及两数为负和为正
-    wire sum_overflow = (!reg1_i[31] && !reg2_i_mux && result_sum[31]) || ( reg1_i[31] && reg2_i_mux[31] && !result_sum[31]);
+    wire sum_overflow = ((!reg1_i[31] && !reg2_i_mux[31]) && result_sum[31]) || ((reg1_i[31] && reg2_i_mux[31]) && (!result_sum[31])); 
     // reg1是否小于reg2，情况有两种
     // 有符号数看reg1 2的符号和result_sum的符号，其中一负一正则必然小于
     // 无符号数直接比较两者符号
@@ -227,10 +227,10 @@ module ex(
                     arithmetic_result <= reg1_lt_reg2 ;
                 end
                 `ALU_OP_ADD, `ALU_OP_ADDU: begin
-                    arithmetic_result <= result_sum; 
+                    arithmetic_result <= result_sum[31:0]; 
                 end
                 `ALU_OP_SUB, `ALU_OP_SUBU: begin
-                    arithmetic_result <= result_sum; 
+                    arithmetic_result <= result_sum[31:0]; 
                 end
                 `ALU_OP_CLZ: begin
                     arithmetic_result <= reg1_i[31] ? 0 : 
@@ -499,7 +499,7 @@ module ex(
     // 处理暂停请求
     always @ (*) begin
         // 各可能的暂停请求之或
-        stallreq = stallreq_for_div || stallreq_for_mult;
+        stallreq <= stallreq_for_div || stallreq_for_mult;
     end
 
     // 数据移动，写HI/LO部分，只涉及MTHI/LO指令

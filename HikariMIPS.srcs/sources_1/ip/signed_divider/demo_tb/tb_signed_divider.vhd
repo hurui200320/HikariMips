@@ -90,7 +90,7 @@ architecture tb of tb_signed_divider is
   -----------------------------------------------------------------------
 
   -- General inputs
-  signal aclk               : std_logic := '0';  -- the master clock(for testbench, DUT is asynchronous)
+  signal aclk               : std_logic := '0';  -- the master clock
 
   -- Slave channel DIVIDEND inputs
   signal s_axis_dividend_tvalid    : std_logic := '0';  -- TVALID for channel A
@@ -178,6 +178,7 @@ begin
 
   dut : entity work.signed_divider
     port map (
+      aclk                => aclk,
       s_axis_dividend_tvalid     => s_axis_dividend_tvalid,
       s_axis_dividend_tdata      => s_axis_dividend_tdata,
       s_axis_divisor_tvalid     => s_axis_divisor_tvalid,

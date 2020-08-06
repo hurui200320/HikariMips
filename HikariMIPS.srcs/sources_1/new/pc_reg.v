@@ -17,40 +17,26 @@ module pc_reg(
     // 异常
     input wire flush,
     input wire[`RegBus] epc,
-    output reg[31:0] exceptions_o,
+    output wire[31:0] exceptions_o,
 
     output reg[`RegBus] pc,
-    // 指令存储器使能信号
-    output reg ce
+    output wire ce
     );
 
-    // 先处理复位信号
+    assign ce = (pc[1:0] == 2'b00) ? `ChipEnable : `ChipDisable;
+    assign exceptions_o = {31'h00000000, (pc[1:0] != 2'b00) ? 1'b1 : 1'b0};
+    
+    // 修改PC
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
-            ce <= `ChipDisable;
-            exceptions_o <= `ZeroWord;
-        end else begin
-            if (pc[1:0] == 2'b00) begin
-                // 地址对齐
-                ce <= `ChipEnable;
-                exceptions_o[0] <= 1'b0;
-            end else begin
-                // 地址未对齐
-                ce <= `ChipDisable;
-                exceptions_o[0] <= 1'b1;
-            end
-        end
-    end
-    
-    // TODO 取指地址未对齐则产生AdEL异常
-
-    // 两个块并行执行
-    always @ (posedge clk) begin
-        if (ce == `ChipDisable) begin
-            pc <= `ZeroWord;
+            pc <= 32'hbfc00000;
         end else if (flush) begin
             // 出现异常，使用epc的值
-            pc <= epc;
+            if (stall[0] == `Stop) begin
+                pc <= epc - 4;
+            end else begin
+                pc <= epc;
+            end
         end else if (stall[0] == `NoStop) begin
             // IF未暂停
             if(is_branch_i) begin

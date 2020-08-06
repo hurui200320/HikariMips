@@ -80,7 +80,7 @@ module cp0_reg(
         if (rst == `RstEnable) begin
             // 复位，按照指令集赋值
             // 只有需要清零的才有，如果reset后为undefined则不需要清零
-            status <= 32'b0001_0000_0100_0000_0000_0000_0000_0100;
+            status <= 32'b0000_0000_0100_0000_0000_0000_0000_0100;
             cause <= `ZeroWord;
             // TODO TLB cache things...
             config0 <= 32'b1000_0000_0000_0000_0000_0000_0000_0000;
@@ -88,6 +88,10 @@ module cp0_reg(
         end else begin
             // count自增
             count <= count + 1;
+            // 引发定时器中断
+            // MIPS32R1中将定时器和性能计数器中断与IP7合并
+            // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
+            cause[15] <= count == compare ? 1'b1 : cause[15];
             // 写外部硬件中断至casue
             cause[14:10] <= init_i;
         end 
@@ -130,13 +134,6 @@ module cp0_reg(
         end
 
         if (rst == `RstDisable) begin
-            if (count == compare) begin
-                // 引发定时器中断
-                cause[15] <= 1'b1;
-                // MIPS32R1中将定时器和性能计数器中断与IP7合并
-                // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
-            end
-
             // 处理异常产生的寄存器变动，ERET不能更新EPC
             if (exception_occured_i && exc_code_i != 5'h10) begin
                 // 发生了异常，先记录EPC
