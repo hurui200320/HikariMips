@@ -58,6 +58,29 @@ module cpu_axi_interface
     output reg         bready       
 );
 
+// 根据strb产生出size
+// 系统测试APB串口需要单字节访问，不能响应4字节访问
+// 必须设置size为单字节访问（LB）或两字节访问（LH）
+// by 谭智文
+reg[2:0] size;
+always @(*) begin
+    case (data_strb[3:0])
+        4'b1000,
+        4'b0100,
+        4'b0010,
+        4'b0001: begin 
+            size <= 3'b000;
+        end
+        4'b0011,
+        4'b1100: begin 
+            size <= 3'b001;
+        end
+        default: begin 
+            size <= 3'b010;
+        end
+    endcase
+end
+
 reg[31:0] read_addr;
 reg[3:0] read_burst;
 reg[31:0] read_result[15:0];
@@ -249,7 +272,7 @@ end
 reg[1:0] read_status;
 assign araddr = {3'b000, read_addr[28:0]}; // Fixed map
 assign arlen  = {4'b0000, read_burst};
-assign arsize = 3'b010; // always transfer 4 bytes
+assign arsize = !read_if_or_mem[1] ? 3'b010 : read_if_or_mem[0] ? 3'b010 : size; // always transfer 4 bytes
 assign arburst = 2'b01; // incr
 assign arcache = (read_addr[31:29] == 3'b101) ? 4'b0000 : 4'b1111;
 reg[3:0] read_counter;

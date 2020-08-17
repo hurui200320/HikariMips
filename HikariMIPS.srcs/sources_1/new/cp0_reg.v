@@ -30,6 +30,7 @@ module cp0_reg(
     // CP0内部的寄存器
     reg[`RegBus] badVAddr;
     reg[`RegBus] count;
+    reg count_div;//count分频
     reg[`RegBus] compare;
     reg[`RegBus] status;
     reg[`RegBus] cause;
@@ -41,6 +42,7 @@ module cp0_reg(
     // 仿真用
     initial begin
         count <= `ZeroWord;
+        count_div <= 1'b0;
     end
 
     // 排除status、cause和epc的数据相关
@@ -86,8 +88,12 @@ module cp0_reg(
             config0 <= 32'b1000_0000_0000_0000_0000_0000_0000_0000;
             config1 <= `ZeroWord;
         end else begin
-            // count自增
-            count <= count + 1;
+            // count每两个时钟周期自增1
+            // by 张馨慧
+            count_div <= ~count_div;
+            if ( count_div ) begin
+                count <= count + 1;
+            end
             // 引发定时器中断
             // MIPS32R1中将定时器和性能计数器中断与IP7合并
             // 合并方式取决于具体实现，HikariMIPS直接使定时器中断独占IP7
