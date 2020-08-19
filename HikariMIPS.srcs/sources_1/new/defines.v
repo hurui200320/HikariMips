@@ -185,6 +185,7 @@
 `define ALU_OP_SLTU  8'b00010100
 `define ALU_OP_MULT  8'b00010101
 `define ALU_OP_MULTU 8'b00010110
+`define ALU_OP_LSA   8'b11111111
 // 两周期和特殊运算   
 `define ALU_OP_CLZ   8'b00010111
 `define ALU_OP_CLO   8'b00011000

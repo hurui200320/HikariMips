@@ -217,12 +217,17 @@ module ex(
     // reg1取反
     wire[`RegBus] reg1_not = ~reg1_i;
 
+    wire[1:0] lsa_sa = inst_i[7:6];
+
     // 产生简单运算结果
     always @ (*) begin
         if(rst == `RstEnable) begin
             arithmetic_result <= `ZeroWord;
         end else begin
             case (aluop_i)
+                `ALU_OP_LSA: begin
+                    arithmetic_result <= (reg1_i << (lsa_sa + 1)) + reg2_i;
+                end
                 `ALU_OP_SLT, `ALU_OP_SLTU: begin
                     arithmetic_result <= reg1_lt_reg2 ;
                 end

@@ -547,7 +547,15 @@ module id(
                         // END FOR CASE func code
                         endcase
                     // END FOR SA 000000
-                    end begin 
+                    end else if (sa[4:2] == 3'b111 && func == 6'b110111) begin 
+                        // ÷∏¡ÓºØ¥Ã‚ LSA
+                        we_o <= `WriteEnable;
+                        aluop_o <= `ALU_OP_LSA;
+                        alusel_o <= `ALU_SEL_ARITHMETIC;
+                        re1_o <= `ReadEnable;
+                        re2_o <= `ReadEnable;
+                        inst_valid <= `InstValid;
+                    end else begin
                     end
                 end // END FOR OPCODE SPECIAL2
                 `OP_REGIMM: begin
